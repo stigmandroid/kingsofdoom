@@ -1,0 +1,21 @@
+{
+  "Navbar": {
+    "dashboard": "Dashboard",
+    "war": "War",
+    "cwl": "CWL",
+    "members": "Members",
+    "warRoom": "War Room",
+    "homeLabel": "Go to homepage",
+    "navigationLabel": "Main navigation"
+  },
+  "Hero": {
+    "headlineFirst": "Data wins",
+    "headlineSecond": "wars.",
+    "descriptionBeforeClan": "The strategic center of",
+    "descriptionAfterClan": "Clan information, wars, performance and intelligence in one place.",
+    "openWarRoom": "Open War Room",
+    "viewStats": "View statistics",
+    "officialData": "Official Clash of Clans data",
+    "automaticUpdates": "Automatic updates"
+  }
+}

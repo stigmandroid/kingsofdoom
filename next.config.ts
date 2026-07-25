@@ -1,4 +1,7 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   images: {
@@ -6,11 +9,9 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "api-assets.clashofclans.com",
-        port: "",
-        pathname: "/badges/**",
       },
     ],
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

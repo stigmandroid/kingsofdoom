@@ -37,11 +37,17 @@ export function ClanHeader({ clan }: ClanHeaderProps) {
 
               <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h2 className="text-4xl font-black tracking-tight text-white">
+                  <h2
+                    translate="no"
+                    className="notranslate text-4xl font-black tracking-tight text-white"
+                  >
                     {clan.name}
                   </h2>
 
-                  <p className="mt-2 font-semibold text-slate-400">
+                  <p
+                    translate="no"
+                    className="notranslate mt-2 font-semibold text-slate-400"
+                  >
                     {clan.tag}
                   </p>
                 </div>
@@ -53,7 +59,10 @@ export function ClanHeader({ clan }: ClanHeaderProps) {
 
               {/* Identidade do clã */}
               <div className="mt-7 rounded-2xl border border-slate-800 bg-slate-950/60 p-5">
-                <p className="text-lg font-bold text-white">
+                <p
+                  translate="no"
+                  className="notranslate text-lg font-bold text-white"
+                >
                   👑 Kings of Doom 👑
                 </p>
 

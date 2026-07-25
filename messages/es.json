@@ -1,0 +1,21 @@
+{
+  "Navbar": {
+    "dashboard": "Panel",
+    "war": "Guerra",
+    "cwl": "CWL",
+    "members": "Miembros",
+    "warRoom": "Sala de Guerra",
+    "homeLabel": "Ir a la página de inicio",
+    "navigationLabel": "Navegación principal"
+  },
+  "Hero": {
+    "headlineFirst": "Los datos ganan",
+    "headlineSecond": "guerras.",
+    "descriptionBeforeClan": "El centro estratégico de",
+    "descriptionAfterClan": "Información del clan, guerras, rendimiento e inteligencia en un solo lugar.",
+    "openWarRoom": "Abrir Sala de Guerra",
+    "viewStats": "Ver estadísticas",
+    "officialData": "Datos oficiales de Clash of Clans",
+    "automaticUpdates": "Actualización automática"
+  }
+}

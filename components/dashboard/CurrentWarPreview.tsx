@@ -139,7 +139,10 @@ export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
         </div>
 
         <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60">
-          <div className="grid lg:grid-cols-[1fr_auto_1fr]">
+          <div
+            translate="no"
+            className="notranslate grid lg:grid-cols-[1fr_auto_1fr]"
+          >
             <WarClanSide
               label="Kings of Doom"
               name={clan.name}

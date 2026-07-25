@@ -48,8 +48,11 @@ export function StatsOverview({ clan }: StatsOverviewProps) {
             Visão geral
           </p>
 
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
-            O estado atual do K.O.D.
+          <h2
+            translate="no"
+            className="notranslate mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl"
+          >
+            O estado atual da {clan.name}
           </h2>
 
           <p className="mt-4 max-w-2xl leading-7 text-slate-400">

@@ -25,7 +25,7 @@ export function Navbar() {
             className="h-14 w-14 object-contain sm:h-16 sm:w-16"
           />
 
-          <div className="flex flex-col">
+          <div translate="no" className="notranslate flex flex-col">
             <span className="text-xl font-bold tracking-wide text-white sm:text-2xl">
               K.O.D.
             </span>

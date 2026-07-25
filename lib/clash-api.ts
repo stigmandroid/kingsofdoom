@@ -1,11 +1,7 @@
 import type { Clan } from "@/types/clan";
-import type {
-  CurrentWar,
-  CurrentWarResult,
-} from "@/types/war";
+import type { CurrentWar, CurrentWarResult } from "@/types/war";
 
-const CLASH_API_BASE_URL =
-  "https://api.clashofclans.com/v1";
+const CLASH_API_BASE_URL = "https://api.clashofclans.com/v1";
 
 type ClashApiError = {
   reason?: string;
@@ -47,8 +43,7 @@ async function readApiError(response: Response) {
 }
 
 export async function getClan(): Promise<Clan> {
-  const { token, encodedClanTag } =
-    getClashApiConfiguration();
+  const { token, encodedClanTag } = getClashApiConfiguration();
 
   const response = await fetch(
     `${CLASH_API_BASE_URL}/clans/${encodedClanTag}`,
@@ -66,17 +61,14 @@ export async function getClan(): Promise<Clan> {
   if (!response.ok) {
     const reason = await readApiError(response);
 
-    throw new Error(
-      `Não foi possível carregar o clã: ${reason}`,
-    );
+    throw new Error(`Não foi possível carregar o clã: ${reason}`);
   }
 
   return response.json() as Promise<Clan>;
 }
 
 export async function getCurrentWar(): Promise<CurrentWarResult> {
-  const { token, encodedClanTag } =
-    getClashApiConfiguration();
+  const { token, encodedClanTag } = getClashApiConfiguration();
 
   const response = await fetch(
     `${CLASH_API_BASE_URL}/clans/${encodedClanTag}/currentwar`,

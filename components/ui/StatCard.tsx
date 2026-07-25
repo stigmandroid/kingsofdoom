@@ -1,68 +1,71 @@
-import Link from "next/link";
-
-type AccentColor = "amber" | "red" | "blue" | "emerald";
-
 type StatCardProps = {
-  title: string;
+  label: string;
   value: string;
   description: string;
   icon: string;
-  href: string;
-  accent?: AccentColor;
+  accent: "amber" | "blue" | "emerald" | "red";
 };
 
-const accentStyles: Record<AccentColor, string> = {
-  amber: "border-amber-400/20 bg-amber-400/5 text-amber-300",
-  red: "border-red-400/20 bg-red-400/5 text-red-300",
-  blue: "border-blue-400/20 bg-blue-400/5 text-blue-300",
-  emerald: "border-emerald-400/20 bg-emerald-400/5 text-emerald-300",
+const accentClasses = {
+  amber: {
+    icon: "border-amber-400/20 bg-amber-400/10 text-amber-300",
+    glow: "bg-amber-400/10",
+  },
+  blue: {
+    icon: "border-blue-400/20 bg-blue-400/10 text-blue-300",
+    glow: "bg-blue-400/10",
+  },
+  emerald: {
+    icon: "border-emerald-400/20 bg-emerald-400/10 text-emerald-300",
+    glow: "bg-emerald-400/10",
+  },
+  red: {
+    icon: "border-red-400/20 bg-red-400/10 text-red-300",
+    glow: "bg-red-400/10",
+  },
 };
 
 export function StatCard({
-  title,
+  label,
   value,
   description,
   icon,
-  href,
-  accent = "amber",
+  accent,
 }: StatCardProps) {
+  const classes = accentClasses[accent];
+
   return (
-    <Link
-      href={href}
-      className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 p-6 transition duration-200 hover:-translate-y-1 hover:border-slate-700 hover:bg-slate-900"
-    >
+    <article className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60 p-6 transition duration-300 hover:-translate-y-1 hover:border-slate-700 hover:bg-slate-900">
       <div
-        aria-hidden="true"
-        className="absolute right-0 top-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-white/[0.03] blur-2xl"
+        className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition duration-300 group-hover:scale-125 ${classes.glow}`}
       />
 
-      <div className="relative flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-slate-400">{title}</p>
+      <div className="relative">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-slate-400">{label}</p>
 
-          <p className="mt-3 text-3xl font-bold tracking-tight text-white">
-            {value}
-          </p>
+            <p className="mt-4 text-3xl font-black tracking-tight text-white">
+              {value}
+            </p>
+          </div>
+
+          <div
+            className={`flex h-12 w-12 items-center justify-center rounded-2xl border text-xl ${classes.icon}`}
+          >
+            {icon}
+          </div>
         </div>
 
-        <div
-          className={`flex h-12 w-12 items-center justify-center rounded-xl border text-xl ${accentStyles[accent]}`}
-          aria-hidden="true"
-        >
-          {icon}
+        <p className="mt-6 min-h-[48px] text-sm leading-6 text-slate-500">
+          {description}
+        </p>
+
+        <div className="mt-6 flex items-center gap-2 text-sm font-bold text-slate-300">
+          <span>Ver detalhes</span>
+          <span className="transition group-hover:translate-x-1">→</span>
         </div>
       </div>
-
-      <p className="relative mt-5 text-sm leading-6 text-slate-500">
-        {description}
-      </p>
-
-      <span className="relative mt-5 inline-flex text-sm font-semibold text-slate-300 transition group-hover:text-amber-300">
-        Ver detalhes
-        <span className="ml-2 transition-transform group-hover:translate-x-1">
-          →
-        </span>
-      </span>
-    </Link>
+    </article>
   );
 }

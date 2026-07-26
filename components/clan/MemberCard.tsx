@@ -6,12 +6,9 @@
  * components/clan/MemberCard.tsx
  *
  * Responsabilidade:
- * Apresentar as principais informações de um único jogador
- * pertencente ao clã.
- *
- * Este componente não realiza chamadas à API e não altera
- * a ordenação dos membros. Ele apenas apresenta os dados
- * recebidos por meio das propriedades.
+ * Apresentar as principais informações de um jogador,
+ * combinando dados resumidos do clã com os dados detalhados
+ * do endpoint individual.
  *
  * Autor:
  * stigmandroid
@@ -22,15 +19,16 @@
  */
 
 import type { ClanMember } from "@/types/clan";
+import type { ClanMemberWithPlayer } from "@/types/player";
 
 import { RoleBadge } from "./RoleBadge";
 import { TownHallBadge } from "./TownHallBadge";
 
 type MemberCardProps = {
   /**
-   * Dados completos do jogador apresentado no card.
+   * Dados resumidos do membro e dados detalhados do jogador.
    */
-  member: ClanMember;
+  data: ClanMemberWithPlayer<ClanMember>;
 };
 
 /**
@@ -44,32 +42,56 @@ const numberFormatter = new Intl.NumberFormat("pt-BR");
 /**
  * Renderiza o card individual de um membro do clã.
  */
-export function MemberCard({ member }: MemberCardProps) {
+export function MemberCard({ data }: MemberCardProps) {
   /**
-   * Seleciona o melhor ícone de liga disponível.
+   * Facilita o acesso aos dois objetos sem misturar suas
+   * respectivas responsabilidades.
+   */
+  const { member, player } = data;
+
+  /**
+   * O endpoint individual possui prioridade para a liga.
    *
-   * A API pode retornar tamanhos diferentes dependendo
-   * do objeto recebido. Por isso utilizamos uma sequência
-   * de fallback.
+   * Caso a consulta individual tenha falhado, utilizamos
+   * a liga resumida do endpoint do clã como fallback.
+   */
+  const leagueName = player?.leagueTier?.name ?? member.league?.name;
+
+  /**
+   * Seleciona o melhor ícone disponível.
    */
   const leagueIconUrl =
+    player?.leagueTier?.iconUrls?.large ??
+    player?.leagueTier?.iconUrls?.medium ??
+    player?.leagueTier?.iconUrls?.small ??
     member.league?.iconUrls?.medium ??
     member.league?.iconUrls?.small ??
     member.league?.iconUrls?.tiny;
 
+  /**
+   * Evita apresentar "Unranked" quando não houver uma liga
+   * válida disponível.
+   */
+  const shouldShowLeague =
+    Boolean(leagueName) && leagueName?.toLowerCase() !== "unranked";
+
+  /**
+   * Melhor resultado do jogador no sistema ranqueado atual.
+   *
+   * Não utilizamos `bestTrophies`, pois esse campo representa
+   * o recorde histórico do sistema legado.
+   */
+  const bestRankedTrophies = player?.legendStatistics?.bestSeason?.trophies;
+
+  /**
+   * Melhor colocação global associada à melhor temporada.
+   */
+  const bestRankedPosition = player?.legendStatistics?.bestSeason?.rank;
+
   return (
     <article className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 p-5 transition duration-300 hover:-translate-y-1 hover:border-amber-400/40 hover:bg-slate-900 hover:shadow-2xl hover:shadow-black/30">
-      {/*
-       * Linha decorativa exibida no topo do card.
-       *
-       * Ela ganha destaque durante o hover e reforça
-       * a identidade visual dourada do portal.
-       */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent transition duration-300 group-hover:via-amber-400/70" />
 
-      {/*
-       * Cabeçalho principal do card.
-       */}
       <header className="flex items-start gap-4">
         <TownHallBadge level={member.townHallLevel} />
 
@@ -91,9 +113,6 @@ export function MemberCard({ member }: MemberCardProps) {
               </p>
             </div>
 
-            {/*
-             * Posição atual do jogador dentro do clã.
-             */}
             <span
               aria-label={`Posição ${member.clanRank} no clã`}
               className="shrink-0 rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-bold text-slate-300"
@@ -108,22 +127,9 @@ export function MemberCard({ member }: MemberCardProps) {
         </div>
       </header>
 
-      {/*
-       * Informações da liga atual do jogador.
-       *
-       * A seção é exibida apenas quando a API retorna
-       * uma liga associada ao membro.
-       */}
-      {member.league && (
+      {shouldShowLeague && leagueName && (
         <div className="mt-5 flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-2.5">
           {leagueIconUrl ? (
-            /*
-             * Utilizamos uma imagem HTML comum neste momento
-             * para evitar a necessidade de configurar domínios
-             * remotos no next.config.
-             *
-             * Posteriormente podemos migrar para next/image.
-             */
             <img
               src={leagueIconUrl}
               alt=""
@@ -131,10 +137,6 @@ export function MemberCard({ member }: MemberCardProps) {
               className="h-10 w-10 shrink-0 object-contain"
             />
           ) : (
-            /*
-             * Estado visual de fallback caso a liga não possua
-             * um ícone disponível.
-             */
             <div
               aria-hidden="true"
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-lg"
@@ -149,15 +151,12 @@ export function MemberCard({ member }: MemberCardProps) {
             </p>
 
             <p className="truncate text-sm font-semibold text-slate-200">
-              {member.league.name}
+              {leagueName}
             </p>
           </div>
         </div>
       )}
 
-      {/*
-       * Indicadores principais do jogador.
-       */}
       <dl className="mt-5 grid grid-cols-3 divide-x divide-slate-800 overflow-hidden rounded-xl border border-slate-800 bg-slate-950/50">
         <div className="px-2 py-3 text-center sm:px-3">
           <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
@@ -190,9 +189,6 @@ export function MemberCard({ member }: MemberCardProps) {
         </div>
       </dl>
 
-      {/*
-       * Rodapé com informações secundárias.
-       */}
       <footer className="mt-4 flex items-center justify-between gap-3 border-t border-slate-800/80 pt-4 text-xs text-slate-500">
         <span>
           Nível de experiência{" "}
@@ -201,11 +197,18 @@ export function MemberCard({ member }: MemberCardProps) {
           </strong>
         </span>
 
-        <span>
+        <span className="text-right">
           Melhor marca{" "}
           <strong className="font-semibold text-slate-300">
-            {numberFormatter.format(member.bestTrophies)}
+            {typeof bestRankedTrophies === "number"
+              ? numberFormatter.format(bestRankedTrophies)
+              : "—"}
           </strong>
+          {typeof bestRankedPosition === "number" && (
+            <small className="ml-1 text-[10px] text-slate-500">
+              (#{numberFormatter.format(bestRankedPosition)})
+            </small>
+          )}
         </span>
       </footer>
     </article>

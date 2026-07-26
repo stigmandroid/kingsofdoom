@@ -94,10 +94,13 @@ export type ClanMember = {
   trophies: number;
 
   /**
-   * Melhor quantidade de troféus já registrada
-   * pela conta na vila principal.
+   * Melhor quantidade histórica de troféus registrada
+   * no sistema legado.
+   *
+   * O endpoint resumido do clã pode não retornar essa
+   * propriedade, portanto ela precisa ser opcional.
    */
-  bestTrophies: number;
+  bestTrophies?: number;
 
   /**
    * Quantidade de tropas doadas durante a temporada atual.

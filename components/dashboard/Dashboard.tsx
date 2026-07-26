@@ -18,21 +18,37 @@
  * ==========================================================
  */
 
-import type { Clan } from "@/types/clan";
-import type { CurrentWarResult } from "@/types/war";
-
 import { ClanMembers } from "@/components/clan/ClanMembers";
+
+import type { Clan, ClanMember } from "@/types/clan";
+import type { ClanMemberWithPlayer } from "@/types/player";
+import type { CurrentWarResult } from "@/types/war";
 
 import { ClanHeader } from "./ClanHeader";
 import { CurrentWarPreview } from "./CurrentWarPreview";
 import { Hero } from "./Hero";
 import { StatsOverview } from "./StatsOverview";
 
+/**
+ * Propriedades recebidas pelo painel principal.
+ */
 type DashboardProps = {
   /**
    * Dados completos do clã atualmente selecionado.
    */
   clan: Clan;
+
+  /**
+   * Lista de membros combinando:
+   *
+   * • os dados resumidos retornados pelo endpoint do clã;
+   * • os dados detalhados retornados pelo endpoint individual
+   *   de cada jogador.
+   *
+   * Essa lista é utilizada pela seção de membros para exibir
+   * corretamente a liga atual e o histórico ranqueado.
+   */
+  members: ClanMemberWithPlayer<ClanMember>[];
 
   /**
    * Resultado da consulta da guerra atual.
@@ -46,7 +62,7 @@ type DashboardProps = {
  * Cada seção recebe apenas os dados necessários para cumprir
  * sua própria responsabilidade.
  */
-export function Dashboard({ clan, currentWar }: DashboardProps) {
+export function Dashboard({ clan, members, currentWar }: DashboardProps) {
   return (
     <>
       {/*
@@ -71,8 +87,11 @@ export function Dashboard({ clan, currentWar }: DashboardProps) {
 
       {/*
        * Lista completa de jogadores do clã.
+       *
+       * Aqui utilizamos a lista enriquecida com os dados
+       * individuais dos jogadores, em vez de clan.memberList.
        */}
-      <ClanMembers members={clan.memberList} clanName={clan.name} />
+      <ClanMembers members={members} clanName={clan.name} />
     </>
   );
 }

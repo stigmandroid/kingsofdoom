@@ -9,8 +9,9 @@
  * Organizar e apresentar a lista completa de membros de
  * um clã em formato de grid responsivo.
  *
- * A ordenação é realizada neste componente para manter o
- * MemberCard responsável apenas pela apresentação visual.
+ * Cada item combina:
+ * • dados resumidos do endpoint do clã;
+ * • dados detalhados do endpoint do jogador.
  *
  * Autor:
  * stigmandroid
@@ -21,14 +22,15 @@
  */
 
 import type { ClanMember } from "@/types/clan";
+import type { ClanMemberWithPlayer } from "@/types/player";
 
 import { MemberCard } from "./MemberCard";
 
 type ClanMembersProps = {
   /**
-   * Lista de membros retornada pela Clash of Clans API.
+   * Lista combinada de membros e perfis individuais.
    */
-  members: ClanMember[];
+  members: ClanMemberWithPlayer<ClanMember>[];
 
   /**
    * Nome do clã utilizado no título acessível da seção.
@@ -41,35 +43,15 @@ type ClanMembersProps = {
  */
 export function ClanMembers({ members, clanName }: ClanMembersProps) {
   /**
-   * Cria uma cópia da lista antes de ordenar.
-   *
-   * Array.sort modifica o array original. O uso de spread
-   * impede que os dados recebidos pelas props sejam alterados.
-   *
-   * Os membros são ordenados pela posição atual dentro do clã.
+   * A ordenação utiliza o objeto resumido do membro,
+   * pois `clanRank` pertence ao endpoint do clã.
    */
   const sortedMembers = [...members].sort(
-    (firstMember, secondMember) => firstMember.clanRank - secondMember.clanRank,
+    (firstMember, secondMember) =>
+      firstMember.member.clanRank - secondMember.member.clanRank,
   );
 
   return (
-    /**
-     * A seção utiliza:
-     *
-     * mx-auto:
-     * Centraliza horizontalmente o conteúdo.
-     *
-     * w-full:
-     * Permite que a seção utilize a largura disponível.
-     *
-     * max-w-[1600px]:
-     * Impede que os cards fiquem excessivamente largos em
-     * monitores grandes.
-     *
-     * px-4 sm:px-6 lg:px-8:
-     * Adiciona espaçamento lateral progressivo conforme o
-     * tamanho da tela.
-     */
     <section
       aria-labelledby="clan-members-title"
       className="mx-auto mt-10 w-full max-w-[1600px] px-4 sm:px-6 lg:px-8"
@@ -99,10 +81,6 @@ export function ClanMembers({ members, clanName }: ClanMembersProps) {
           </p>
         </div>
 
-        {/*
-         * A quantidade exibida utiliza o tamanho real da lista,
-         * evitando divergência caso a API retorne dados parciais.
-         */}
         <div className="w-fit rounded-xl border border-slate-800 bg-slate-900 px-4 py-2">
           <span className="text-sm text-slate-400">
             Total:{" "}
@@ -112,28 +90,12 @@ export function ClanMembers({ members, clanName }: ClanMembersProps) {
       </header>
 
       {sortedMembers.length > 0 ? (
-        /**
-         * O grid adapta a quantidade de colunas conforme a tela:
-         *
-         * mobile:
-         * Uma coluna.
-         *
-         * tablet:
-         * Duas colunas.
-         *
-         * desktop:
-         * Três colunas.
-         */
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {sortedMembers.map((member) => (
-            <MemberCard key={member.tag} member={member} />
+            <MemberCard key={member.member.tag} data={member} />
           ))}
         </div>
       ) : (
-        /**
-         * Estado vazio apresentado caso a API não retorne
-         * membros para o clã.
-         */
         <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/40 px-6 py-12 text-center">
           <h3 className="text-lg font-semibold text-slate-200">
             Nenhum membro encontrado

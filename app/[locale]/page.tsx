@@ -65,9 +65,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <Navbar />
-
-      <Dashboard clan={clan} currentWar={currentWar} />
+      <Dashboard clan={clan} currentWar={currentWar} members={[]} />
     </main>
   );
 }

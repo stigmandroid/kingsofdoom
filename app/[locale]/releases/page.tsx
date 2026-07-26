@@ -6,8 +6,8 @@
  * app/[locale]/releases/page.tsx
  *
  * Responsabilidade:
- * Apresentar publicamente o histórico de versões e
- * atualizações do Kings of Doom Command Center.
+ * Apresentar publicamente o histórico de versões,
+ * atualizações e roadmap do Kings of Doom Command Center.
  *
  * Autor:
  * stigmandroid
@@ -19,7 +19,12 @@
 
 import type { Metadata } from "next";
 
-import { releases, type ReleaseChangeType } from "@/config/releases";
+import {
+  releases,
+  roadmap,
+  type ReleaseChangeType,
+  type RoadmapStatus,
+} from "@/config/releases";
 
 /**
  * Metadados utilizados pelo navegador e pelos mecanismos
@@ -28,7 +33,7 @@ import { releases, type ReleaseChangeType } from "@/config/releases";
 export const metadata: Metadata = {
   title: "Atualizações | Kings of Doom Command Center",
   description:
-    "Histórico de versões e atualizações do Kings of Doom Command Center.",
+    "Histórico de versões e roadmap do Kings of Doom Command Center.",
 };
 
 /**
@@ -74,7 +79,40 @@ const changeTypeConfiguration: Record<
 };
 
 /**
- * Renderiza a página pública de histórico de versões.
+ * Define os textos e as classes visuais de cada status
+ * disponível no roadmap.
+ */
+const roadmapStatusConfiguration: Record<
+  RoadmapStatus,
+  {
+    label: string;
+    className: string;
+  }
+> = {
+  "in-development": {
+    label: "Em desenvolvimento",
+    className: "border-amber-400/30 bg-amber-400/10 text-amber-300",
+  },
+
+  next: {
+    label: "Próximo",
+    className: "border-sky-400/30 bg-sky-400/10 text-sky-300",
+  },
+
+  planned: {
+    label: "Planejado",
+    className: "border-violet-400/30 bg-violet-400/10 text-violet-300",
+  },
+
+  future: {
+    label: "Futuro",
+    className: "border-slate-400/30 bg-slate-400/10 text-slate-300",
+  },
+};
+
+/**
+ * Renderiza a página pública de histórico de versões e
+ * planejamento futuro do portal.
  */
 export default function ReleasesPage() {
   return (
@@ -94,15 +132,30 @@ export default function ReleasesPage() {
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400">
             Acompanhe a evolução do Command Center, conheça as novas
-            funcionalidades e veja as melhorias realizadas em cada versão.
+            funcionalidades e veja as próximas etapas planejadas para o portal.
           </p>
         </div>
       </section>
 
       {/*
-       * Linha do tempo das versões.
+       * Linha do tempo das versões publicadas.
        */}
       <section className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-amber-400">
+            Histórico
+          </p>
+
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-white">
+            Release Notes
+          </h2>
+
+          <p className="mt-3 max-w-2xl leading-7 text-slate-400">
+            Confira as funcionalidades, melhorias e mudanças técnicas
+            adicionadas em cada versão do Command Center.
+          </p>
+        </div>
+
         <div className="space-y-8">
           {releases.map((release) => {
             /**
@@ -141,9 +194,9 @@ export default function ReleasesPage() {
                         )}
                       </div>
 
-                      <h2 className="mt-4 text-2xl font-bold text-white sm:text-3xl">
+                      <h3 className="mt-4 text-2xl font-bold text-white sm:text-3xl">
                         {release.title}
-                      </h2>
+                      </h3>
 
                       <p className="mt-3 max-w-2xl leading-7 text-slate-400">
                         {release.summary}
@@ -176,9 +229,9 @@ export default function ReleasesPage() {
                             </span>
 
                             <div>
-                              <h3 className="font-bold text-slate-100">
+                              <h4 className="font-bold text-slate-100">
                                 {change.title}
-                              </h3>
+                              </h4>
 
                               <p className="mt-1.5 text-sm leading-6 text-slate-400">
                                 {change.description}
@@ -193,6 +246,83 @@ export default function ReleasesPage() {
               </article>
             );
           })}
+        </div>
+      </section>
+
+      {/*
+       * Roadmap público do projeto.
+       */}
+      <section className="border-t border-slate-800 bg-slate-900/30">
+        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mb-10">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-amber-400">
+              Próximas etapas
+            </p>
+
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-white">
+              Roadmap
+            </h2>
+
+            <p className="mt-3 max-w-2xl leading-7 text-slate-400">
+              Conheça as fases planejadas para a evolução do Kings of Doom
+              Command Center.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {roadmap.map((phase) => {
+              const statusConfiguration =
+                roadmapStatusConfiguration[phase.status];
+
+              return (
+                <article
+                  key={phase.phase}
+                  className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/70"
+                >
+                  <div className="border-b border-slate-800 p-6 sm:p-8">
+                    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+                      <div>
+                        <p className="text-sm font-bold uppercase tracking-[0.18em] text-slate-500">
+                          Fase {phase.phase}
+                        </p>
+
+                        <h3 className="mt-2 text-2xl font-bold text-white">
+                          {phase.title}
+                        </h3>
+
+                        <p className="mt-3 max-w-2xl leading-7 text-slate-400">
+                          {phase.description}
+                        </p>
+                      </div>
+
+                      <span
+                        className={`inline-flex w-fit shrink-0 rounded-full border px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${statusConfiguration.className}`}
+                      >
+                        {statusConfiguration.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8">
+                    {phase.items.map((item) => (
+                      <div
+                        key={`${phase.phase}-${item.title}`}
+                        className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-5"
+                      >
+                        <h4 className="font-bold text-slate-100">
+                          {item.title}
+                        </h4>
+
+                        <p className="mt-2 text-sm leading-6 text-slate-400">
+                          {item.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
     </main>

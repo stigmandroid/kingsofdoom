@@ -1,11 +1,74 @@
+// ==========================================================
+// Kings of Doom Command Center
+// ----------------------------------------------------------
+// Arquivo:
+// CurrentWarPreview.tsx
+//
+// Localização:
+// components/dashboard/
+//
+// Responsabilidade:
+// Exibir um resumo da guerra atual no Dashboard,
+// apresentando o estado da guerra, o tempo restante,
+// estatísticas dos clãs participantes e um acesso
+// rápido à Sala de Guerra.
+//
+// Funcionalidades:
+//
+// - Exibe o estado atual da guerra;
+// - Calcula o tempo restante para início ou término;
+// - Formata datas da Clash API para ISO 8601;
+// - Exibe estatísticas resumidas dos dois clãs;
+// - Trata registros de guerra privados;
+// - Trata guerras indisponíveis;
+// - Evita exibição de datas inválidas (NaN);
+// - Impede tradução automática dos nomes dos clãs.
+//
+// Dependências:
+//
+// - next/image
+// - next/link
+// - @/types/war
+//
+// Autor:
+// stigmandroid
+//
+// Última atualização:
+// 27/07/2026
+//
+// Versão:
+// 1.1.0
+//
+// Status:
+// ✅ Produção
+// ==========================================================
+
 import Image from "next/image";
 import Link from "next/link";
+
 import type { CurrentWar, CurrentWarResult, WarState } from "@/types/war";
 
+/**
+ * Propriedades recebidas pelo componente CurrentWarPreview.
+ *
+ * O resultado pode representar:
+ *
+ * - Uma guerra disponível;
+ * - Um clã que não está em guerra;
+ * - Um registro de guerra privado;
+ * - Uma indisponibilidade temporária da API.
+ */
 type CurrentWarPreviewProps = {
   result: CurrentWarResult;
 };
 
+/**
+ * Traduções dos estados retornados pela API oficial
+ * do Clash of Clans.
+ *
+ * O Record garante que todos os estados definidos em
+ * WarState possuam uma descrição correspondente.
+ */
 const warStateLabels: Record<WarState, string> = {
   notInWar: "Fora de guerra",
   preparation: "Dia de preparação",
@@ -13,21 +76,104 @@ const warStateLabels: Record<WarState, string> = {
   warEnded: "Guerra encerrada",
 };
 
-function normalizeClashDate(value: string) {
-  return value.replace(/^(\d{4})(\d{2})(\d{2})T/, "$1-$2-$3T");
+/**
+ * Converte uma data retornada pela API do Clash of Clans
+ * para o formato ISO 8601 reconhecido pelo JavaScript.
+ *
+ * A API retorna datas neste formato:
+ *
+ * 20260727T213000.000Z
+ *
+ * O JavaScript espera um formato semelhante a:
+ *
+ * 2026-07-27T21:30:00.000Z
+ *
+ * A implementação anterior adicionava somente os hífens
+ * da data, mas não adicionava os dois-pontos do horário.
+ * Isso fazia o construtor Date gerar "Invalid Date" e,
+ * consequentemente, o contador exibir "NaNh NaNmin".
+ *
+ * @param value Data original retornada pela Clash API.
+ * @returns Data normalizada ou null quando o formato é inválido.
+ */
+function normalizeClashDate(value: string): string | null {
+  /**
+   * Captura individualmente:
+   *
+   * 1. Ano;
+   * 2. Mês;
+   * 3. Dia;
+   * 4. Hora;
+   * 5. Minuto;
+   * 6. Segundo;
+   * 7. Milissegundos opcionais.
+   */
+  const match = value.match(
+    /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(\.\d+)?Z$/,
+  );
+
+  /**
+   * Caso a API altere o formato ou retorne um valor inesperado,
+   * impedimos que uma data inválida continue para o cálculo.
+   */
+  if (!match) {
+    return null;
+  }
+
+  const [, year, month, day, hour, minute, second, milliseconds = ".000"] =
+    match;
+
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}${milliseconds}Z`;
 }
 
-function getRemainingTime(war: CurrentWar) {
+/**
+ * Calcula e formata o tempo restante da guerra.
+ *
+ * Regras:
+ *
+ * - Durante a preparação, o contador utiliza startTime;
+ * - Durante a guerra, o contador utiliza endTime;
+ * - Datas ausentes ou inválidas exibem uma mensagem segura;
+ * - O componente nunca deve exibir NaN para o usuário.
+ *
+ * @param war Dados da guerra atual.
+ * @returns Texto formatado com o tempo restante.
+ */
+function getRemainingTime(war: CurrentWar): string {
+  /**
+   * Durante o dia de preparação, queremos saber quanto falta
+   * para a guerra começar.
+   *
+   * Nos demais estados, queremos saber quanto falta para ela terminar.
+   */
   const targetTime = war.state === "preparation" ? war.startTime : war.endTime;
 
   if (!targetTime) {
     return "Horário indisponível";
   }
 
-  const targetDate = new Date(normalizeClashDate(targetTime));
+  const normalizedTargetTime = normalizeClashDate(targetTime);
 
-  const difference = targetDate.getTime() - Date.now();
+  if (!normalizedTargetTime) {
+    return "Horário indisponível";
+  }
 
+  const targetTimestamp = new Date(normalizedTargetTime).getTime();
+
+  /**
+   * Mesmo após a validação por expressão regular, mantemos
+   * uma proteção adicional contra datas inválidas.
+   */
+  if (Number.isNaN(targetTimestamp)) {
+    return "Horário indisponível";
+  }
+
+  const difference = targetTimestamp - Date.now();
+
+  /**
+   * Quando a diferença for zero ou negativa, o evento correspondente
+   * já começou ou já terminou.
+   */
   if (difference <= 0) {
     if (war.state === "preparation") {
       return "A guerra está começando";
@@ -36,12 +182,16 @@ function getRemainingTime(war: CurrentWar) {
     return "Tempo encerrado";
   }
 
-  const totalMinutes = Math.floor(difference / 1000 / 60);
+  /**
+   * Converte a diferença de milissegundos para minutos inteiros.
+   *
+   * Utilizamos Math.floor para evitar exibir um minuto adicional
+   * que ainda não foi completamente transcorrido.
+   */
+  const totalMinutes = Math.floor(difference / 60_000);
 
-  const days = Math.floor(totalMinutes / 1440);
-
-  const hours = Math.floor((totalMinutes % 1440) / 60);
-
+  const days = Math.floor(totalMinutes / 1_440);
+  const hours = Math.floor((totalMinutes % 1_440) / 60);
   const minutes = totalMinutes % 60;
 
   if (days > 0) {
@@ -51,17 +201,38 @@ function getRemainingTime(war: CurrentWar) {
   return `${hours}h ${minutes}min`;
 }
 
-function formatPercentage(value: number) {
+/**
+ * Formata o percentual de destruição utilizando o padrão brasileiro.
+ *
+ * Exemplos:
+ *
+ * 85      → 85,0%
+ * 99.54   → 99,54%
+ *
+ * @param value Percentual de destruição retornado pela API.
+ * @returns Percentual formatado.
+ */
+function formatPercentage(value: number): string {
   return `${value.toLocaleString("pt-BR", {
     minimumFractionDigits: 1,
     maximumFractionDigits: 2,
   })}%`;
 }
 
+/**
+ * Retorna uma mensagem amigável para cada motivo de
+ * indisponibilidade da guerra atual.
+ *
+ * O Exclude remove do tipo o cenário em que a guerra está disponível,
+ * garantindo que a função aceite somente motivos de indisponibilidade.
+ *
+ * @param reason Motivo retornado pela camada responsável pela API.
+ * @returns Mensagem que será apresentada ao usuário.
+ */
 function getUnavailableMessage(
   reason: Exclude<CurrentWarResult, { available: true }>["reason"],
-) {
-  const messages = {
+): string {
+  const messages: Record<typeof reason, string> = {
     notInWar: "O clã não está participando de uma guerra neste momento.",
     privateWarLog:
       "A guerra atual não pode ser exibida porque o registro de guerra está privado.",
@@ -71,7 +242,22 @@ function getUnavailableMessage(
   return messages[reason];
 }
 
+/**
+ * Exibe uma prévia da guerra atual no painel principal.
+ *
+ * O componente trata três cenários:
+ *
+ * 1. Guerra indisponível;
+ * 2. Guerra disponível, mas com dados incompletos;
+ * 3. Guerra disponível e pronta para exibição.
+ */
 export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
+  /**
+   * Primeiro cenário:
+   *
+   * A guerra não pode ser apresentada porque o clã não está em guerra,
+   * o registro está privado ou a API está temporariamente indisponível.
+   */
   if (!result.available) {
     return (
       <section className="border-b border-slate-800 bg-slate-950">
@@ -94,10 +280,21 @@ export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
     );
   }
 
+  /**
+   * A partir deste ponto, o TypeScript sabe que result representa
+   * uma guerra disponível.
+   */
   const { war } = result;
   const clan = war.clan;
   const opponent = war.opponent;
 
+  /**
+   * Segundo cenário:
+   *
+   * A API retornou a guerra, mas algum dos lados está ausente.
+   * Mantemos uma interface segura em vez de tentar acessar
+   * propriedades inexistentes.
+   */
   if (!clan || !opponent) {
     return (
       <section className="border-b border-slate-800 bg-slate-950">
@@ -112,6 +309,21 @@ export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
     );
   }
 
+  /**
+   * O cálculo é realizado uma única vez durante a renderização.
+   *
+   * Antes, getRemainingTime era chamada em dois pontos diferentes.
+   * Centralizar o valor evita processamento duplicado e garante
+   * consistência entre os textos exibidos.
+   */
+  const remainingTime = getRemainingTime(war);
+
+  /**
+   * Terceiro cenário:
+   *
+   * Todos os dados essenciais estão disponíveis e a guerra
+   * pode ser apresentada normalmente.
+   */
   return (
     <section className="border-b border-slate-800 bg-slate-950">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -126,7 +338,7 @@ export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
             </h2>
 
             <p className="mt-3 text-slate-400">
-              {warStateLabels[war.state]} · {getRemainingTime(war)}
+              {warStateLabels[war.state]} · {remainingTime}
             </p>
           </div>
 
@@ -139,6 +351,10 @@ export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
         </div>
 
         <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60">
+          {/*
+           * O atributo translate="no" impede que tradutores automáticos
+           * alterem os nomes dos clãs.
+           */}
           <div
             translate="no"
             className="notranslate grid lg:grid-cols-[1fr_auto_1fr]"
@@ -179,7 +395,7 @@ export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
               value={String(war.attacksPerMember ?? "—")}
             />
 
-            <WarDetail label="Tempo restante" value={getRemainingTime(war)} />
+            <WarDetail label="Tempo restante" value={remainingTime} />
           </div>
         </div>
       </div>
@@ -187,15 +403,35 @@ export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
   );
 }
 
+/**
+ * Propriedades utilizadas para exibir um dos lados da guerra.
+ */
 type WarClanSideProps = {
+  /** Identificação visual do lado, como "Kings of Doom" ou "Adversário". */
   label: string;
+
+  /** Nome oficial do clã. */
   name: string;
+
+  /** URL do escudo disponibilizado pela Clash API. */
   badgeUrl: string;
+
+  /** Quantidade de estrelas conquistadas pelo clã. */
   stars: number;
+
+  /** Percentual total de destruição. */
   destruction: number;
+
+  /** Quantidade de ataques realizados. */
   attacks: number;
 };
 
+/**
+ * Exibe as informações resumidas de um clã participante da guerra.
+ *
+ * O mesmo componente é reutilizado para o clã selecionado
+ * e para o adversário, evitando duplicação de marcação JSX.
+ */
 function WarClanSide({
   label,
   name,
@@ -210,6 +446,10 @@ function WarClanSide({
         {label}
       </p>
 
+      {/*
+       * O componente Image do Next.js otimiza o carregamento
+       * e o dimensionamento do escudo.
+       */}
       <Image
         src={badgeUrl}
         alt={`Escudo do clã ${name}`}
@@ -238,11 +478,26 @@ function WarClanSide({
   );
 }
 
+/**
+ * Propriedades de um item apresentado na área de detalhes da guerra.
+ */
 type WarDetailProps = {
+  /** Título da informação. */
   label: string;
+
+  /** Valor já preparado para exibição. */
   value: string;
 };
 
+/**
+ * Exibe uma informação complementar da guerra.
+ *
+ * Exemplos:
+ *
+ * - Tamanho da guerra;
+ * - Ataques por jogador;
+ * - Tempo restante.
+ */
 function WarDetail({ label, value }: WarDetailProps) {
   return (
     <div className="bg-slate-900 px-5 py-5 text-center">

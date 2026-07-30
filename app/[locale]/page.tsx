@@ -29,6 +29,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { clans } from "@/config/clans";
 import { getClan } from "@/services/clan.service";
 import { getCurrentWar } from "@/services/war.service";
+import type { CurrentWarResult } from "@/types/war";
+import type { Clan } from "@/types/clan";
 
 /**
  * Renderiza o painel principal do portal.
@@ -58,10 +60,48 @@ export default async function Home() {
    * As duas consultas recebem a mesma tag, garantindo que
    * os dados gerais e a guerra pertençam ao mesmo clã.
    */
-  const [clan, currentWar] = await Promise.all([
-    getClan(defaultClan.tag),
-    getCurrentWar(defaultClan.tag),
-  ]);
+  let clan: Clan | null = null;
+  let currentWar: CurrentWarResult = {
+    available: false,
+    reason: "unavailable",
+  };
+
+  try {
+    [clan, currentWar] = await Promise.all([
+      getClan(defaultClan.tag),
+      getCurrentWar(defaultClan.tag),
+    ]);
+  } catch (error) {
+    /**
+     * Registra o erro apenas no servidor.
+     *
+     * Dessa forma conseguimos identificar problemas de
+     * infraestrutura sem interromper o carregamento da página.
+     */
+    console.error("Erro ao carregar os dados do Dashboard:", error);
+  }
+
+  if (!clan) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
+        <div className="max-w-xl text-center">
+          <p className="text-sm font-black uppercase tracking-[0.3em] text-amber-400">
+            K.O.D. Command Center
+          </p>
+
+          <h1 className="mt-5 text-4xl font-black">
+            Dados temporariamente indisponíveis
+          </h1>
+
+          <p className="mt-6 leading-7 text-slate-400">
+            Não foi possível consultar a API oficial do Clash of Clans. Nossa
+            equipe já identificou a causa e o portal continuará disponível assim
+            que a comunicação for restabelecida.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">

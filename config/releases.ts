@@ -145,13 +145,66 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.5.0",
+    title: "War Center",
+    date: "2026-07-29",
+    summary:
+      "Primeira versão da Sala de Guerra, com uma página dedicada ao acompanhamento da guerra atual utilizando dados reais da Clash of Clans API.",
+
+    current: true,
+
+    changes: [
+      {
+        type: "feature",
+        title: "Sala de Guerra",
+        description:
+          "Criada uma página dedicada para acompanhar a guerra atual do clã.",
+      },
+      {
+        type: "feature",
+        title: "Dados reais da guerra",
+        description:
+          "A Sala de Guerra exibe o placar, as estrelas, a destruição, os ataques realizados e o tamanho da guerra utilizando a API oficial do Clash of Clans.",
+      },
+      {
+        type: "feature",
+        title: "Contagem regressiva",
+        description:
+          "Adicionado um contador atualizado automaticamente para exibir o tempo restante da preparação ou da batalha.",
+      },
+      {
+        type: "improvement",
+        title: "Visão geral reutilizável",
+        description:
+          "O componente de guerra foi reutilizado entre o painel principal e a página dedicada, evitando duplicação de código.",
+      },
+      {
+        type: "improvement",
+        title: "Nomenclatura arquitetural",
+        description:
+          "O componente CurrentWarPreview foi renomeado para WarOverview para representar melhor sua responsabilidade dentro do projeto.",
+      },
+      {
+        type: "fix",
+        title: "Normalização das datas",
+        description:
+          "Corrigido o tratamento das datas retornadas pela Clash API, impedindo valores inválidos no contador da guerra.",
+      },
+      {
+        type: "technical",
+        title: "Base do War Center",
+        description:
+          "Estruturada a página que receberá futuras funcionalidades de análise e acompanhamento das guerras.",
+      },
+    ],
+  },
+
+  {
     version: "0.4.0",
     title: "Inteligência de jogadores",
     date: "2026-07-26",
     summary:
       "Integração com os perfis individuais dos jogadores para exibir informações competitivas mais completas e confiáveis.",
-
-    current: true,
 
     changes: [
       {

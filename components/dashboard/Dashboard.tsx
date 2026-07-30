@@ -25,7 +25,7 @@ import type { ClanMemberWithPlayer } from "@/types/player";
 import type { CurrentWarResult } from "@/types/war";
 
 import { ClanHeader } from "./ClanHeader";
-import { CurrentWarPreview } from "./CurrentWarPreview";
+import { WarOverview } from "./WarOverview";
 import { Hero } from "./Hero";
 import { StatsOverview } from "./StatsOverview";
 
@@ -83,7 +83,7 @@ export function Dashboard({ clan, members, currentWar }: DashboardProps) {
       {/*
        * Prévia da guerra atual ou estado correspondente.
        */}
-      <CurrentWarPreview result={currentWar} />
+      <WarOverview result={currentWar} />
 
       {/*
        * Lista completa de jogadores do clã.

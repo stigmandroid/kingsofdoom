@@ -2,7 +2,7 @@
 // Kings of Doom Command Center
 // ----------------------------------------------------------
 // Arquivo:
-// CurrentWarPreview.tsx
+// WarOverview.tsx
 //
 // Localização:
 // components/dashboard/
@@ -49,7 +49,7 @@ import Link from "next/link";
 import type { CurrentWar, CurrentWarResult, WarState } from "@/types/war";
 
 /**
- * Propriedades recebidas pelo componente CurrentWarPreview.
+ * Propriedades recebidas pelo componente WarOverview.
  *
  * O resultado pode representar:
  *
@@ -58,8 +58,30 @@ import type { CurrentWar, CurrentWarResult, WarState } from "@/types/war";
  * - Um registro de guerra privado;
  * - Uma indisponibilidade temporária da API.
  */
-type CurrentWarPreviewProps = {
+type WarOverviewProps = {
+  /**
+   * Resultado da consulta da guerra atual.
+   */
   result: CurrentWarResult;
+
+  /**
+   * Controla a exibição do botão que leva para a Sala de Guerra.
+   *
+   * No Dashboard, permanece true.
+   * Na própria página da guerra, utilizamos false para evitar
+   * um link apontando para a página atual.
+   */
+  showWarRoomLink?: boolean;
+
+  /**
+   * URL localizada da Sala de Guerra.
+   *
+   * Exemplo:
+   * /pt-BR/war
+   * /en/war
+   * /es/war
+   */
+  warRoomHref?: string;
 };
 
 /**
@@ -251,7 +273,11 @@ function getUnavailableMessage(
  * 2. Guerra disponível, mas com dados incompletos;
  * 3. Guerra disponível e pronta para exibição.
  */
-export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
+export function WarOverview({
+  result,
+  showWarRoomLink = true,
+  warRoomHref = "/war",
+}: WarOverviewProps) {
   /**
    * Primeiro cenário:
    *
@@ -342,12 +368,14 @@ export function CurrentWarPreview({ result }: CurrentWarPreviewProps) {
             </p>
           </div>
 
-          <Link
-            href="/war"
-            className="inline-flex w-fit rounded-xl border border-red-400/30 bg-red-400/10 px-5 py-3 text-sm font-bold text-red-300 transition hover:border-red-300 hover:bg-red-400/20"
-          >
-            Abrir Sala de Guerra
-          </Link>
+          {showWarRoomLink && (
+            <Link
+              href={warRoomHref}
+              className="inline-flex w-fit rounded-xl border border-red-400/30 bg-red-400/10 px-5 py-3 text-sm font-bold text-red-300 transition hover:border-red-300 hover:bg-red-400/20"
+            >
+              Abrir Sala de Guerra
+            </Link>
+          )}
         </div>
 
         <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/60">

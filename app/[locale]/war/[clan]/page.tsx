@@ -5,7 +5,7 @@
 // page.tsx
 //
 // Localização:
-// app/[locale]/war/
+// app/[locale]/war/[clan]/page.tsx
 //
 // Responsabilidade:
 // Exibir a Sala de Guerra do clã padrão, utilizando dados
@@ -44,7 +44,8 @@
 import Link from "next/link";
 
 import { WarOverview } from "@/components/dashboard/WarOverview";
-import { clans } from "@/config/clans";
+import { getClanBySlug } from "@/config/clans";
+import { notFound } from "next/navigation";
 import { getCurrentWar } from "@/services/war.service";
 import { WarPendingAttacks } from "@/components/dashboard/WarPendingAttacks";
 import { WarMap } from "@/components/dashboard/WarMap";
@@ -58,6 +59,7 @@ import { WarMap } from "@/components/dashboard/WarMap";
 type WarPageProps = {
   params: Promise<{
     locale: string;
+    clan: string;
   }>;
 };
 
@@ -68,29 +70,31 @@ type WarPageProps = {
  * da Clash API nunca seja exposto ao navegador.
  */
 export default async function WarPage({ params }: WarPageProps) {
+  const { locale, clan: clanSlug } = await params;
+
   /**
-   * Recupera o K.O.D. como clã padrão da Sala de Guerra.
-   *
-   * A configuração permanece centralizada em config/clans.ts,
-   * evitando duplicação da tag dentro da página.
-   */
-  const defaultClan = clans.kod;
-  /**
-   * Recupera o idioma atual da rota.
+   * Recupera o clã informado pela URL.
    *
    * Exemplos:
    *
-   * /pt-BR/war
-   * /en/war
-   * /es/war
+   * /pt-BR/war/kod
+   * /pt-BR/war/kod-rec
    */
-  const { locale } = await params;
+  const clan = getClanBySlug(clanSlug);
+
+  /**
+   * Caso o slug não exista,
+   * exibimos a página 404.
+   */
+  if (!clan) {
+    notFound();
+  }
 
   /**
    * Consulta a guerra atual utilizando a tag configurada
    * para o clã padrão da plataforma.
    */
-  const currentWar = await getCurrentWar(defaultClan.tag);
+  const currentWar = await getCurrentWar(clan.tag);
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -116,6 +120,12 @@ export default async function WarPage({ params }: WarPageProps) {
           <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
             Sala de Guerra
           </h1>
+          <p
+            translate="no"
+            className="notranslate mt-4 text-xl font-black text-red-400"
+          >
+            {clan.name}
+          </p>
 
           <p className="mt-4 max-w-3xl leading-7 text-slate-400">
             Acompanhe o estado da guerra, o placar atual, a destruição acumulada

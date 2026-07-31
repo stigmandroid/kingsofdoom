@@ -122,8 +122,8 @@ export async function getCurrentWar(
   }
 
   /**
-   * Converte a resposta para o tipo CurrentWar utilizado
-   * pelo restante da aplicação.
+   * Converte a resposta da API para o tipo utilizado
+   * internamente pela aplicação.
    */
   const war = (await response.json()) as CurrentWar;
 

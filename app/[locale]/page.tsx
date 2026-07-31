@@ -25,12 +25,11 @@
  */
 
 import { Dashboard } from "@/components/dashboard/Dashboard";
-import { Navbar } from "@/components/layout/Navbar";
 import { clans } from "@/config/clans";
 import { getClan } from "@/services/clan.service";
 import { getCurrentWar } from "@/services/war.service";
-import type { CurrentWarResult } from "@/types/war";
 import type { Clan } from "@/types/clan";
+import type { CurrentWarResult } from "@/types/war";
 
 /**
  * Renderiza o painel principal do portal.
@@ -41,26 +40,16 @@ import type { Clan } from "@/types/clan";
 export default async function Home() {
   /**
    * Recupera a configuração do K.O.D. no catálogo central.
-   *
-   * A tag do clã fica centralizada em config/clans.ts,
-   * evitando valores duplicados ou escritos diretamente
-   * dentro das páginas da aplicação.
    */
   const defaultClan = clans.kod;
 
   /**
    * Carrega simultaneamente:
-   *
-   * 1. Os dados gerais do clã.
-   * 2. Os dados da guerra atual do mesmo clã.
-   *
-   * Promise.all permite executar as duas requisições ao mesmo
-   * tempo, reduzindo o tempo total de carregamento da página.
-   *
-   * As duas consultas recebem a mesma tag, garantindo que
-   * os dados gerais e a guerra pertençam ao mesmo clã.
+   * 1. Dados gerais do clã.
+   * 2. Dados da guerra atual.
    */
   let clan: Clan | null = null;
+
   let currentWar: CurrentWarResult = {
     available: false,
     reason: "unavailable",
@@ -72,12 +61,6 @@ export default async function Home() {
       getCurrentWar(defaultClan.tag),
     ]);
   } catch (error) {
-    /**
-     * Registra o erro apenas no servidor.
-     *
-     * Dessa forma conseguimos identificar problemas de
-     * infraestrutura sem interromper o carregamento da página.
-     */
     console.error("Erro ao carregar os dados do Dashboard:", error);
   }
 

@@ -79,7 +79,11 @@ export function Navbar() {
    * Releases, o K.O.D. será considerado o clã padrão.
    */
   const currentClanSlug =
-    typeof params.slug === "string" ? params.slug : clans.kod.slug;
+    typeof params.slug === "string"
+      ? params.slug
+      : typeof params.clan === "string"
+        ? params.clan
+        : clans.kod.slug;
 
   /**
    * Links compartilhados entre a navegação desktop
@@ -92,7 +96,7 @@ export function Navbar() {
     },
     {
       label: "Guerra",
-      href: `/${locale}/war`,
+      href: `/${locale}/war/${currentClanSlug}`,
     },
     {
       label: "CWL",
@@ -235,7 +239,7 @@ export function Navbar() {
              * No celular esse link estará dentro do menu.
              */}
             <Link
-              href={`/${locale}/war`}
+              href={`/${locale}/war/${currentClanSlug}`}
               className="hidden rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-2.5 text-sm font-semibold text-amber-300 transition duration-200 hover:border-amber-300 hover:bg-amber-400/20 lg:inline-flex"
             >
               Sala de Guerra
@@ -362,7 +366,6 @@ export function Navbar() {
             </svg>
           </button>
         </div>
-
         {/*
          * Links principais do menu mobile.
          */}
@@ -389,18 +392,7 @@ export function Navbar() {
             );
           })}
         </nav>
-
-        {/*
-         * Botão principal fixado na parte inferior do painel.
-         */}
-        <div className="border-t border-slate-800 p-5">
-          <Link
-            href={`/${locale}/war`}
-            className="flex min-h-14 w-full items-center justify-center rounded-xl bg-amber-400 px-5 text-center font-bold text-slate-950 transition duration-200 hover:bg-amber-300"
-          >
-            Abrir Sala de Guerra
-          </Link>
-        </div>
+        v
       </aside>
     </>
   );

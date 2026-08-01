@@ -145,13 +145,84 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.6.0",
+    title: "War Intelligence Foundation",
+    date: "2026-08-01",
+    summary:
+      "Evolução da Sala de Guerra com acompanhamento individual dos participantes, mapa comparativo entre os clãs e navegação dinâmica por clã.",
+
+    current: true,
+
+    changes: [
+      {
+        type: "feature",
+        title: "Mapa comparativo da guerra",
+        description:
+          "As bases do clã selecionado e do adversário agora são apresentadas lado a lado, organizadas pela posição ocupada no mapa.",
+      },
+      {
+        type: "feature",
+        title: "Ataques pendentes",
+        description:
+          "Criada uma seção que identifica jogadores com nenhum, um ou dois ataques ainda disponíveis.",
+      },
+      {
+        type: "feature",
+        title: "Resumo defensivo",
+        description:
+          "O mapa apresenta a quantidade de bases destruídas, danificadas e ainda não atacadas em cada lado da guerra.",
+      },
+      {
+        type: "feature",
+        title: "Sala de Guerra por clã",
+        description:
+          "K.O.D. e K.O.D.rec passaram a possuir páginas próprias de guerra por meio das rotas dinâmicas /war/kod e /war/kod-rec.",
+      },
+      {
+        type: "improvement",
+        title: "Navegação contextual por clã",
+        description:
+          "O Hero, o resumo da guerra e o seletor de clãs passaram a respeitar o clã atualmente selecionado.",
+      },
+      {
+        type: "improvement",
+        title: "Dashboard unificado",
+        description:
+          "A página inicial agora redireciona para o painel completo do clã principal, eliminando uma implementação duplicada e incompleta.",
+      },
+      {
+        type: "improvement",
+        title: "Identificação correta no seletor",
+        description:
+          "O seletor reconhece o clã atual tanto nas rotas /clans/[slug] quanto nas rotas /war/[clan].",
+      },
+      {
+        type: "fix",
+        title: "Diagnóstico de erros da Clash API",
+        description:
+          "O sistema agora diferencia histórico privado, IP não autorizado e indisponibilidade temporária da API.",
+      },
+      {
+        type: "technical",
+        title: "Tipagem dos participantes da guerra",
+        description:
+          "Foram adicionados os modelos de membros, ataques realizados e melhores ataques recebidos.",
+      },
+      {
+        type: "technical",
+        title: "Fundação para inteligência de guerra",
+        description:
+          "A estrutura atual prepara o portal para Timeline, histórico por jogador, histórico por base e análises de desempenho.",
+      },
+    ],
+  },
+
+  {
     version: "0.5.0",
     title: "War Center",
     date: "2026-07-29",
     summary:
       "Primeira versão da Sala de Guerra, com uma página dedicada ao acompanhamento da guerra atual utilizando dados reais da Clash of Clans API.",
-
-    current: true,
 
     changes: [
       {

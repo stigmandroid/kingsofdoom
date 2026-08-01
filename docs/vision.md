@@ -212,6 +212,62 @@ Exemplos:
 
 Todo desenvolvimento deve seguir os seguintes princípios.
 
+## Respostas, não apenas dados
+
+O sistema não deve obrigar o usuário a procurar informações espalhadas.
+
+Cada tela deve responder de forma rápida e objetiva às perguntas reais feitas durante uma guerra.
+
+Exemplos:
+
+- Quem atacou determinada base?
+- Quais ataques um jogador realizou?
+- Quantas vezes uma vila defendeu?
+- Quem ainda possui ataques?
+- Qual foi o melhor ataque recebido?
+- Como cada jogador está desempenhando?
+
+---
+
+## Transparência de desempenho
+
+O Kings of Doom deve apresentar os resultados de forma objetiva e imparcial.
+
+O sistema não deve esconder desempenhos abaixo do esperado, nem utilizar os dados para constranger jogadores.
+
+As informações devem permitir:
+
+- reconhecer jogadores consistentes;
+- identificar oportunidades de evolução;
+- comparar desempenho;
+- apoiar decisões baseadas em evidências;
+- separar resultados fortes de resultados insuficientes por critérios claros.
+
+---
+
+## Experiência para todos os jogadores
+
+A plataforma não é destinada somente à liderança.
+
+Líderes, co-líderes e membros devem conseguir acompanhar guerras, consultar seu desempenho e compreender a atividade dos demais participantes.
+
+---
+
+## Acesso e personalização
+
+Os dados públicos do clã devem permanecer acessíveis sem autenticação.
+
+O login será utilizado futuramente para personalização, incluindo:
+
+- painel pessoal;
+- jogador vinculado;
+- filtros salvos;
+- favoritos;
+- notificações;
+- preferências.
+
+Recursos administrativos e informações internas poderão exigir permissões específicas.
+
 ## Clareza
 
 A interface deve apresentar informações importantes de forma simples e objetiva.

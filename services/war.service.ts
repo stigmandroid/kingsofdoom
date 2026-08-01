@@ -100,21 +100,48 @@ export async function getCurrentWar(
   );
 
   /**
-   * A API retorna 403 quando o histórico de guerra do clã
-   * está configurado como privado.
-   */
-  if (response.status === 403) {
-    return {
-      available: false,
-      reason: "privateWarLog",
-    };
-  }
-
-  /**
-   * Para qualquer outro erro da API, devolvemos um resultado
-   * controlado para que a página continue funcionando.
+   * Trata respostas de erro da Clash API.
+   *
+   * Nem todo status 403 significa histórico privado.
+   * Ele também pode indicar token inválido ou IP não autorizado.
    */
   if (!response.ok) {
+    const errorData = (await response.json().catch(() => null)) as {
+      reason?: string;
+      message?: string;
+    } | null;
+
+    /**
+     * Registra o erro somente no servidor para diagnóstico.
+     * O token nunca é exibido.
+     */
+    console.error("[Kings of Doom] Erro ao consultar guerra:", {
+      clanTag,
+      status: response.status,
+      reason: errorData?.reason,
+      message: errorData?.message,
+    });
+
+    /**
+     * Identifica especificamente quando a API informa
+     * que o histórico de guerra está privado.
+     */
+    const apiErrorText = [errorData?.reason, errorData?.message]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    if (response.status === 403 && apiErrorText.includes("private")) {
+      return {
+        available: false,
+        reason: "privateWarLog",
+      };
+    }
+
+    /**
+     * Outros erros, inclusive IP não autorizado,
+     * são tratados como indisponibilidade da API.
+     */
     return {
       available: false,
       reason: "unavailable",

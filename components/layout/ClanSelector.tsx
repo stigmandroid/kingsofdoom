@@ -85,12 +85,23 @@ export function ClanSelector() {
   const locale = typeof params.locale === "string" ? params.locale : "pt-BR";
 
   /**
-   * Recupera o slug diretamente dos parâmetros da rota.
+   * Identifica o clã diretamente pelo endereço atual.
    *
-   * Quando a página atual não for uma rota de clã, como
-   * /pt-BR ou /pt-BR/war, o valor será undefined.
+   * Exemplos reconhecidos:
+   *
+   * /pt-BR/clans/kod
+   * /pt-BR/clans/kod-rec
+   * /pt-BR/war/kod
+   * /pt-BR/war/kod-rec
    */
-  const routeSlug = typeof params.slug === "string" ? params.slug : undefined;
+  const routeSlug = clanOptions.find((clan) => {
+    return (
+      pathname === `/${locale}/clans/${clan.slug}` ||
+      pathname.startsWith(`/${locale}/clans/${clan.slug}/`) ||
+      pathname === `/${locale}/war/${clan.slug}` ||
+      pathname.startsWith(`/${locale}/war/${clan.slug}/`)
+    );
+  })?.slug;
 
   /**
    * Procura no catálogo o clã correspondente ao slug atual.

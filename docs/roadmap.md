@@ -36,7 +36,7 @@
 
 # Última atualização:
 
-# 27/07/2026
+# 01/08/2026
 
 #
 
@@ -84,13 +84,13 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 **Versão atual**
 
 ```
-v0.4.0
+v0.6.0
 ```
 
 **Fase do projeto**
 
 ```
-Fundação da Plataforma
+War Command Center
 ```
 
 **Objetivo atual**
@@ -103,73 +103,95 @@ Construir uma base sólida para permitir a evolução do projeto nos próximos a
 
 ---
 
-# v0.5.0 — Dashboard Intelligence
+# ✅ v0.5.0 — War Center
 
 ## Objetivo
 
-Transformar o Dashboard em um verdadeiro Centro de Comando.
+Criar a primeira Sala de Guerra conectada aos dados reais da Clash API.
 
-### Planejamento
+### Entregas
 
-🟨 Correção do contador da guerra
+✅ Página dedicada da Sala de Guerra
 
-⬜ Melhorias na Sala de Guerra
+✅ Placar em tempo real
 
-⬜ Melhorias de responsividade
+✅ Estrelas, destruição e ataques realizados
 
-⬜ Player Intelligence (Primeira versão)
+✅ Contagem regressiva
 
-⬜ Melhorias de acessibilidade
+✅ Tratamento de guerra privada ou indisponível
 
-⬜ Melhor organização do código
-
-⬜ Padronização completa da documentação
+✅ Componente de guerra reutilizável
 
 ---
 
-# v0.6.0 — Analytics Foundation
+# 🟨 v0.6.0 — War Intelligence Foundation
 
 ## Objetivo
 
-Transformar dados em indicadores de desempenho.
+Transformar a Sala de Guerra em uma ferramenta prática de acompanhamento e consulta.
 
-### Planejamento
+### Entregas concluídas
 
-⬜ Histórico de guerras
+✅ Sala de Guerra dinâmica por clã
 
-⬜ Estatísticas de jogadores
+✅ Mapa comparativo K.O.D. × adversário
 
-⬜ Evolução semanal
+✅ Participantes organizados pela posição do mapa
 
-⬜ Rankings
+✅ Bases destruídas, danificadas e intactas
 
-⬜ Indicadores de atividade
+✅ Ataques pendentes por jogador
 
-⬜ Comparativos entre guerras
+✅ Navegação contextual entre K.O.D. e K.O.D.rec
 
-⬜ Dashboard analítico
+✅ Dashboard unificado
+
+✅ Diagnóstico aprimorado da Clash API
+
+### Próximas entregas
+
+⬜ Histórico completo de ataques realizados
+
+⬜ Ataques recebidos por cada base
+
+⬜ Visão individual por jogador
+
+⬜ Visão detalhada por base
+
+⬜ Timeline inteligente da guerra
+
+⬜ Filtros por clã, jogador, base e resultado
+
+⬜ Indicadores ofensivos e defensivos
 
 ---
 
-# v0.7.0 — Intelligence
+# v0.7.0 — War Intelligence
 
 ## Objetivo
 
-Adicionar inteligência ao sistema utilizando análise de dados.
+Organizar os eventos da guerra para responder rapidamente às principais dúvidas dos jogadores.
 
 ### Planejamento
 
-⬜ Insights automáticos
+⬜ Timeline completa entre os dois clãs
 
-⬜ Recomendações para líderes
+⬜ Pesquisa por jogador
 
-⬜ Indicadores de desempenho
+⬜ Pesquisa por posição do mapa
 
-⬜ Tendências de evolução
+⬜ Ataques realizados e recebidos
 
-⬜ Alertas inteligentes
+⬜ Quantidade de defesas por base
 
-⬜ Resumos automáticos
+⬜ Melhor e pior resultado ofensivo
+
+⬜ Melhor desempenho defensivo
+
+⬜ Relatório individual da guerra
+
+⬜ Resumo final da guerra
 
 ---
 

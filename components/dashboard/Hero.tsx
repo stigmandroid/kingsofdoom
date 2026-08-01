@@ -4,11 +4,30 @@ import { getTranslations } from "next-intl/server";
 
 import type { Clan } from "@/types/clan";
 
+/**
+ * Propriedades recebidas pelo Hero.
+ */
 type HeroProps = {
+  /**
+   * Dados completos do clã atualmente selecionado.
+   */
   clan: Clan;
+
+  /**
+   * Endereço localizado da Sala de Guerra
+   * correspondente ao clã atual.
+   *
+   * Exemplos:
+   * /pt-BR/war/kod
+   * /pt-BR/war/kod-rec
+   */
+  warRoomHref: string;
 };
 
-export async function Hero({ clan }: HeroProps) {
+/**
+ * Renderiza a apresentação principal do clã.
+ */
+export async function Hero({ clan, warRoomHref }: HeroProps) {
   const t = await getTranslations("Hero");
 
   return (
@@ -36,20 +55,21 @@ export async function Hero({ clan }: HeroProps) {
 
           <h1 className="mt-8 text-5xl font-black leading-none tracking-tight text-white sm:text-6xl lg:text-7xl">
             {t("headlineFirst")}
+
             <span className="block text-amber-400">{t("headlineSecond")}</span>
           </h1>
 
           <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300 sm:text-xl">
             {t("descriptionBeforeClan")}{" "}
             <span translate="no" className="notranslate font-bold text-white">
-              Kings of Doom
+              {clan.name}
             </span>
             . {t("descriptionAfterClan")}
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
-              href="/war"
+              href={warRoomHref}
               className="inline-flex items-center justify-center rounded-xl bg-amber-400 px-6 py-3.5 font-black text-slate-950 transition hover:-translate-y-0.5 hover:bg-amber-300"
             >
               {t("openWarRoom")}

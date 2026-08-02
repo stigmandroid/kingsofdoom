@@ -522,34 +522,65 @@ function WarMapMember({
               Melhor ataque recebido
             </p>
 
-            <div className="mt-2">
+            {/* ===========================
+      MOBILE
+      Resultado + botão lado a lado
+  ============================ */}
+            <div className="mt-2 flex items-center justify-between gap-3 lg:hidden">
               <WarAttackResult
                 attack={bestDefenseResult}
                 perspective={alignment === "left" ? "own" : "opponent"}
               />
+
+              <button
+                type="button"
+                onClick={() => setIsExpanded((currentState) => !currentState)}
+                aria-expanded={isExpanded}
+                className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-300 transition hover:border-amber-400/50 hover:text-amber-300"
+              >
+                <span>{isExpanded ? "Ocultar" : "Detalhes"}</span>
+
+                <span
+                  aria-hidden="true"
+                  className={`transition-transform ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                >
+                  ▾
+                </span>
+              </button>
             </div>
 
-            {/*
-             * Botão de expansão posicionado junto das
-             * informações principais do jogador.
-             */}
-            <button
-              type="button"
-              onClick={() => setIsExpanded((currentState) => !currentState)}
-              aria-expanded={isExpanded}
-              className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-300 transition hover:border-amber-400/50 hover:text-amber-300"
-            >
-              {isExpanded ? "Ocultar detalhes" : "Ver detalhes"}
+            {/* ===========================
+      DESKTOP
+      Mantém exatamente o layout antigo
+  ============================ */}
+            <div className="hidden lg:block">
+              <div className="mt-2">
+                <WarAttackResult
+                  attack={bestDefenseResult}
+                  perspective={alignment === "left" ? "own" : "opponent"}
+                />
+              </div>
 
-              <span
-                aria-hidden="true"
-                className={`transition-transform ${
-                  isExpanded ? "rotate-180" : ""
-                }`}
+              <button
+                type="button"
+                onClick={() => setIsExpanded((currentState) => !currentState)}
+                aria-expanded={isExpanded}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-300 transition hover:border-amber-400/50 hover:text-amber-300"
               >
-                ▾
-              </span>
-            </button>
+                {isExpanded ? "Ocultar detalhes" : "Ver detalhes"}
+
+                <span
+                  aria-hidden="true"
+                  className={`transition-transform ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                >
+                  ▾
+                </span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -648,34 +679,38 @@ function WarAttackResult({ attack, perspective }: WarAttackResultProps) {
 
     return (
       <div
-        className={`inline-flex w-fit items-center gap-2 rounded-lg border px-3 py-2 text-sm font-bold ${notAttackedClassName}`}
+        className={`inline-flex w-fit items-center gap-2 whitespace-nowrap rounded-lg border px-3 py-2 text-sm font-bold ${notAttackedClassName}`}
       >
         <span aria-hidden="true">●</span>
-        Não atacada
+        <span>Não atacada</span>
       </div>
     );
   }
 
+  /**
+   * Define as cores do resultado conforme
+   * a quantidade de estrelas e a perspectiva.
+   */
   const resultClassName = getAttackResultClassName(attack.stars, perspective);
 
   return (
     <div
-      className={`inline-flex w-fit flex-wrap items-center gap-3 rounded-lg border px-3 py-2 ${resultClassName}`}
+      className={`inline-flex w-fit max-w-full items-center gap-2 whitespace-nowrap rounded-lg border px-3 py-2 ${resultClassName}`}
     >
       <span
         aria-label={`${attack.stars} estrelas`}
-        className="font-black tracking-wider"
+        className="shrink-0 font-black tracking-wider"
       >
         {"★".repeat(attack.stars)}
         {"☆".repeat(Math.max(0, 3 - attack.stars))}
       </span>
 
-      <span className="text-sm font-black">
+      <span className="shrink-0 text-sm font-black">
         {formatPercentage(attack.destructionPercentage)}
       </span>
 
-      <span className="text-xs font-semibold opacity-80">
-        {formatDuration(attack.duration)}
+      <span className="shrink-0 text-xs font-semibold opacity-80">
+        {formatDurationCompact(attack.duration)}
       </span>
     </div>
   );
@@ -760,4 +795,27 @@ function formatDuration(totalSeconds: number): string {
  */
 function formatMapPosition(position: number): string {
   return `#${position.toString().padStart(2, "0")}`;
+}
+
+/**
+ * Converte uma duração em segundos para um formato compacto.
+ *
+ * Exemplos:
+ * 59  → 59s
+ * 60  → 1m
+ * 139 → 2m19s
+ */
+function formatDurationCompact(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (minutes === 0) {
+    return `${seconds}s`;
+  }
+
+  if (seconds === 0) {
+    return `${minutes}m`;
+  }
+
+  return `${minutes}m${seconds}s`;
 }

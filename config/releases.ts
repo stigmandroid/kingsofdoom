@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 26/07/2026
+ * 01/08/2026
  * ==========================================================
  */
 
@@ -145,13 +145,120 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.7.0",
+    title: "War Intelligence",
+    date: "2026-08-01",
+    summary:
+      "A Sala de Guerra agora apresenta inteligência individual dos participantes, histórico expansível de ataques, métricas ofensivas e defensivas e uma experiência visual aprimorada.",
+
+    current: true,
+
+    changes: [
+      {
+        type: "feature",
+        title: "Indicadores ofensivos por jogador",
+        description:
+          "Cada participante agora apresenta ataques utilizados, ataques restantes, estrelas conquistadas e destruição acumulada.",
+      },
+      {
+        type: "feature",
+        title: "Indicadores defensivos individuais",
+        description:
+          "Os cards passaram a exibir a quantidade de ataques recebidos e o melhor resultado obtido contra cada base.",
+      },
+      {
+        type: "feature",
+        title: "Histórico de ataques realizados",
+        description:
+          "Cada jogador possui uma área expansível com todos os ataques executados durante a guerra.",
+      },
+      {
+        type: "feature",
+        title: "Histórico de ataques recebidos",
+        description:
+          "As bases agora apresentam todos os ataques recebidos, permitindo identificar rapidamente quem atacou cada jogador.",
+      },
+      {
+        type: "feature",
+        title: "Identificação completa dos confrontos",
+        description:
+          "O histórico apresenta atacante, alvo, posição no mapa, estrelas, destruição e duração de cada ataque.",
+      },
+      {
+        type: "improvement",
+        title: "Detalhes expansíveis",
+        description:
+          "O histórico individual permanece oculto até que o usuário selecione Ver detalhes, preservando a leitura compacta do mapa.",
+      },
+      {
+        type: "improvement",
+        title: "Duração em minutos e segundos",
+        description:
+          "Os tempos dos ataques agora são apresentados em um formato legível, eliminando a necessidade de conversão manual.",
+      },
+      {
+        type: "improvement",
+        title: "Posições padronizadas",
+        description:
+          "As posições do mapa passaram a utilizar dois dígitos, como #01, #02 e #10, mantendo o alinhamento visual.",
+      },
+      {
+        type: "improvement",
+        title: "Cores por perspectiva",
+        description:
+          "Os resultados defensivos agora utilizam cores diferentes conforme representem um resultado positivo ou negativo para o clã selecionado.",
+      },
+      {
+        type: "improvement",
+        title: "Experiência mobile da guerra",
+        description:
+          "O layout mobile passou a exibir os nomes reais dos clãs, posições compactas e informações individuais organizadas.",
+      },
+      {
+        type: "feature",
+        title: "Footer global",
+        description:
+          "Todas as páginas localizadas receberam um rodapé com identidade do projeto, versão atual e links de navegação.",
+      },
+      {
+        type: "improvement",
+        title: "Navegação entre Releases e Roadmap",
+        description:
+          "O rodapé permite acessar diretamente o histórico de versões e a seção pública do roadmap.",
+      },
+      {
+        type: "improvement",
+        title: "Hero com identidade K.O.D.",
+        description:
+          "O escudo genérico foi substituído pelo logotipo oficial do K.O.D., reforçando a identidade visual do portal.",
+      },
+      {
+        type: "improvement",
+        title: "Animação do logotipo",
+        description:
+          "O Hero recebeu iluminação dourada, flutuação suave e efeitos visuais compatíveis com desktop e dispositivos móveis.",
+      },
+      {
+        type: "technical",
+        title: "Componente de histórico especializado",
+        description:
+          "O histórico de ataques foi isolado em um componente próprio, permitindo evolução independente e reutilização futura.",
+      },
+      {
+        type: "technical",
+        title: "Estado interativo nos cards da guerra",
+        description:
+          "Os participantes passaram a controlar individualmente a abertura e o fechamento de seus detalhes.",
+      },
+    ],
+  },
+
+  {
     version: "0.6.0",
     title: "War Intelligence Foundation",
     date: "2026-08-01",
     summary:
       "Evolução da Sala de Guerra com acompanhamento individual dos participantes, mapa comparativo entre os clãs e navegação dinâmica por clã.",
-
-    current: true,
 
     changes: [
       {
@@ -478,76 +585,76 @@ export const releases: Release[] = [
 export const roadmap: RoadmapPhase[] = [
   {
     phase: 1,
-    title: "Navegação responsiva",
+    title: "War Intelligence",
     status: "in-development",
     description:
-      "Finalização da experiência de navegação em computadores, tablets e celulares.",
+      "Evolução contínua da Sala de Guerra com informações ofensivas, defensivas e históricas de fácil consulta.",
 
     items: [
       {
-        title: "Menu hambúrguer",
+        title: "Pesquisa por jogador",
         description:
-          "Adicionar um botão de navegação específico para telas menores.",
+          "Permitir localizar rapidamente um participante dentro da guerra.",
       },
       {
-        title: "Drawer mobile",
+        title: "Filtros por resultado",
         description:
-          "Criar um painel lateral responsivo com os principais links do portal.",
+          "Filtrar ataques por estrelas, destruição, atacante, alvo ou posição.",
       },
       {
-        title: "Links funcionais",
+        title: "Timeline completa",
         description:
-          "Conectar os itens da barra de navegação às páginas correspondentes.",
+          "Organizar cronologicamente todos os ataques realizados pelos dois clãs.",
       },
       {
-        title: "Página ativa",
+        title: "Resumo final da guerra",
         description:
-          "Destacar visualmente a seção que o visitante está acessando.",
+          "Gerar uma visão consolidada dos principais resultados após o encerramento.",
       },
       {
-        title: "Seletor de clãs mobile",
-        description: "Adaptar a troca entre os clãs para dispositivos móveis.",
+        title: "Histórico de guerras",
+        description:
+          "Armazenar e apresentar guerras anteriores para consultas e comparações.",
       },
     ],
   },
 
   {
     phase: 2,
-    title: "Estrutura do portal",
+    title: "CWL Intelligence Foundation",
     status: "next",
     description:
-      "Construção dos elementos globais e das páginas institucionais do projeto.",
+      "Construção da primeira experiência dedicada à Liga de Guerras de Clãs.",
 
     items: [
       {
-        title: "Footer global",
+        title: "Página dedicada da CWL",
         description:
-          "Adicionar rodapé com identidade do projeto, versão atual e links importantes.",
+          "Criar uma rota própria para acompanhar a temporada atual da liga.",
       },
       {
-        title: "Página de roadmap",
+        title: "Classificação do grupo",
         description:
-          "Apresentar publicamente as próximas etapas de desenvolvimento do portal.",
+          "Exibir posição, estrelas, destruição e resultados acumulados dos clãs.",
       },
       {
-        title: "Release Notes aprimoradas",
-        description:
-          "Melhorar a apresentação visual do histórico de versões e atualizações.",
+        title: "Rodadas da temporada",
+        description: "Apresentar todas as rodadas e seus respectivos estados.",
       },
       {
-        title: "Estados de carregamento",
+        title: "Navegação entre rodadas",
         description:
-          "Criar feedback visual durante consultas e carregamentos de informações.",
+          "Permitir consultar facilmente cada confronto da temporada.",
       },
       {
-        title: "Tratamento visual de erros",
+        title: "Desempenho acumulado",
         description:
-          "Exibir mensagens amigáveis quando uma consulta ou página não puder ser carregada.",
+          "Calcular estrelas, destruição, ataques e resultados durante a CWL.",
       },
       {
-        title: "SEO e metadados",
+        title: "Detalhes da guerra selecionada",
         description:
-          "Adicionar títulos, descrições e informações específicas para cada página.",
+          "Reutilizar componentes da Sala de Guerra para apresentar cada rodada.",
       },
     ],
   },
@@ -595,46 +702,31 @@ export const roadmap: RoadmapPhase[] = [
 
   {
     phase: 4,
-    title: "War Command Center",
+    title: "Community",
     status: "planned",
     description:
-      "Transformação da área de guerras em um centro completo de acompanhamento e análise.",
+      "Criação de ferramentas voltadas à gestão, organização e desenvolvimento dos membros.",
 
     items: [
       {
-        title: "Mapa da guerra",
+        title: "Gestão de membros",
         description:
-          "Exibir os participantes de cada clã organizados pelas posições do mapa.",
+          "Criar recursos para acompanhar a composição e a atividade do clã.",
       },
       {
-        title: "Ataques realizados",
+        title: "Histórico individual",
         description:
-          "Apresentar os ataques já executados durante a guerra atual.",
+          "Consolidar a participação e os resultados de cada jogador.",
       },
       {
-        title: "Ataques restantes",
+        title: "Recrutamento",
         description:
-          "Identificar rapidamente quais jogadores ainda possuem ataques disponíveis.",
+          "Criar ferramentas para apoiar o processo de entrada de novos membros.",
       },
       {
-        title: "Desempenho individual",
+        title: "Funções e permissões",
         description:
-          "Mostrar estrelas, destruição e eficiência de cada participante.",
-      },
-      {
-        title: "Histórico de guerras",
-        description:
-          "Criar uma página com os resultados das guerras anteriores.",
-      },
-      {
-        title: "Comparação de desempenho",
-        description:
-          "Comparar resultados ofensivos e defensivos entre diferentes guerras.",
-      },
-      {
-        title: "Estatísticas do clã",
-        description:
-          "Gerar indicadores gerais de desempenho competitivo do clã.",
+          "Organizar recursos específicos para líderes, co-líderes e membros.",
       },
     ],
   },
@@ -666,6 +758,11 @@ export const roadmap: RoadmapPhase[] = [
         title: "Indicadores de atividade",
         description:
           "Criar métricas para ajudar a identificar participação e regularidade.",
+      },
+      {
+        title: "Insights automáticos",
+        description:
+          "Transformar os dados coletados em informações prontas para consulta.",
       },
     ],
   },

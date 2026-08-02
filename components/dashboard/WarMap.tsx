@@ -30,7 +30,11 @@
  * ==========================================================
  */
 
+"use client";
+
+import { useState } from "react";
 import type { CurrentWarResult, WarMember } from "@/types/war";
+import { WarAttackHistory } from "./WarAttackHistory";
 
 /**
  * Propriedades recebidas pelo componente principal.
@@ -133,23 +137,33 @@ export function WarMap({ result }: WarMapProps) {
     return null;
   }
 
+  /**
+   * Após a validação acima, armazenamos os dois lados
+   * em constantes locais para preservar o refinamento
+   * de tipos dentro dos callbacks abaixo.
+   */
   const war = result.war;
 
   /**
    * O comparativo depende obrigatoriamente dos dois lados.
-   *
-   * Caso algum deles não seja retornado pela API,
-   * evitamos acessar propriedades inexistentes.
    */
   if (!war.clan || !war.opponent) {
     return null;
   }
 
   /**
+   * Após a validação acima, armazenamos os dois lados
+   * em constantes locais para preservar o refinamento
+   * de tipos dentro dos callbacks abaixo.
+   */
+  const clan = war.clan;
+  const opponent = war.opponent;
+
+  /**
    * Ordena os jogadores do clã principal pela posição
    * ocupada no mapa da guerra.
    */
-  const clanMembers = [...war.clan.members].sort(
+  const clanMembers = [...clan.members].sort(
     (a, b) => a.mapPosition - b.mapPosition,
   );
 
@@ -157,7 +171,7 @@ export function WarMap({ result }: WarMapProps) {
    * Ordena os jogadores do adversário pela posição
    * ocupada no mapa da guerra.
    */
-  const opponentMembers = [...war.opponent.members].sort(
+  const opponentMembers = [...opponent.members].sort(
     (a, b) => a.mapPosition - b.mapPosition,
   );
 
@@ -220,11 +234,16 @@ export function WarMap({ result }: WarMapProps) {
            * Resumo defensivo dos dois clãs.
            */}
           <div className="mt-8 grid gap-4 lg:grid-cols-2">
-            <WarSummary clanName={war.clan.name} summary={clanSummary} />
+            <WarSummary
+              clanName={clan.name}
+              summary={clanSummary}
+              perspective="own"
+            />
 
             <WarSummary
-              clanName={war.opponent.name}
+              clanName={opponent.name}
               summary={opponentSummary}
+              perspective="opponent"
             />
           </div>
 
@@ -259,7 +278,15 @@ export function WarMap({ result }: WarMapProps) {
            */}
           <div className="mt-4 space-y-3">
             {mapRows.map((row) => (
-              <WarMapRow key={row.clan.mapPosition} row={row} />
+              <WarMapRow
+                key={row.clan.mapPosition}
+                row={row}
+                attacksPerMember={war.attacksPerMember ?? 2}
+                clanName={clan.name}
+                opponentName={opponent.name}
+                clanMembers={clanMembers}
+                opponentMembers={opponentMembers}
+              />
             ))}
           </div>
 
@@ -280,25 +307,32 @@ export function WarMap({ result }: WarMapProps) {
   );
 }
 
-/**
- * Propriedades do resumo defensivo.
- */
 type WarSummaryProps = {
-  /**
-   * Nome oficial do clã.
-   */
   clanName: string;
+  summary: WarMapSummary;
 
   /**
-   * Indicadores defensivos calculados.
+   * Define se o resumo pertence ao nosso clã
+   * ou ao adversário.
    */
-  summary: WarMapSummary;
+  perspective: "own" | "opponent";
 };
 
-/**
- * Exibe o resumo defensivo de um dos clãs.
- */
-function WarSummary({ clanName, summary }: WarSummaryProps) {
+function WarSummary({ clanName, summary, perspective }: WarSummaryProps) {
+  /**
+   * Para o adversário, bases destruídas representam
+   * um resultado positivo para o nosso clã.
+   */
+  const destroyedClassName =
+    perspective === "own" ? "text-red-400" : "text-emerald-400";
+
+  /**
+   * Para o adversário, bases intactas representam
+   * um resultado negativo para o nosso clã.
+   */
+  const intactClassName =
+    perspective === "own" ? "text-emerald-400" : "text-red-400";
+
   return (
     <article className="rounded-2xl border border-slate-800 bg-slate-950/70 p-5">
       <h3
@@ -312,7 +346,7 @@ function WarSummary({ clanName, summary }: WarSummaryProps) {
         <WarSummaryItem
           label="Destruídas"
           value={summary.destroyed}
-          valueClassName="text-red-400"
+          valueClassName={destroyedClassName}
         />
 
         <WarSummaryItem
@@ -324,7 +358,7 @@ function WarSummary({ clanName, summary }: WarSummaryProps) {
         <WarSummaryItem
           label="Intactas"
           value={summary.intact}
-          valueClassName="text-emerald-400"
+          valueClassName={intactClassName}
         />
       </div>
     </article>
@@ -359,48 +393,47 @@ function WarSummaryItem({ label, value, valueClassName }: WarSummaryItemProps) {
  * Propriedades recebidas por cada linha do mapa.
  */
 type WarMapRowProps = {
-  /**
-   * Par de jogadores que ocupam a mesma posição.
-   */
   row: WarMapPair;
+  attacksPerMember: number;
+  clanName: string;
+  opponentName: string;
+  clanMembers: WarMember[];
+  opponentMembers: WarMember[];
 };
 
-/**
- * Exibe uma posição do mapa com os dois lados da guerra.
- */
-function WarMapRow({ row }: WarMapRowProps) {
+function WarMapRow({
+  row,
+  attacksPerMember,
+  clanName,
+  opponentName,
+  clanMembers,
+  opponentMembers,
+}: WarMapRowProps) {
   const { clan, opponent } = row;
 
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/70">
       <div className="grid lg:grid-cols-[1fr_auto_1fr]">
-        {/*
-         * Base do clã principal.
-         */}
-        <WarMapMember member={clan} alignment="left" mobileLabel="K.O.D." />
+        <WarMapMember
+          member={clan}
+          alignment="left"
+          mobileLabel={clanName}
+          attacksPerMember={attacksPerMember}
+          enemyMembers={opponentMembers}
+        />
 
-        {/*
-         * Divisor central.
-         */}
         <div className="flex items-center justify-center border-y border-slate-800 px-4 py-3 lg:border-x lg:border-y-0">
-          <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-slate-600">
-              Posição
-            </p>
-
-            <p className="mt-1 text-xl font-black text-white">
-              #{clan.mapPosition}
-            </p>
-          </div>
+          <p className="text-2xl font-black text-white">
+            {formatMapPosition(clan.mapPosition)}
+          </p>
         </div>
 
-        {/*
-         * Base do clã adversário.
-         */}
         <WarMapMember
           member={opponent}
           alignment="right"
-          mobileLabel="Adversário"
+          mobileLabel={opponentName}
+          attacksPerMember={attacksPerMember}
+          enemyMembers={clanMembers}
         />
       </div>
     </article>
@@ -411,60 +444,169 @@ function WarMapRow({ row }: WarMapRowProps) {
  * Propriedades de um jogador dentro da linha comparativa.
  */
 type WarMapMemberProps = {
-  /**
-   * Jogador exibido.
-   */
   member: WarMember;
-
-  /**
-   * Alinhamento utilizado no desktop.
-   */
   alignment: "left" | "right";
-
-  /**
-   * Identificação exibida somente em telas menores.
-   */
   mobileLabel: string;
+  attacksPerMember: number;
+  enemyMembers: WarMember[];
 };
 
-/**
- * Exibe os dados defensivos de uma base.
- */
-function WarMapMember({ member, alignment, mobileLabel }: WarMapMemberProps) {
-  const attack = member.bestOpponentAttack;
+function WarMapMember({
+  member,
+  alignment,
+  mobileLabel,
+  attacksPerMember,
+  enemyMembers,
+}: WarMapMemberProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const bestDefenseResult = member.bestOpponentAttack;
 
   /**
-   * Alinhamento visual específico para cada lado.
+   * A API pode omitir attacks quando nenhum ataque
+   * foi realizado.
    */
+  const attacks = member.attacks ?? [];
+
+  /**
+   * Indicadores ofensivos do jogador.
+   */
+  const attacksUsed = attacks.length;
+
+  const attacksRemaining = Math.max(attacksPerMember - attacksUsed, 0);
+
+  const starsEarned = attacks.reduce(
+    (total, attack) => total + attack.stars,
+    0,
+  );
+
+  const destructionTotal = attacks.reduce(
+    (total, attack) => total + attack.destructionPercentage,
+    0,
+  );
+
   const alignmentClasses =
     alignment === "left"
       ? "lg:text-left lg:items-start"
       : "lg:text-right lg:items-end";
 
   return (
-    <div className={`flex flex-col gap-4 p-5 ${alignmentClasses}`}>
+    <div className={`flex flex-col gap-5 p-5 ${alignmentClasses}`}>
       <p className="text-xs font-black uppercase tracking-[0.22em] text-slate-600 lg:hidden">
         {mobileLabel}
       </p>
 
-      <div
-        className={`flex w-full flex-wrap items-center gap-3 ${
-          alignment === "right" ? "lg:flex-row-reverse" : ""
-        }`}
-      >
-        <span className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1 text-sm font-black text-white">
-          TH{member.townhallLevel}
-        </span>
+      {/*
+       * Identidade à esquerda e resumo ofensivo à direita.
+       */}
+      <div className="grid w-full gap-5 sm:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="min-w-0">
+          <div
+            className={`flex flex-wrap items-center gap-3 ${
+              alignment === "right" ? "lg:flex-row-reverse" : ""
+            }`}
+          >
+            <span className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1 text-sm font-black text-white">
+              TH{member.townhallLevel}
+            </span>
 
-        <h3
-          translate="no"
-          className="notranslate min-w-0 flex-1 truncate font-black text-white"
-        >
-          {member.name}
-        </h3>
+            <h3
+              translate="no"
+              className="notranslate min-w-0 flex-1 truncate font-black text-white"
+            >
+              {member.name}
+            </h3>
+          </div>
+
+          <div className="mt-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-600">
+              Melhor ataque recebido
+            </p>
+
+            <div className="mt-2">
+              <WarAttackResult
+                attack={bestDefenseResult}
+                perspective={alignment === "left" ? "own" : "opponent"}
+              />
+            </div>
+
+            {/*
+             * Botão de expansão posicionado junto das
+             * informações principais do jogador.
+             */}
+            <button
+              type="button"
+              onClick={() => setIsExpanded((currentState) => !currentState)}
+              aria-expanded={isExpanded}
+              className="mt-4 inline-flex w-fit items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-300 transition hover:border-amber-400/50 hover:text-amber-300"
+            >
+              {isExpanded ? "Ocultar detalhes" : "Ver detalhes"}
+
+              <span
+                aria-hidden="true"
+                className={`transition-transform ${
+                  isExpanded ? "rotate-180" : ""
+                }`}
+              >
+                ▾
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 sm:w-48">
+          <WarMemberMetric
+            label="Ataques"
+            value={`${attacksUsed}/${attacksPerMember}`}
+            detail={`${attacksRemaining} restante${
+              attacksRemaining === 1 ? "" : "s"
+            }`}
+          />
+
+          <WarMemberMetric label="Estrelas" value={starsEarned} />
+
+          <WarMemberMetric
+            label="Destruição"
+            value={formatPercentage(destructionTotal)}
+          />
+
+          <WarMemberMetric label="Defesas" value={member.opponentAttacks} />
+        </div>
       </div>
 
-      <WarAttackResult attack={attack} />
+      {/*
+       * Histórico completo, exibido somente quando solicitado.
+       */}
+      {isExpanded && (
+        <WarAttackHistory member={member} enemyMembers={enemyMembers} />
+      )}
+    </div>
+  );
+}
+
+type WarMemberMetricProps = {
+  label: string;
+  value: string | number;
+  detail?: string;
+};
+
+/**
+ * Exibe um indicador ofensivo ou defensivo
+ * dentro do card do jogador.
+ */
+function WarMemberMetric({ label, value, detail }: WarMemberMetricProps) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-center">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-1 text-lg font-black text-white">{value}</p>
+
+      {detail && (
+        <p className="mt-1 text-[10px] font-semibold text-slate-500">
+          {detail}
+        </p>
+      )}
     </div>
   );
 }
@@ -475,32 +617,46 @@ function WarMapMember({ member, alignment, mobileLabel }: WarMapMemberProps) {
 type WarAttackResultProps = {
   /**
    * Melhor ataque recebido pela base.
-   *
-   * Pode ser inexistente quando ela ainda não foi atacada.
    */
   attack: WarMember["bestOpponentAttack"];
+
+  /**
+   * Define se a base pertence ao nosso clã
+   * ou ao adversário.
+   */
+  perspective: "own" | "opponent";
 };
 
 /**
  * Exibe o melhor ataque recebido por uma base.
+ *
+ * As cores são apresentadas conforme a perspectiva
+ * do clã selecionado.
  */
-function WarAttackResult({ attack }: WarAttackResultProps) {
+function WarAttackResult({ attack, perspective }: WarAttackResultProps) {
   /**
    * Base ainda não atacada.
+   *
+   * Para nosso clã, isso é positivo.
+   * Para o adversário, isso é negativo.
    */
   if (!attack) {
+    const notAttackedClassName =
+      perspective === "own"
+        ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+        : "border-red-400/20 bg-red-400/10 text-red-300";
+
     return (
-      <div className="inline-flex w-fit items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm font-bold text-emerald-300">
+      <div
+        className={`inline-flex w-fit items-center gap-2 rounded-lg border px-3 py-2 text-sm font-bold ${notAttackedClassName}`}
+      >
         <span aria-hidden="true">●</span>
         Não atacada
       </div>
     );
   }
 
-  /**
-   * Define a cor conforme a quantidade de estrelas recebidas.
-   */
-  const resultClassName = getAttackResultClassName(attack.stars);
+  const resultClassName = getAttackResultClassName(attack.stars, perspective);
 
   return (
     <div
@@ -519,7 +675,7 @@ function WarAttackResult({ attack }: WarAttackResultProps) {
       </span>
 
       <span className="text-xs font-semibold opacity-80">
-        {attack.duration}s
+        {formatDuration(attack.duration)}
       </span>
     </div>
   );
@@ -531,9 +687,18 @@ function WarAttackResult({ attack }: WarAttackResultProps) {
  *
  * @param stars Quantidade de estrelas recebidas.
  */
-function getAttackResultClassName(stars: number): string {
+/**
+ * Retorna as classes visuais do resultado conforme
+ * a quantidade de estrelas e a perspectiva do clã.
+ */
+function getAttackResultClassName(
+  stars: number,
+  perspective: "own" | "opponent",
+): string {
   if (stars >= 3) {
-    return "border-red-400/20 bg-red-400/10 text-red-300";
+    return perspective === "own"
+      ? "border-red-400/20 bg-red-400/10 text-red-300"
+      : "border-emerald-400/20 bg-emerald-400/10 text-emerald-300";
   }
 
   if (stars === 2) {
@@ -544,7 +709,9 @@ function getAttackResultClassName(stars: number): string {
     return "border-amber-400/20 bg-amber-400/10 text-amber-300";
   }
 
-  return "border-emerald-400/20 bg-emerald-400/10 text-emerald-300";
+  return perspective === "own"
+    ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+    : "border-red-400/20 bg-red-400/10 text-red-300";
 }
 
 /**
@@ -557,4 +724,40 @@ function formatPercentage(value: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })}%`;
+}
+
+/**
+ * Converte uma duração em segundos para minutos e segundos.
+ *
+ * Exemplos:
+ * 59  → 59s
+ * 60  → 1min
+ * 139 → 2min 19s
+ */
+function formatDuration(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (minutes === 0) {
+    return `${seconds}s`;
+  }
+
+  if (seconds === 0) {
+    return `${minutes}min`;
+  }
+
+  return `${minutes}min ${seconds}s`;
+}
+
+/**
+ * Formata a posição do jogador com dois dígitos.
+ *
+ * Exemplos:
+ * 1  → #01
+ * 9  → #09
+ * 10 → #10
+ * 35 → #35
+ */
+function formatMapPosition(position: number): string {
+  return `#${position.toString().padStart(2, "0")}`;
 }

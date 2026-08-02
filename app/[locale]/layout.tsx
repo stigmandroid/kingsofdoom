@@ -18,6 +18,7 @@
  * ==========================================================
  */
 
+import { Footer } from "@/components/layout/Footer";
 import type { ReactNode } from "react";
 
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -104,19 +105,22 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      {/*
-       * A Navbar fica no layout localizado para ser exibida
-       * em todas as páginas do portal, incluindo Releases.
-       */}
-      <Navbar />
+      <div className="flex min-h-screen flex-col bg-slate-950">
+        {/*
+         * Navegação global exibida em todas as páginas localizadas.
+         */}
+        <Navbar />
 
-      {/*
-       * Conteúdo específico da página atualmente acessada.
-       *
-       * O elemento main também melhora a semântica e a
-       * acessibilidade da estrutura global.
-       */}
-      <main>{children}</main>
+        {/*
+         * Conteúdo específico da rota atual.
+         */}
+        <main className="flex-1">{children}</main>
+
+        {/*
+         * Rodapé global do portal.
+         */}
+        <Footer locale={locale} version="0.7.0" />
+      </div>
     </NextIntlClientProvider>
   );
 }

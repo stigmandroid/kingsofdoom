@@ -42,7 +42,7 @@
 
 # Versão:
 
-# 1.0.0
+# v0.7.0
 
 #
 
@@ -125,7 +125,8 @@ Criar a primeira Sala de Guerra conectada aos dados reais da Clash API.
 
 ---
 
-# 🟨 v0.6.0 — War Intelligence Foundation
+```md
+# ✅ v0.6.0 — War Intelligence Foundation
 
 ## Objetivo
 
@@ -149,43 +150,67 @@ Transformar a Sala de Guerra em uma ferramenta prática de acompanhamento e cons
 
 ✅ Diagnóstico aprimorado da Clash API
 
-### Próximas entregas
-
-⬜ Histórico completo de ataques realizados
-
-⬜ Ataques recebidos por cada base
-
-⬜ Visão individual por jogador
-
-⬜ Visão detalhada por base
-
-⬜ Timeline inteligente da guerra
-
-⬜ Filtros por clã, jogador, base e resultado
-
-⬜ Indicadores ofensivos e defensivos
+✅ Fundação tipada para ataques, participantes e resultados defensivos
 
 ---
 
-# v0.7.0 — War Intelligence
+# ✅ v0.7.0 — War Intelligence
 
 ## Objetivo
 
 Organizar os eventos da guerra para responder rapidamente às principais dúvidas dos jogadores.
 
-### Planejamento
+### Entregas concluídas
 
-⬜ Timeline completa entre os dois clãs
+✅ Indicadores ofensivos individuais
+
+✅ Quantidade de ataques utilizados e restantes
+
+✅ Total de estrelas conquistadas
+
+✅ Destruição acumulada por jogador
+
+✅ Quantidade de ataques recebidos por base
+
+✅ Melhor ataque recebido
+
+✅ Histórico expansível de ataques realizados
+
+✅ Histórico expansível de ataques recebidos
+
+✅ Identificação do atacante e do alvo
+
+✅ Nome e posição dos participantes envolvidos
+
+✅ Estrelas e destruição de cada ataque
+
+✅ Duração formatada em minutos e segundos
+
+✅ Posições padronizadas com dois dígitos
+
+✅ Cores defensivas adaptadas à perspectiva do clã selecionado
+
+✅ Nome real dos clãs no layout mobile
+
+✅ Footer global
+
+✅ Navegação direta entre Release Notes e Roadmap
+
+✅ Hero atualizado com o logotipo oficial do K.O.D.
+
+✅ Animação, iluminação e destaque visual no logotipo
+
+### Evoluções futuras da Sala de Guerra
 
 ⬜ Pesquisa por jogador
 
 ⬜ Pesquisa por posição do mapa
 
-⬜ Ataques realizados e recebidos
+⬜ Filtros por resultado
 
-⬜ Quantidade de defesas por base
+⬜ Timeline cronológica completa
 
-⬜ Melhor e pior resultado ofensivo
+⬜ Melhor e pior desempenho ofensivo
 
 ⬜ Melhor desempenho defensivo
 
@@ -193,9 +218,49 @@ Organizar os eventos da guerra para responder rapidamente às principais dúvida
 
 ⬜ Resumo final da guerra
 
+⬜ Histórico de guerras anteriores
+
 ---
 
-# v0.8.0 — Community
+# 🟨 v0.8.0 — CWL Intelligence Foundation
+
+## Objetivo
+
+Criar a primeira experiência completa de acompanhamento da Liga de Guerras de Clãs.
+
+### Planejamento
+
+⬜ Página dedicada da CWL
+
+⬜ Identificação da temporada atual
+
+⬜ Grupo da Liga de Guerras
+
+⬜ Classificação dos clãs
+
+⬜ Rodadas da temporada
+
+⬜ Estado de cada rodada
+
+⬜ Estrelas acumuladas
+
+⬜ Destruição acumulada
+
+⬜ Guerras vencidas e perdidas
+
+⬜ Ataques realizados e restantes
+
+⬜ Navegação entre rodadas
+
+⬜ Detalhes da guerra selecionada
+
+⬜ Tratamento de clã fora da CWL
+
+⬜ Tratamento de temporada indisponível
+
+---
+
+# v0.9.0 — Community
 
 ## Objetivo
 
@@ -217,25 +282,7 @@ Criar ferramentas para facilitar a administração de comunidades.
 
 ---
 
-# v0.9.0 — Automation
-
-## Objetivo
-
-Eliminar atividades repetitivas através de automação.
-
-### Planejamento
-
-⬜ Integração com Discord
-
-⬜ Integração com WhatsApp
-
-⬜ Alert Center
-
-⬜ Notificações automáticas
-
-⬜ Agendamentos
-
-⬜ Relatórios automáticos
+# v0.10.0 — Automation
 
 ---
 
@@ -447,3 +494,4 @@ Se a resposta for "não", ela deve ser reavaliada.
 ---
 
 > **Toda grande plataforma começa com uma única versão. O importante é nunca parar de evoluir.**
+```

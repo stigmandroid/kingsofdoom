@@ -40,7 +40,7 @@ export async function Hero({ clan, warRoomHref }: HeroProps) {
         <div className="h-full w-full bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:64px_64px]" />
       </div>
 
-      <div className="relative mx-auto grid min-h-[620px] max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_420px] lg:px-8">
+      <div className="relative mx-auto grid min-h-[620px] max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_480px] lg:px-8">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-2">
             <span className="h-2 w-2 rounded-full bg-amber-400" />
@@ -99,19 +99,33 @@ export async function Hero({ clan, warRoomHref }: HeroProps) {
         </div>
 
         <div className="relative flex justify-center lg:justify-end">
-          <div className="absolute h-72 w-72 rounded-full bg-amber-400/20 blur-[90px]" />
+          {/*
+           * Brilho principal atrás do logotipo.
+           */}
+          <div className="absolute h-72 w-72 animate-pulse rounded-full bg-amber-400/20 blur-[90px] sm:h-96 sm:w-96" />
 
-          <div className="relative flex h-[320px] w-[320px] items-center justify-center rounded-full border border-amber-400/10 bg-slate-900/30 backdrop-blur-sm sm:h-[380px] sm:w-[380px]">
+          {/*
+           * Halo secundário para reforçar o efeito Command Center.
+           */}
+          <div className="absolute h-[280px] w-[280px] rounded-full border border-amber-400/20 shadow-[0_0_80px_rgba(245,158,11,0.22)] sm:h-[380px] sm:w-[380px]" />
+
+          {/*
+           * Contêiner visual principal.
+           */}
+          <div className="relative flex h-[360px] w-[360px] items-center justify-center rounded-full border border-amber-400/10 bg-slate-900/30 backdrop-blur-sm sm:h-[440px] sm:w-[440px]">
             <div className="absolute inset-5 rounded-full border border-slate-700/60" />
             <div className="absolute inset-10 rounded-full border border-slate-800" />
 
+            {/*
+             * Logotipo com flutuação suave e brilho.
+             */}
             <Image
-              src={clan.badgeUrls.large}
-              alt={`Escudo oficial do clã ${clan.name}`}
-              width={280}
-              height={280}
+              src="/kod-logo.png"
+              alt={`Logotipo oficial do clã ${clan.name}`}
+              width={420}
+              height={420}
               preload
-              className="relative h-auto w-[240px] object-contain drop-shadow-[0_25px_35px_rgba(0,0,0,0.45)] sm:w-[280px]"
+              className="relative h-auto w-[320px] max-w-none animate-[kodFloat_4s_ease-in-out_infinite] object-contain drop-shadow-[0_0_24px_rgba(245,158,11,0.35)] sm:w-[380px]"
             />
           </div>
         </div>

@@ -252,7 +252,10 @@ export default function ReleasesPage() {
       {/*
        * Roadmap público do projeto.
        */}
-      <section className="border-t border-slate-800 bg-slate-900/30">
+      <section
+        id="roadmap"
+        className="scroll-mt-24 border-t border-slate-800 bg-slate-900/30"
+      >
         <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="mb-10">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-amber-400">

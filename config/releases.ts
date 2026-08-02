@@ -250,6 +250,36 @@ export const releases: Release[] = [
         description:
           "Os participantes passaram a controlar individualmente a abertura e o fechamento de seus detalhes.",
       },
+      {
+        type: "improvement",
+        title: "Resumo compacto do melhor ataque recebido",
+        description:
+          "O componente passou a apresentar estrelas, destruição e duração em uma única linha, reduzindo espaço e melhorando a leitura em dispositivos móveis.",
+      },
+      {
+        type: "improvement",
+        title: "Layout responsivo da Sala de Guerra",
+        description:
+          "Os componentes da guerra receberam ajustes específicos para desktop e dispositivos móveis, preservando a experiência visual em ambos os ambientes.",
+      },
+      {
+        type: "improvement",
+        title: "Botão de detalhes otimizado",
+        description:
+          "Na versão mobile, o botão de detalhes foi reposicionado ao lado do resultado do melhor ataque recebido, reduzindo a altura dos cards sem alterar o layout do desktop.",
+      },
+      {
+        type: "improvement",
+        title: "Hero redesenhado",
+        description:
+          "O Hero principal passou a utilizar o logotipo oficial do K.O.D. em destaque, com maior escala, reforçando a identidade visual da plataforma.",
+      },
+      {
+        type: "improvement",
+        title: "Efeitos visuais do Hero",
+        description:
+          "Foram adicionados efeitos de iluminação, flutuação e destaque visual ao logotipo principal, proporcionando uma experiência mais moderna tanto em computadores quanto em dispositivos móveis.",
+      },
     ],
   },
 

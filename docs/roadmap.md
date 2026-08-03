@@ -186,17 +186,25 @@ Organizar os eventos da guerra para responder rapidamente às principais dúvida
 
 ✅ Duração formatada em minutos e segundos
 
+✅ Resumo compacto do melhor ataque recebido
+
 ✅ Posições padronizadas com dois dígitos
 
 ✅ Cores defensivas adaptadas à perspectiva do clã selecionado
 
 ✅ Nome real dos clãs no layout mobile
 
+✅ Layout responsivo otimizado para dispositivos móveis
+
+✅ Botão "Detalhes" otimizado para mobile
+
 ✅ Footer global
 
 ✅ Navegação direta entre Release Notes e Roadmap
 
 ✅ Hero atualizado com o logotipo oficial do K.O.D.
+
+✅ Hero redesenhado com identidade visual própria
 
 ✅ Animação, iluminação e destaque visual no logotipo
 
@@ -226,37 +234,83 @@ Organizar os eventos da guerra para responder rapidamente às principais dúvida
 
 ## Objetivo
 
-Criar a primeira experiência completa de acompanhamento da Liga de Guerras de Clãs.
+Construir o primeiro Command Center dedicado à Liga de Guerras de Clãs, permitindo acompanhar temporadas, escalações, rodadas, confrontos e, futuramente, a classificação completa da liga.
 
-### Planejamento
+### Entregas concluídas
 
-⬜ Página dedicada da CWL
+✅ Integração com o grupo atual da Clash War League
 
-⬜ Identificação da temporada atual
+✅ Consulta individual das guerras através de warTags
 
-⬜ Grupo da Liga de Guerras
+✅ Estrutura dedicada da CWL reutilizando a arquitetura da Sala de Guerra
 
-⬜ Classificação dos clãs
+✅ Página exclusiva da CWL
 
-⬜ Rodadas da temporada
+✅ Visão geral da temporada
 
-⬜ Estado de cada rodada
+✅ Estado atual da liga
 
-⬜ Estrelas acumuladas
+✅ Quantidade de clãs participantes
+
+✅ Quantidade de rodadas
+
+✅ Quantidade de guerras disponíveis
+
+✅ Cards dos clãs participantes
+
+✅ Destaque automático do clã selecionado
+
+✅ Distribuição dos Centros de Vila por clã
+
+✅ Quantidade de jogadores inscritos
+
+✅ Calendário das sete rodadas
+
+✅ Identificação da rodada disponível
+
+✅ Consulta automática dos confrontos da rodada
+
+✅ Cards dos confrontos
+
+✅ Identificação visual do confronto do clã selecionado
+
+✅ Estado visual para períodos sem CWL ativa
+
+✅ Navegação independente da CWL para K.O.D. e K.O.D.rec
+
+✅ Suporte multi-clã na CWL
+
+### Próximas entregas
+
+⬜ Seleção dinâmica entre as sete rodadas
+
+⬜ Atualização automática dos confrontos ao trocar de rodada
+
+⬜ Placar em tempo real da rodada atual
+
+⬜ Classificação geral da temporada
+
+⬜ Vitórias, derrotas e empates
+
+⬜ Total de estrelas conquistadas
 
 ⬜ Destruição acumulada
 
-⬜ Guerras vencidas e perdidas
+⬜ Destaque da posição do clã selecionado
 
-⬜ Ataques realizados e restantes
+⬜ Navegação para a Sala de Guerra da CWL
 
-⬜ Navegação entre rodadas
+⬜ Histórico das temporadas anteriores
 
-⬜ Detalhes da guerra selecionada
+⬜ Persistência das temporadas encerradas
 
-⬜ Tratamento de clã fora da CWL
+⬜ Estatísticas históricas da CWL
 
-⬜ Tratamento de temporada indisponível
+⬜ Exportação de imagens das escalações
+
+⬜ Exportação da classificação
+
+⬜ Motor de exportação reutilizável para todo o portal
 
 ---
 

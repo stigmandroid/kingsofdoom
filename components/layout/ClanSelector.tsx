@@ -9,15 +9,30 @@
  * Renderizar o seletor de clãs disponível na navegação
  * principal do portal.
  *
- * O componente identifica o idioma e o clã presentes na URL,
- * lista os clãs cadastrados em config/clans.ts e permite
- * navegar entre eles sem recarregar completamente a página.
+ * O componente identifica o idioma, o clã e o módulo
+ * presentes na URL, permitindo trocar de clã sem perder
+ * o contexto atual da navegação.
+ *
+ * Rotas contextuais suportadas:
+ *
+ * /pt-BR/clans/kod
+ * /pt-BR/clans/kod-rec
+ * /pt-BR/war/kod
+ * /pt-BR/war/kod-rec
+ * /pt-BR/cwl/kod
+ * /pt-BR/cwl/kod-rec
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 26/07/2026
+ * 02/08/2026
+ *
+ * Versão:
+ * 0.8.0
+ *
+ * Status:
+ * 🚧 Em desenvolvimento
  * ==========================================================
  */
 
@@ -32,13 +47,15 @@ import { clans } from "@/config/clans";
 /**
  * Converte o catálogo central de clãs em uma lista.
  *
- * Como os clãs estão armazenados dentro de um objeto,
- * Object.values permite percorrê-los utilizando map().
- *
  * Qualquer novo clã adicionado em config/clans.ts será
  * incluído automaticamente no seletor.
  */
 const clanOptions = Object.values(clans);
+
+/**
+ * Módulos que possuem navegação contextual por clã.
+ */
+type ClanContextModule = "clans" | "war" | "cwl";
 
 /**
  * Renderiza o seletor responsável pela troca de clãs.
@@ -51,78 +68,55 @@ export function ClanSelector() {
 
   /**
    * Guarda uma referência para a área completa do seletor.
-   *
-   * Essa referência será utilizada para identificar
-   * cliques realizados fora do componente.
    */
   const selectorRef = useRef<HTMLDivElement>(null);
 
   /**
    * Recupera os parâmetros dinâmicos da URL.
-   *
-   * Exemplo:
-   * /pt-BR/clans/kod
-   *
-   * params.locale será "pt-BR".
-   * params.slug será "kod".
    */
   const params = useParams();
 
   /**
-   * Recupera o endereço atual da aplicação.
-   *
-   * Ele será utilizado como apoio para identificar o clã
-   * atualmente selecionado.
+   * Recupera o caminho atual da aplicação.
    */
   const pathname = usePathname();
 
   /**
-   * Garante que o idioma utilizado nos links seja uma string.
-   *
-   * O pt-BR funciona como fallback defensivo para situações
-   * em que o parâmetro locale não estiver disponível.
+   * Preserva o idioma atual nos links.
    */
   const locale = typeof params.locale === "string" ? params.locale : "pt-BR";
 
   /**
-   * Identifica o clã diretamente pelo endereço atual.
+   * Identifica o clã diretamente pelos parâmetros dinâmicos.
    *
-   * Exemplos reconhecidos:
-   *
-   * /pt-BR/clans/kod
-   * /pt-BR/clans/kod-rec
-   * /pt-BR/war/kod
-   * /pt-BR/war/kod-rec
+   * Nas páginas de clã, o parâmetro é chamado "slug".
+   * Nas páginas de Guerra e CWL, o parâmetro é chamado "clan".
    */
-  const routeSlug = clanOptions.find((clan) => {
-    return (
-      pathname === `/${locale}/clans/${clan.slug}` ||
-      pathname.startsWith(`/${locale}/clans/${clan.slug}/`) ||
-      pathname === `/${locale}/war/${clan.slug}` ||
-      pathname.startsWith(`/${locale}/war/${clan.slug}/`)
-    );
-  })?.slug;
+  const parameterClanSlug =
+    typeof params.slug === "string"
+      ? params.slug
+      : typeof params.clan === "string"
+        ? params.clan
+        : undefined;
 
   /**
-   * Procura no catálogo o clã correspondente ao slug atual.
-   *
-   * Na página inicial e nas páginas que ainda não possuem
-   * contexto multi-clã, o K.O.D. é utilizado como padrão.
+   * Valida se o slug presente nos parâmetros realmente
+   * pertence a um clã cadastrado.
    */
   const currentClan =
-    clanOptions.find((clan) => clan.slug === routeSlug) ?? clans.kod;
+    clanOptions.find((clan) => clan.slug === parameterClanSlug) ?? clans.kod;
+
+  /**
+   * Identifica o módulo atual para preservar o contexto
+   * durante a troca de clã.
+   */
+  const currentModule = getCurrentClanModule(pathname, locale);
 
   /**
    * Fecha o menu quando o usuário clicar fora do seletor.
    */
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      /**
-       * event.target representa o elemento clicado.
-       *
-       * A conversão para Node permite utilizar contains()
-       * com segurança no TypeScript.
-       */
       const clickedElement = event.target as Node;
 
       if (
@@ -135,10 +129,6 @@ export function ClanSelector() {
 
     document.addEventListener("mousedown", handleClickOutside);
 
-    /**
-     * Remove o listener quando o componente for desmontado,
-     * evitando eventos duplicados ou vazamento de memória.
-     */
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -163,9 +153,6 @@ export function ClanSelector() {
 
   /**
    * Fecha o menu automaticamente depois de uma navegação.
-   *
-   * Sempre que pathname mudar, significa que o usuário
-   * acessou outra página ou selecionou outro clã.
    */
   useEffect(() => {
     setIsOpen(false);
@@ -175,9 +162,6 @@ export function ClanSelector() {
     <div ref={selectorRef} className="relative">
       {/*
        * Botão principal do seletor.
-       *
-       * aria-expanded informa aos leitores de tela se
-       * o menu está aberto ou fechado.
        */}
       <button
         type="button"
@@ -193,12 +177,6 @@ export function ClanSelector() {
           {currentClan.name}
         </span>
 
-        {/*
-         * Seta criada com SVG nativo.
-         *
-         * Isso evita adicionar uma biblioteca de ícones
-         * apenas para exibir esse elemento visual.
-         */}
         <svg
           aria-hidden="true"
           viewBox="0 0 20 20"
@@ -216,8 +194,7 @@ export function ClanSelector() {
       </button>
 
       {/*
-       * O menu somente será renderizado quando isOpen
-       * possuir o valor true.
+       * Menu suspenso com os clãs cadastrados.
        */}
       {isOpen && (
         <div
@@ -232,23 +209,32 @@ export function ClanSelector() {
 
           {clanOptions.map((clan) => {
             /**
-             * Determina se o item representa o clã aberto.
+             * Verifica se o item representa o clã aberto.
              */
             const isCurrentClan = clan.slug === currentClan.slug;
+
+            /**
+             * Preserva o módulo atual.
+             *
+             * Exemplos:
+             *
+             * /war/kod     → /war/kod-rec
+             * /cwl/kod     → /cwl/kod-rec
+             * /clans/kod   → /clans/kod-rec
+             */
+            const destination = buildClanDestination({
+              locale,
+              module: currentModule,
+              clanSlug: clan.slug,
+            });
 
             return (
               <Link
                 key={clan.slug}
-                href={`/${locale}/clans/${clan.slug}`}
+                href={destination}
                 role="menuitem"
                 aria-current={isCurrentClan ? "page" : undefined}
                 onClick={() => {
-                  /**
-                   * Fecha imediatamente o menu após o clique.
-                   *
-                   * O efeito associado ao pathname também atua como
-                   * uma segunda garantia depois da navegação.
-                   */
                   setIsOpen(false);
                 }}
                 className={`flex items-center justify-between rounded-lg px-3 py-3 text-sm transition duration-200 ${
@@ -257,14 +243,14 @@ export function ClanSelector() {
                     : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
               >
-                <div className="flex flex-col">
-                  <span translate="no" className="notranslate">
+                <div className="flex min-w-0 flex-col">
+                  <span translate="no" className="notranslate truncate">
                     {clan.name}
                   </span>
 
                   <span
                     translate="no"
-                    className="notranslate text-xs text-slate-500"
+                    className="notranslate truncate text-xs text-slate-500"
                   >
                     {clan.tag}
                   </span>
@@ -273,7 +259,7 @@ export function ClanSelector() {
                 {isCurrentClan && (
                   <span
                     aria-label="Clã atualmente selecionado"
-                    className="text-amber-400"
+                    className="shrink-0 text-amber-400"
                   >
                     ✓
                   </span>
@@ -285,4 +271,40 @@ export function ClanSelector() {
       )}
     </div>
   );
+}
+
+/**
+ * Identifica em qual módulo contextual o usuário está.
+ *
+ * Nas páginas que não possuem contexto específico de clã,
+ * o seletor direciona para o painel do clã escolhido.
+ */
+function getCurrentClanModule(
+  pathname: string,
+  locale: string,
+): ClanContextModule {
+  if (pathname === `/${locale}/war` || pathname.startsWith(`/${locale}/war/`)) {
+    return "war";
+  }
+
+  if (pathname === `/${locale}/cwl` || pathname.startsWith(`/${locale}/cwl/`)) {
+    return "cwl";
+  }
+
+  return "clans";
+}
+
+/**
+ * Monta o endereço de destino preservando o módulo atual.
+ */
+function buildClanDestination({
+  locale,
+  module,
+  clanSlug,
+}: {
+  locale: string;
+  module: ClanContextModule;
+  clanSlug: string;
+}): string {
+  return `/${locale}/${module}/${clanSlug}`;
 }

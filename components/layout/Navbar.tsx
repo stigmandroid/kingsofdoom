@@ -100,7 +100,7 @@ export function Navbar() {
     },
     {
       label: "CWL",
-      href: `/${locale}/cwl`,
+      href: `/${locale}/cwl/${currentClanSlug}`,
     },
     {
       label: "Membros",

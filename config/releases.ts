@@ -145,6 +145,88 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.8.0",
+    title: "CWL Intelligence Foundation",
+    date: "2026-08-02",
+
+    summary:
+      "Primeira estrutura do CWL Command Center, introduzindo temporadas, escalações, rodadas, confrontos, suporte multi-clã e arquitetura preparada para classificação em tempo real.",
+
+    current: false,
+
+    changes: [
+      {
+        type: "feature",
+        title: "CWL Command Center",
+        description:
+          "O portal passou a possuir uma área dedicada para acompanhamento da Liga de Guerras de Clãs.",
+      },
+
+      {
+        type: "feature",
+        title: "Integração com a Clash War League",
+        description:
+          "O sistema consulta automaticamente o grupo atual da CWL através da API oficial do Clash of Clans.",
+      },
+
+      {
+        type: "feature",
+        title: "Visão geral da temporada",
+        description:
+          "A página apresenta temporada, estado da liga, quantidade de clãs participantes, rodadas disponíveis e guerras já criadas.",
+      },
+
+      {
+        type: "feature",
+        title: "Escalações da CWL",
+        description:
+          "Cada clã participante passou a exibir sua composição completa de Centros de Vila e quantidade de jogadores inscritos.",
+      },
+
+      {
+        type: "feature",
+        title: "Calendário da temporada",
+        description:
+          "As sete rodadas da CWL passaram a ser apresentadas juntamente com os confrontos disponíveis da rodada atual.",
+      },
+
+      {
+        type: "feature",
+        title: "Confrontos da liga",
+        description:
+          "Cada confronto apresenta escudos, participantes, estado da guerra, estrelas, destruição e informações da batalha.",
+      },
+
+      {
+        type: "feature",
+        title: "Suporte multi-clã",
+        description:
+          "A CWL agora suporta independentemente os clãs K.O.D. e K.O.D.rec através de rotas próprias.",
+      },
+
+      {
+        type: "improvement",
+        title: "Navegação contextual",
+        description:
+          "A troca de clã preserva automaticamente o módulo atual (Painel, Guerra ou CWL), proporcionando uma navegação consistente em todo o portal.",
+      },
+
+      {
+        type: "feature",
+        title: "Estado para períodos sem CWL",
+        description:
+          "Quando o clã não participa de uma temporada ativa, a página apresenta uma experiência visual dedicada e prepara o espaço para o futuro histórico de temporadas.",
+      },
+
+      {
+        type: "technical",
+        title: "Arquitetura reutilizável",
+        description:
+          "A estrutura da Sala de Guerra foi preparada para ser reutilizada futuramente nas guerras individuais da Clash War League.",
+      },
+    ],
+  },
+  {
     version: "0.7.0",
     title: "War Intelligence",
     date: "2026-08-01",

@@ -9,7 +9,7 @@
  * Exibir o rodapé global do portal.
  *
  * Versão:
- * 0.7.0
+ * 0.8.0
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -36,7 +36,7 @@ type FooterProps = {
 /**
  * Renderiza o rodapé global do Command Center.
  */
-export function Footer({ locale, version = "0.7.0" }: FooterProps) {
+export function Footer({ locale, version = "0.8.0" }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (

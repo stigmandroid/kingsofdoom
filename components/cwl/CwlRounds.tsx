@@ -80,6 +80,17 @@ export function CwlRounds({ group, wars, highlightedClanTag }: CwlRoundsProps) {
     round.warTags.some(isAvailableCwlWarTag),
   );
 
+  /**
+   * Considera a rodada iniciada quando ao menos uma guerra
+   * já está em andamento ou foi encerrada.
+   *
+   * Isso evita apresentar "Confronto em preparação" em uma
+   * rodada que já começou, mas ainda possui duelos sem ataques.
+   */
+  const roundHasStarted = wars.some(
+    ({ war }) => war.state === "inWar" || war.state === "warEnded",
+  );
+
   return (
     <section className="border-t border-slate-800 bg-slate-900/20">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -180,6 +191,7 @@ export function CwlRounds({ group, wars, highlightedClanTag }: CwlRoundsProps) {
                   warTag={warTag}
                   war={war}
                   highlightedClanTag={highlightedClanTag}
+                  roundHasStarted={roundHasStarted}
                 />
               ))}
             </div>
@@ -207,12 +219,22 @@ type CwlMatchCardProps = {
   warTag: string;
   war: CurrentWar;
   highlightedClanTag?: string;
+
+  /**
+   * Indica se algum confronto da rodada já começou.
+   */
+  roundHasStarted: boolean;
 };
 
 /**
  * Exibe um confronto entre dois clãs.
  */
-function CwlMatchCard({ warTag, war, highlightedClanTag }: CwlMatchCardProps) {
+function CwlMatchCard({
+  warTag,
+  war,
+  highlightedClanTag,
+  roundHasStarted,
+}: CwlMatchCardProps) {
   const clan = war.clan;
   const opponent = war.opponent;
 
@@ -226,6 +248,27 @@ function CwlMatchCard({ warTag, war, highlightedClanTag }: CwlMatchCardProps) {
 
   const highlighted =
     clan.tag === highlightedClanTag || opponent.tag === highlightedClanTag;
+
+  /**
+   * Identifica o resultado parcial ou final do confronto.
+   */
+  /**
+   * Identifica o resultado parcial ou final do confronto.
+   */
+  const matchResult = getCwlMatchResult({
+    warState: war.state,
+    roundHasStarted,
+
+    clanName: clan.name,
+    clanStars: clan.stars,
+    clanDestruction: clan.destructionPercentage,
+    clanAttacks: clan.attacks,
+
+    opponentName: opponent.name,
+    opponentStars: opponent.stars,
+    opponentDestruction: opponent.destructionPercentage,
+    opponentAttacks: opponent.attacks,
+  });
 
   return (
     <article
@@ -256,6 +299,7 @@ function CwlMatchCard({ warTag, war, highlightedClanTag }: CwlMatchCardProps) {
           stars={clan.stars}
           destruction={clan.destructionPercentage}
           alignment="left"
+          highlighted={clan.tag === highlightedClanTag}
         />
 
         <div className="flex flex-col items-center">
@@ -274,7 +318,53 @@ function CwlMatchCard({ warTag, war, highlightedClanTag }: CwlMatchCardProps) {
           stars={opponent.stars}
           destruction={opponent.destructionPercentage}
           alignment="right"
+          highlighted={opponent.tag === highlightedClanTag}
         />
+      </div>
+
+      {/*
+       * Situação atual do confronto.
+       *
+       * Esta informação permanece visualmente secundária para
+       * que o placar de estrelas seja o principal destaque.
+       */}
+      <div className="mt-5 flex justify-center">
+        <div
+          title={matchResult.description}
+          className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-2 text-center ${matchResult.className}`}
+        >
+          <span
+            aria-hidden="true"
+            className="h-2 w-2 shrink-0 rounded-full bg-current"
+          />
+
+          <p className="truncate text-[10px] font-black uppercase tracking-[0.14em] sm:text-xs">
+            {matchResult.label}
+          </p>
+        </div>
+      </div>
+
+      {/*
+       * Resumo dos ataques realizados pelos dois clãs.
+       */}
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3">
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-600">
+            Ataques de {clan.name}
+          </p>
+
+          <p className="mt-1 text-lg font-black text-white">{clan.attacks}</p>
+        </div>
+
+        <div className="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-right">
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-600">
+            Ataques de {opponent.name}
+          </p>
+
+          <p className="mt-1 text-lg font-black text-white">
+            {opponent.attacks}
+          </p>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-3 border-t border-slate-800 pt-5 sm:flex-row sm:items-center sm:justify-between">
@@ -285,7 +375,7 @@ function CwlMatchCard({ warTag, war, highlightedClanTag }: CwlMatchCardProps) {
         <button
           type="button"
           disabled
-          title="A navegação para a guerra será implementada na próxima etapa."
+          title="A navegação para a guerra será implementada em uma próxima etapa."
           className="inline-flex cursor-not-allowed items-center justify-center rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-xs font-black uppercase tracking-wider text-slate-500"
         >
           Ver guerra em breve
@@ -293,6 +383,110 @@ function CwlMatchCard({ warTag, war, highlightedClanTag }: CwlMatchCardProps) {
       </div>
     </article>
   );
+}
+
+/**
+ * Dados necessários para calcular o resultado
+ * parcial ou final de um confronto.
+ */
+type CwlMatchResultInput = {
+  warState: CurrentWar["state"];
+  roundHasStarted: boolean;
+
+  clanName: string;
+  clanStars: number;
+  clanDestruction: number;
+  clanAttacks: number;
+
+  opponentName: string;
+  opponentStars: number;
+  opponentDestruction: number;
+  opponentAttacks: number;
+};
+
+/**
+ * Resultado visual de um confronto.
+ */
+type CwlMatchResult = {
+  label: string;
+  description: string;
+  className: string;
+};
+
+/**
+ * Identifica o estado e o resultado parcial ou final
+ * de um confronto da CWL.
+ */
+function getCwlMatchResult({
+  warState,
+  roundHasStarted,
+  clanName,
+  clanStars,
+  clanDestruction,
+  clanAttacks,
+  opponentName,
+  opponentStars,
+  opponentDestruction,
+  opponentAttacks,
+}: CwlMatchResultInput): CwlMatchResult {
+  const isFinished = warState === "warEnded";
+
+  /**
+   * Nenhum dos dois clãs realizou ataques.
+   *
+   * Quando outros confrontos da rodada já começaram,
+   * não tratamos mais esse duelo como preparação.
+   */
+  const hasNoAttacks = clanAttacks === 0 && opponentAttacks === 0;
+
+  if (hasNoAttacks && roundHasStarted) {
+    return {
+      label: "Aguardando os primeiros ataques",
+      description: "Nenhum dos dois clãs realizou ataques neste confronto.",
+      className: "border-sky-400/20 bg-sky-400/10 text-sky-300",
+    };
+  }
+
+  /**
+   * A rodada inteira ainda está em preparação.
+   */
+  if (warState === "preparation" && !roundHasStarted) {
+    return {
+      label: "Confronto em preparação",
+      description: "O placar será atualizado quando a batalha começar.",
+      className: "border-amber-400/20 bg-amber-400/10 text-amber-300",
+    };
+  }
+
+  const clanIsLeading =
+    clanStars > opponentStars ||
+    (clanStars === opponentStars && clanDestruction > opponentDestruction);
+
+  const opponentIsLeading =
+    opponentStars > clanStars ||
+    (opponentStars === clanStars && opponentDestruction > clanDestruction);
+
+  if (!clanIsLeading && !opponentIsLeading) {
+    return {
+      label: isFinished ? "Confronto empatado" : "Empate parcial",
+      description: hasNoAttacks
+        ? "Os dois clãs ainda estão sem ataques."
+        : "Os dois clãs possuem o mesmo resultado.",
+      className: "border-slate-600 bg-slate-800/70 text-slate-300",
+    };
+  }
+
+  const leadingClanName = clanIsLeading ? clanName : opponentName;
+
+  return {
+    label: isFinished
+      ? `${leadingClanName} venceu`
+      : `${leadingClanName} está na frente`,
+    description: isFinished
+      ? "Resultado final do confronto."
+      : "Resultado parcial atualizado pela Clash API.",
+    className: "border-emerald-400/20 bg-emerald-400/10 text-emerald-300",
+  };
 }
 
 /**
@@ -304,10 +498,15 @@ type CwlMatchClanProps = {
   stars: number;
   destruction: number;
   alignment: "left" | "right";
+
+  /**
+   * Indica se este lado representa o clã selecionado.
+   */
+  highlighted?: boolean;
 };
 
 /**
- * Exibe um lado do confronto.
+ * Exibe um dos clãs participantes do confronto.
  */
 function CwlMatchClan({
   name,
@@ -315,35 +514,65 @@ function CwlMatchClan({
   stars,
   destruction,
   alignment,
+  highlighted = false,
 }: CwlMatchClanProps) {
+  /**
+   * Mantém cada clã em seu respectivo lado do card,
+   * mas centraliza internamente escudo, nome e placar.
+   */
   const alignmentClassName =
-    alignment === "left" ? "items-start text-left" : "items-end text-right";
+    alignment === "left" ? "justify-self-start" : "justify-self-end";
 
   return (
-    <div className={`flex min-w-0 flex-col ${alignmentClassName}`}>
+    <div
+      className={`flex w-full max-w-[190px] min-w-0 flex-col items-center text-center ${alignmentClassName}`}
+    >
       <Image
         src={badgeUrl}
         alt={`Escudo oficial do clã ${name}`}
         width={72}
         height={72}
-        className="h-16 w-16 object-contain"
+        className={`h-16 w-16 object-contain ${
+          highlighted ? "drop-shadow-[0_0_16px_rgba(251,191,36,0.35)]" : ""
+        }`}
       />
 
       <p
         translate="no"
-        className="notranslate mt-3 max-w-full truncate font-black text-white"
+        className={`notranslate mt-3 w-full truncate font-black ${
+          highlighted ? "text-amber-300" : "text-white"
+        }`}
       >
         {name}
       </p>
 
-      <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
-        <span className="rounded-lg border border-slate-800 bg-slate-900 px-2.5 py-1 text-amber-300">
-          ★ {stars}
-        </span>
+      <div className="mt-4 flex flex-col items-center">
+        <div
+          className={`inline-flex min-w-20 items-center justify-center gap-2 rounded-xl border px-4 py-2 ${
+            highlighted
+              ? "border-amber-300/60 bg-amber-400/15 shadow-lg shadow-amber-950/20"
+              : "border-amber-400/30 bg-amber-400/10"
+          }`}
+        >
+          <span
+            aria-hidden="true"
+            className="text-xl leading-none text-amber-300"
+          >
+            ★
+          </span>
 
-        <span className="rounded-lg border border-slate-800 bg-slate-900 px-2.5 py-1 text-slate-300">
+          <span className="text-2xl font-black leading-none text-amber-300 sm:text-3xl">
+            {stars}
+          </span>
+        </div>
+
+        <p
+          className={`mt-2 whitespace-nowrap text-sm font-black ${
+            highlighted ? "text-amber-200" : "text-slate-300"
+          }`}
+        >
           {formatPercentage(destruction)}
-        </span>
+        </p>
       </div>
     </div>
   );

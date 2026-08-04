@@ -115,6 +115,13 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
   }
 
   /**
+   * Consulta todas as guerras já criadas em todas as
+   * rodadas disponíveis da temporada.
+   *
+   * Cada guerra permanece associada ao índice da rodada
+   * à qual pertence.
+   */
+  /**
    * Localiza a primeira rodada que possui
    * guerras já criadas pela Clash API.
    */
@@ -123,7 +130,10 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
   );
 
   /**
-   * Mantém somente tags de guerra válidas.
+   * Mantém somente as tags de guerra válidas.
+   *
+   * Tags iguais a "#0" representam confrontos
+   * que ainda não foram criados.
    */
   const availableWarTags =
     firstAvailableRound?.warTags.filter(isAvailableCwlWarTag) ?? [];
@@ -140,7 +150,7 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
   );
 
   /**
-   * Remove guerras que não puderam ser consultadas.
+   * Mantém somente as guerras consultadas com sucesso.
    */
   const wars: CwlRoundWar[] = warResults.flatMap(
     ({ warTag, result: warResult }) =>

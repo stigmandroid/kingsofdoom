@@ -152,9 +152,57 @@ export const releases: Release[] = [
     summary:
       "Primeira estrutura do CWL Command Center, introduzindo temporadas, escalações, rodadas, confrontos, suporte multi-clã e arquitetura preparada para classificação em tempo real.",
 
-    current: false,
+    current: true,
 
     changes: [
+      {
+        type: "feature",
+        title: "Página completa da Clash War League",
+        description:
+          "O portal agora possui uma área exclusiva para acompanhar toda a temporada da Liga de Guerras de Clãs.",
+      },
+      {
+        type: "feature",
+        title: "Suporte multi-clã",
+        description:
+          "A CWL passou a acompanhar automaticamente K.O.D. e K.O.D.rec, respeitando o clã selecionado na navegação.",
+      },
+      {
+        type: "feature",
+        title: "Calendário das rodadas",
+        description:
+          "Todas as sete rodadas da temporada são exibidas com seus confrontos e status atual.",
+      },
+      {
+        type: "feature",
+        title: "Distribuição dos Centros de Vila",
+        description:
+          "Cada clã participante apresenta a composição completa dos Centros de Vila inscritos na temporada.",
+      },
+      {
+        type: "feature",
+        title: "Placar em tempo real",
+        description:
+          "Os confrontos exibem estrelas, destruição, ataques realizados e atualização automática conforme a Clash API.",
+      },
+      {
+        type: "improvement",
+        title: "Leitura inteligente dos confrontos",
+        description:
+          "Os cards identificam automaticamente guerras em preparação, aguardando primeiros ataques, batalhas em andamento e resultados parciais.",
+      },
+      {
+        type: "improvement",
+        title: "Destaque do clã selecionado",
+        description:
+          "O confronto do clã atualmente selecionado recebe identidade visual exclusiva e maior destaque para facilitar o acompanhamento.",
+      },
+      {
+        type: "improvement",
+        title: "Compatibilidade total com o seletor de clãs",
+        description:
+          "A troca entre K.O.D. e K.O.D.rec agora funciona em toda a área da CWL mantendo o contexto da navegação.",
+      },
       {
         type: "feature",
         title: "CWL Command Center",
@@ -232,8 +280,6 @@ export const releases: Release[] = [
     date: "2026-08-01",
     summary:
       "A Sala de Guerra agora apresenta inteligência individual dos participantes, histórico expansível de ataques, métricas ofensivas e defensivas e uma experiência visual aprimorada.",
-
-    current: true,
 
     changes: [
       {

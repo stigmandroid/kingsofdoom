@@ -238,6 +238,36 @@ Construir o primeiro Command Center dedicado à Liga de Guerras de Clãs, permit
 
 ### Entregas concluídas
 
+✅ Página completa da Clash War League
+
+✅ Suporte multi-clã na CWL (K.O.D. e K.O.D.rec)
+
+✅ Detecção automática de temporada ativa
+
+✅ Estado profissional para períodos sem CWL
+
+✅ Visão geral da temporada
+
+✅ Lista de clãs participantes
+
+✅ Distribuição dos Centros de Vila por clã
+
+✅ Calendário completo das 7 rodadas
+
+✅ Consulta automática de todas as guerras disponíveis
+
+✅ Identificação do confronto do clã selecionado
+
+✅ Placar em tempo real das guerras
+
+✅ Indicador visual do clã que está na frente
+
+✅ Indicador de confrontos aguardando primeiros ataques
+
+✅ Destaque visual para o clã selecionado nos confrontos
+
+✅ Seleção de clã compatível com todas as páginas da CWL
+
 ✅ Integração com o grupo atual da Clash War League
 
 ✅ Consulta individual das guerras através de warTags
@@ -281,6 +311,30 @@ Construir o primeiro Command Center dedicado à Liga de Guerras de Clãs, permit
 ✅ Suporte multi-clã na CWL
 
 ### Próximas entregas
+
+⬜ Classificação geral da liga em tempo real
+
+⬜ Histórico completo de temporadas anteriores
+
+⬜ Histórico permanente das rodadas
+
+⬜ Exportação da distribuição dos Centros de Vila (PNG/JPG)
+
+⬜ Compartilhamento das escalações
+
+⬜ Comparação automática entre escalações
+
+⬜ Estatísticas ofensivas da CWL
+
+⬜ Estatísticas defensivas da CWL
+
+⬜ Ranking de jogadores da temporada
+
+⬜ Linha do tempo dos confrontos
+
+⬜ Página individual de cada guerra da CWL
+
+⬜ Medalhas e desempenho histórico dos clãs
 
 ⬜ Seleção dinâmica entre as sete rodadas
 

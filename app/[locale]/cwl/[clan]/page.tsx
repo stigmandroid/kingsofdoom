@@ -176,6 +176,8 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
       <CwlRounds
         group={result.group}
         wars={wars}
+        locale={locale}
+        clanSlug={clanSlug}
         highlightedClanTag={selectedClan.tag}
       />
     </main>

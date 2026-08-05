@@ -38,6 +38,7 @@ import Image from "next/image";
 import type { CwlGroup } from "@/types/cwl";
 import { isAvailableCwlWarTag } from "@/types/cwl";
 import type { CurrentWar } from "@/types/war";
+import Link from "next/link";
 
 /**
  * Representa uma guerra da CWL associada à tag
@@ -52,26 +53,32 @@ export type CwlRoundWar = {
  * Propriedades recebidas pelo componente de rodadas.
  */
 type CwlRoundsProps = {
-  /**
-   * Grupo atual da CWL.
-   */
   group: CwlGroup;
-
-  /**
-   * Guerras disponíveis da rodada consultada.
-   */
   wars: CwlRoundWar[];
 
   /**
-   * Tag do clã utilizado como referência visual.
+   * Slug do clã selecionado na URL.
    */
+  clanSlug: string;
+
+  /**
+   * Idioma atual da aplicação.
+   */
+  locale: string;
+
   highlightedClanTag?: string;
 };
 
 /**
  * Renderiza as rodadas e os confrontos da temporada.
  */
-export function CwlRounds({ group, wars, highlightedClanTag }: CwlRoundsProps) {
+export function CwlRounds({
+  group,
+  wars,
+  clanSlug,
+  locale,
+  highlightedClanTag,
+}: CwlRoundsProps) {
   /**
    * Nesta primeira entrega visual, destacamos a primeira
    * rodada que possui ao menos uma guerra criada.
@@ -190,6 +197,8 @@ export function CwlRounds({ group, wars, highlightedClanTag }: CwlRoundsProps) {
                   key={warTag}
                   warTag={warTag}
                   war={war}
+                  locale={locale}
+                  clanSlug={clanSlug}
                   highlightedClanTag={highlightedClanTag}
                   roundHasStarted={roundHasStarted}
                 />
@@ -218,11 +227,9 @@ export function CwlRounds({ group, wars, highlightedClanTag }: CwlRoundsProps) {
 type CwlMatchCardProps = {
   warTag: string;
   war: CurrentWar;
+  locale: string;
+  clanSlug: string;
   highlightedClanTag?: string;
-
-  /**
-   * Indica se algum confronto da rodada já começou.
-   */
   roundHasStarted: boolean;
 };
 
@@ -232,6 +239,8 @@ type CwlMatchCardProps = {
 function CwlMatchCard({
   warTag,
   war,
+  locale,
+  clanSlug,
   highlightedClanTag,
   roundHasStarted,
 }: CwlMatchCardProps) {
@@ -372,14 +381,12 @@ function CwlMatchCard({
           Início: {formatClashDate(war.startTime)}
         </p>
 
-        <button
-          type="button"
-          disabled
-          title="A navegação para a guerra será implementada em uma próxima etapa."
-          className="inline-flex cursor-not-allowed items-center justify-center rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-xs font-black uppercase tracking-wider text-slate-500"
+        <Link
+          href={`/${locale}/cwl/${clanSlug}/war/${encodeURIComponent(warTag)}`}
+          className="inline-flex items-center justify-center rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-2 text-xs font-black uppercase tracking-wider text-amber-300 transition hover:border-amber-300 hover:bg-amber-400/20"
         >
-          Ver guerra em breve
-        </button>
+          Ver guerra
+        </Link>
       </div>
     </article>
   );

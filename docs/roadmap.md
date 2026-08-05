@@ -368,6 +368,124 @@ Construir o primeiro Command Center dedicado à Liga de Guerras de Clãs, permit
 
 ---
 
+# 🟨 v0.8.1 — CWL War Room
+
+## Objetivo
+
+Transformar a Clash War League em uma verdadeira Sala de Guerra, permitindo acompanhar cada confronto individualmente, consultar os ataques realizados e preparar a arquitetura para a inteligência completa da temporada.
+
+### Entregas concluídas
+
+✅ Sala de Guerra exclusiva para cada confronto da CWL
+
+✅ Navegação direta para a Sala de Guerra através dos confrontos
+
+✅ Resumo completo da guerra
+
+✅ Placar em tempo real
+
+✅ Estrelas
+
+✅ Destruição
+
+✅ Quantidade de ataques realizados
+
+✅ Estado atual da guerra
+
+✅ Alternância entre os dois clãs do confronto
+
+✅ Acompanhamento ofensivo
+
+✅ Identificação de jogadores que já atacaram
+
+✅ Identificação de jogadores pendentes
+
+✅ Quantidade de ataques realizados
+
+✅ Quantidade de ataques pendentes
+
+✅ Informações completas do atacante
+
+✅ Nome do jogador
+
+✅ Centro de Vila
+
+✅ Posição no mapa
+
+✅ Estrelas conquistadas
+
+✅ Porcentagem de destruição
+
+✅ Informações completas do alvo atacado
+
+✅ Nome do defensor
+
+✅ Centro de Vila do defensor
+
+✅ Posição da base atacada
+
+✅ Estrutura preparada para qualquer confronto da temporada
+
+✅ Componentes reutilizáveis para futuras expansões da Sala de Guerra
+
+---
+
+## Próximas entregas
+
+⬜ Seleção dinâmica entre as sete rodadas
+
+⬜ Visualização de qualquer rodada da temporada
+
+⬜ Atualização dos confrontos ao trocar de rodada
+
+⬜ Histórico completo das sete rodadas da temporada
+
+⬜ Sala de Guerra para qualquer confronto da CWL
+
+⬜ Linha do tempo dos ataques
+
+⬜ Melhor ataque da guerra
+
+⬜ Estatísticas ofensivas por jogador
+
+⬜ Estatísticas defensivas por jogador
+
+⬜ Eficiência ofensiva
+
+⬜ Comparativo entre os dois clãs
+
+⬜ MVP da guerra
+
+⬜ Classificação geral da liga em tempo real
+
+⬜ Vitórias, derrotas e empates
+
+⬜ Total de estrelas conquistadas
+
+⬜ Destruição acumulada
+
+⬜ Destaque automático da posição do clã selecionado
+
+⬜ Histórico permanente de temporadas
+
+⬜ Persistência das temporadas encerradas
+
+⬜ Estatísticas históricas da CWL
+
+⬜ Ranking histórico de jogadores
+
+⬜ Exportação da distribuição dos Centros de Vila (PNG)
+
+⬜ Exportação da distribuição dos Centros de Vila (JPG)
+
+⬜ Exportação da classificação da temporada
+
+⬜ Compartilhamento de imagens
+
+⬜ Motor de exportação reutilizável para todo o portal
+
+---
+
 # v0.9.0 — Community
 
 ## Objetivo

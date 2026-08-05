@@ -145,14 +145,94 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.8.1",
+    title: "CWL War Room",
+    date: "2026-08-05",
+
+    summary:
+      "Introdução da Sala de Guerra da Clash War League, adicionando páginas individuais para cada confronto, acompanhamento ofensivo, informações detalhadas dos ataques e estrutura preparada para inteligência avançada da temporada.",
+
+    current: true,
+
+    changes: [
+      {
+        type: "feature",
+        title: "Sala de Guerra da CWL",
+        description:
+          "Cada confronto da Clash War League passou a possuir uma página exclusiva para acompanhamento detalhado da batalha.",
+      },
+
+      {
+        type: "feature",
+        title: "Navegação para os confrontos",
+        description:
+          "Os confrontos da CWL agora permitem acessar diretamente a Sala de Guerra através do botão 'Ver Guerra'.",
+      },
+
+      {
+        type: "feature",
+        title: "Resumo do confronto",
+        description:
+          "A Sala de Guerra apresenta placar atualizado, estrelas, destruição, quantidade de ataques realizados e estado atual da batalha.",
+      },
+
+      {
+        type: "feature",
+        title: "Acompanhamento ofensivo",
+        description:
+          "Foi implementado um painel que separa automaticamente jogadores que já realizaram seus ataques daqueles que ainda permanecem pendentes.",
+      },
+
+      {
+        type: "feature",
+        title: "Informações do atacante",
+        description:
+          "Cada ataque realizado passou a exibir posição no mapa, nome do jogador, Centro de Vila, estrelas conquistadas e porcentagem de destruição.",
+      },
+
+      {
+        type: "feature",
+        title: "Informações do alvo atacado",
+        description:
+          "Os ataques agora identificam automaticamente a base adversária atingida, exibindo posição no mapa, nome do defensor e seu respectivo Centro de Vila.",
+      },
+
+      {
+        type: "feature",
+        title: "Alternância entre os clãs da guerra",
+        description:
+          "A Sala de Guerra permite alternar entre os dois participantes do confronto para acompanhar ofensivamente qualquer um dos lados.",
+      },
+
+      {
+        type: "improvement",
+        title: "Preparação para múltiplos confrontos",
+        description:
+          "A arquitetura da Sala de Guerra foi expandida para suportar futuramente qualquer confronto da temporada, independentemente do clã selecionado.",
+      },
+
+      {
+        type: "improvement",
+        title: "Componentes reutilizáveis",
+        description:
+          "A estrutura dos componentes da Sala de Guerra foi reorganizada para facilitar futuras expansões da inteligência da CWL.",
+      },
+
+      {
+        type: "technical",
+        title: "Base para inteligência avançada",
+        description:
+          "A nova arquitetura prepara o portal para histórico das rodadas, estatísticas ofensivas, timeline dos ataques, mapas completos e futuras análises avançadas da Clash War League.",
+      },
+    ],
+  },
+  {
     version: "0.8.0",
     title: "CWL Intelligence Foundation",
     date: "2026-08-02",
 
     summary:
       "Primeira estrutura do CWL Command Center, introduzindo temporadas, escalações, rodadas, confrontos, suporte multi-clã e arquitetura preparada para classificação em tempo real.",
-
-    current: true,
 
     changes: [
       {

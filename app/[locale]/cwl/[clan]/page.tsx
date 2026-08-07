@@ -115,49 +115,44 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
   }
 
   /**
-   * Consulta todas as guerras já criadas em todas as
-   * rodadas disponíveis da temporada.
+   * Reúne todas as guerras válidas já criadas em todas
+   * as rodadas da temporada.
    *
-   * Cada guerra permanece associada ao índice da rodada
-   * à qual pertence.
+   * A posição da rodada é preservada para que o componente
+   * consiga identificar corretamente qual rodada está ativa.
    */
-  /**
-   * Localiza a primeira rodada que possui
-   * guerras já criadas pela Clash API.
-   */
-  const firstAvailableRound = result.group.rounds.find((round) =>
-    round.warTags.some(isAvailableCwlWarTag),
+  const availableWars = result.group.rounds.flatMap((round, roundIndex) =>
+    round.warTags.filter(isAvailableCwlWarTag).map((warTag) => ({
+      warTag,
+      roundIndex,
+    })),
   );
 
   /**
-   * Mantém somente as tags de guerra válidas.
-   *
-   * Tags iguais a "#0" representam confrontos
-   * que ainda não foram criados.
-   */
-  const availableWarTags =
-    firstAvailableRound?.warTags.filter(isAvailableCwlWarTag) ?? [];
-
-  /**
-   * Consulta simultaneamente todos os confrontos
-   * da primeira rodada disponível.
+   * Consulta simultaneamente todos os confrontos já criados
+   * em todas as rodadas disponíveis da temporada.
    */
   const warResults = await Promise.all(
-    availableWarTags.map(async (warTag) => ({
+    availableWars.map(async ({ warTag, roundIndex }) => ({
       warTag,
+      roundIndex,
       result: await getCwlWar(warTag),
     })),
   );
 
   /**
    * Mantém somente as guerras consultadas com sucesso.
+   *
+   * O número da rodada acompanha cada guerra para permitir
+   * a seleção automática da rodada atual.
    */
   const wars: CwlRoundWar[] = warResults.flatMap(
-    ({ warTag, result: warResult }) =>
+    ({ warTag, roundIndex, result: warResult }) =>
       warResult.available
         ? [
             {
               warTag,
+              roundIndex,
               war: warResult.war,
             },
           ]

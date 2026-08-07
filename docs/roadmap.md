@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 01/08/2026
+# 07/08/2026
 
 #
 
 # Versão:
 
-# v0.7.0
+# v0.8.2
 
 #
 
@@ -84,7 +84,7 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 **Versão atual**
 
 ```
-v0.6.0
+v0.8.2
 ```
 
 **Fase do projeto**
@@ -274,10 +274,6 @@ Construir o primeiro Command Center dedicado à Liga de Guerras de Clãs, permit
 
 ✅ Estrutura dedicada da CWL reutilizando a arquitetura da Sala de Guerra
 
-✅ Página exclusiva da CWL
-
-✅ Visão geral da temporada
-
 ✅ Estado atual da liga
 
 ✅ Quantidade de clãs participantes
@@ -308,8 +304,6 @@ Construir o primeiro Command Center dedicado à Liga de Guerras de Clãs, permit
 
 ✅ Navegação independente da CWL para K.O.D. e K.O.D.rec
 
-✅ Suporte multi-clã na CWL
-
 ### Próximas entregas
 
 ⬜ Classificação geral da liga em tempo real
@@ -335,8 +329,6 @@ Construir o primeiro Command Center dedicado à Liga de Guerras de Clãs, permit
 ⬜ Página individual de cada guerra da CWL
 
 ⬜ Medalhas e desempenho histórico dos clãs
-
-⬜ Seleção dinâmica entre as sete rodadas
 
 ⬜ Atualização automática dos confrontos ao trocar de rodada
 
@@ -432,12 +424,6 @@ Transformar a Clash War League em uma verdadeira Sala de Guerra, permitindo acom
 
 ## Próximas entregas
 
-⬜ Seleção dinâmica entre as sete rodadas
-
-⬜ Visualização de qualquer rodada da temporada
-
-⬜ Atualização dos confrontos ao trocar de rodada
-
 ⬜ Histórico completo das sete rodadas da temporada
 
 ⬜ Sala de Guerra para qualquer confronto da CWL
@@ -483,6 +469,60 @@ Transformar a Clash War League em uma verdadeira Sala de Guerra, permitindo acom
 ⬜ Compartilhamento de imagens
 
 ⬜ Motor de exportação reutilizável para todo o portal
+
+---
+
+# ✅ v0.8.2 — CWL Intelligence
+
+## Objetivo
+
+Transformar a CWL em um painel inteligente de tomada de decisão, permitindo acompanhar o andamento da temporada, navegar entre rodadas e prever matematicamente o resultado de cada confronto.
+
+### Entregas
+
+✅ Seleção dinâmica de rodadas
+
+✅ Seleção instantânea sem recarregar a página
+
+✅ Navegação totalmente client-side
+
+✅ Atualização dinâmica dos confrontos
+
+✅ Consulta automática das guerras de cada rodada
+
+✅ Navegação entre rodadas sem recarregar a página
+
+✅ Destaque visual do confronto do clã selecionado
+
+✅ Identificação automática do adversário
+
+✅ Nome do adversário exibido diretamente nos cards das rodadas
+
+✅ Indicadores visuais para preparação, guerra em andamento e encerrada
+
+✅ Cálculo matemático do cenário da guerra
+
+✅ Algoritmo de projeção matemática da rodada
+
+✅ Detecção automática de:
+
+• Vitória confirmada
+
+• Derrota confirmada
+
+• Clã atualmente na frente
+
+• Possibilidade matemática de vitória
+
+• Possibilidade matemática de empate
+
+• Quantidade mínima de estrelas necessárias para evitar a derrota
+
+• Quantidade máxima de estrelas ainda alcançáveis
+
+✅ Melhorias de interface para desktop e mobile
+
+✅ Primeira funcionalidade de inteligência estratégica do Kings of Doom Command Center
 
 ---
 

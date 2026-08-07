@@ -1,3 +1,4 @@
+"use client";
 /**
  * ==========================================================
  * Kings of Doom Command Center
@@ -37,8 +38,13 @@ import Image from "next/image";
 
 import type { CwlGroup } from "@/types/cwl";
 import { isAvailableCwlWarTag } from "@/types/cwl";
-import type { CurrentWar } from "@/types/war";
+import type { CurrentWar, WarClan } from "@/types/war";
 import Link from "next/link";
+import { useState } from "react";
+import {
+  calculateCwlMatchOutlook,
+  type CwlMatchOutlook,
+} from "@/lib/cwl/calculate-cwl-match-outlook";
 
 /**
  * Representa uma guerra da CWL associada à tag
@@ -46,6 +52,15 @@ import Link from "next/link";
  */
 export type CwlRoundWar = {
   warTag: string;
+
+  /**
+   * Índice da rodada dentro da temporada.
+   *
+   * Rodada 1 = índice 0
+   * Rodada 2 = índice 1
+   */
+  roundIndex: number;
+
   war: CurrentWar;
 };
 
@@ -80,21 +95,41 @@ export function CwlRounds({
   highlightedClanTag,
 }: CwlRoundsProps) {
   /**
-   * Nesta primeira entrega visual, destacamos a primeira
-   * rodada que possui ao menos uma guerra criada.
+   * Identifica automaticamente a rodada atual.
+   *
+   * Prioridade:
+   * 1. Guerra em andamento;
+   * 2. Guerra em preparação;
+   * 3. Última rodada encerrada;
+   * 4. Primeira rodada disponível.
    */
-  const activeRoundIndex = group.rounds.findIndex((round) =>
-    round.warTags.some(isAvailableCwlWarTag),
+  const initialRoundIndex =
+    wars.find(({ war }) => war.state === "inWar")?.roundIndex ??
+    wars.find(({ war }) => war.state === "preparation")?.roundIndex ??
+    [...wars].reverse().find(({ war }) => war.state === "warEnded")
+      ?.roundIndex ??
+    group.rounds.findIndex((round) => round.warTags.some(isAvailableCwlWarTag));
+
+  /**
+   * Rodada atualmente selecionada pelo usuário.
+   */
+  const [selectedRoundIndex, setSelectedRoundIndex] = useState(
+    initialRoundIndex >= 0 ? initialRoundIndex : 0,
+  );
+
+  /**
+   * Mantém somente os confrontos pertencentes
+   * à rodada selecionada.
+   */
+  const selectedRoundWars = wars.filter(
+    ({ roundIndex }) => roundIndex === selectedRoundIndex,
   );
 
   /**
    * Considera a rodada iniciada quando ao menos uma guerra
-   * já está em andamento ou foi encerrada.
-   *
-   * Isso evita apresentar "Confronto em preparação" em uma
-   * rodada que já começou, mas ainda possui duelos sem ataques.
+   * da rodada selecionada está em andamento ou encerrada.
    */
-  const roundHasStarted = wars.some(
+  const roundHasStarted = selectedRoundWars.some(
     ({ war }) => war.state === "inWar" || war.state === "warEnded",
   );
 
@@ -123,27 +158,63 @@ export function CwlRounds({
         </div>
 
         {/*
-         * Navegação visual das rodadas.
+         * Navegação interativa das rodadas.
          *
-         * Nesta primeira versão os botões ainda não alteram
-         * dinamicamente a rodada exibida. A interação será
-         * implementada na próxima etapa.
+         * A rodada atual é selecionada automaticamente na abertura,
+         * mas o usuário pode consultar qualquer rodada já criada.
          */}
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
           {group.rounds.map((round, index) => {
             const available = round.warTags.some(isAvailableCwlWarTag);
+            const active = index === selectedRoundIndex;
 
-            const active = index === activeRoundIndex;
+            /**
+             * Localiza o confronto do clã selecionado
+             * dentro desta rodada.
+             */
+            const highlightedWar = wars.find(
+              ({ roundIndex, war }) =>
+                roundIndex === index &&
+                (war.clan?.tag === highlightedClanTag ||
+                  war.opponent?.tag === highlightedClanTag),
+            );
+
+            /**
+             * Identifica o adversário do clã selecionado
+             * nesta rodada.
+             */
+            const opponentName = highlightedWar
+              ? highlightedWar.war.clan?.tag === highlightedClanTag
+                ? highlightedWar.war.opponent?.name
+                : highlightedWar.war.clan?.name
+              : undefined;
+
+            /**
+             * Calcula o estado do confronto do clã selecionado
+             * dentro da rodada atual do calendário.
+             */
+            const roundStatus = getHighlightedRoundStatus(
+              highlightedWar,
+              highlightedClanTag,
+            );
 
             return (
-              <div
+              <button
                 key={`round-${index + 1}`}
-                className={`rounded-2xl border p-4 text-center transition ${
+                type="button"
+                onClick={() => {
+                  if (available) {
+                    setSelectedRoundIndex(index);
+                  }
+                }}
+                disabled={!available}
+                aria-pressed={active}
+                className={`min-h-[192px] rounded-2xl border p-4 text-center transition ${
                   active
                     ? "border-amber-400/50 bg-amber-400/10"
                     : available
-                      ? "border-emerald-400/30 bg-emerald-400/10"
-                      : "border-slate-800 bg-slate-950/60"
+                      ? "border-emerald-400/30 bg-emerald-400/10 hover:border-emerald-300/60 hover:bg-emerald-400/15"
+                      : "cursor-not-allowed border-slate-800 bg-slate-950/60"
                 }`}
               >
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
@@ -162,16 +233,37 @@ export function CwlRounds({
                   {index + 1}
                 </p>
 
-                <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-slate-600">
-                  {active ? "Atual" : available ? "Disponível" : "Aguardando"}
+                {active && (
+                  <p className="mt-2 text-[10px] font-black uppercase tracking-wider text-amber-300">
+                    Selecionada
+                  </p>
+                )}
+
+                {opponentName ? (
+                  <p
+                    translate="no"
+                    title={opponentName}
+                    className="notranslate mt-3 truncate text-xs font-black text-slate-300"
+                  >
+                    vs {opponentName}
+                  </p>
+                ) : (
+                  <p className="mt-3 text-[10px] font-bold leading-4 text-slate-600">
+                    Aguardando criação da guerra
+                  </p>
+                )}
+                <p
+                  className={`mt-3 text-[10px] font-black uppercase tracking-wider ${roundStatus.className}`}
+                >
+                  {roundStatus.label}
                 </p>
-              </div>
+              </button>
             );
           })}
         </div>
 
         {/*
-         * Confrontos pertencentes à rodada disponível.
+         * Confrontos pertencentes à rodada selecionada.
          */}
         <div className="mt-12">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
@@ -181,18 +273,18 @@ export function CwlRounds({
               </p>
 
               <h3 className="mt-2 text-2xl font-black text-white">
-                Rodada {activeRoundIndex + 1}
+                Rodada {selectedRoundIndex + 1}
               </h3>
             </div>
 
             <p className="text-sm font-semibold text-slate-500">
-              {wars.length} confrontos disponíveis
+              {selectedRoundWars.length} confrontos disponíveis
             </p>
           </div>
 
-          {wars.length > 0 ? (
+          {selectedRoundWars.length > 0 ? (
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
-              {wars.map(({ warTag, war }) => (
+              {selectedRoundWars.map(({ warTag, war }) => (
                 <CwlMatchCard
                   key={warTag}
                   warTag={warTag}
@@ -219,6 +311,117 @@ export function CwlRounds({
       </div>
     </section>
   );
+}
+
+/**
+ * Estado resumido do confronto do clã selecionado
+ * dentro de uma rodada da CWL.
+ */
+type CwlRoundStatus = {
+  label: string;
+  className: string;
+};
+
+/**
+ * Identifica o estado e o resultado do confronto
+ * pertencente ao clã selecionado.
+ */
+function getHighlightedRoundStatus(
+  highlightedWar: CwlRoundWar | undefined,
+  highlightedClanTag?: string,
+): CwlRoundStatus {
+  /**
+   * A Supercell ainda não criou a guerra desta rodada.
+   */
+  if (!highlightedWar || !highlightedClanTag) {
+    return {
+      label: "Ainda não disponível",
+      className: "text-slate-600",
+    };
+  }
+
+  const { war } = highlightedWar;
+  const clan = war.clan;
+  const opponent = war.opponent;
+
+  /**
+   * Evita calcular o resultado sem os dois lados
+   * completos do confronto.
+   */
+  if (!clan || !opponent) {
+    return {
+      label: "Dados indisponíveis",
+      className: "text-slate-600",
+    };
+  }
+
+  if (war.state === "preparation") {
+    return {
+      label: "Preparação",
+      className: "text-amber-300",
+    };
+  }
+
+  /**
+   * Coloca o clã selecionado sempre como referência
+   * para determinar vitória, derrota ou situação parcial.
+   */
+  const ownClan = clan.tag === highlightedClanTag ? clan : opponent;
+
+  const enemyClan = clan.tag === highlightedClanTag ? opponent : clan;
+
+  const ownClanIsAhead =
+    ownClan.stars > enemyClan.stars ||
+    (ownClan.stars === enemyClan.stars &&
+      ownClan.destructionPercentage > enemyClan.destructionPercentage);
+
+  const enemyClanIsAhead =
+    enemyClan.stars > ownClan.stars ||
+    (enemyClan.stars === ownClan.stars &&
+      enemyClan.destructionPercentage > ownClan.destructionPercentage);
+
+  if (war.state === "warEnded") {
+    if (ownClanIsAhead) {
+      return {
+        label: "Vitória",
+        className: "text-emerald-300",
+      };
+    }
+
+    if (enemyClanIsAhead) {
+      return {
+        label: "Derrota",
+        className: "text-red-300",
+      };
+    }
+
+    return {
+      label: "Empate",
+      className: "text-slate-300",
+    };
+  }
+
+  /**
+   * Situação parcial de uma guerra em andamento.
+   */
+  if (ownClanIsAhead) {
+    return {
+      label: "Na frente",
+      className: "text-emerald-300",
+    };
+  }
+
+  if (enemyClanIsAhead) {
+    return {
+      label: "Atrás no placar",
+      className: "text-red-300",
+    };
+  }
+
+  return {
+    label: "Empate parcial",
+    className: "text-sky-300",
+  };
 }
 
 /**
@@ -259,6 +462,21 @@ function CwlMatchCard({
     clan.tag === highlightedClanTag || opponent.tag === highlightedClanTag;
 
   /**
+   * Analisa todos os confrontos após o início da batalha.
+   *
+   * O clã exibido à esquerda é utilizado como referência.
+   * O resultado poderá apontar vitória, derrota ou cenário
+   * ainda matematicamente aberto.
+   */
+  const matchOutlook =
+    war.state !== "preparation"
+      ? calculateCwlMatchOutlook({
+          war,
+          referenceClanTag: clan.tag,
+        })
+      : null;
+
+  /**
    * Identifica o resultado parcial ou final do confronto.
    */
   /**
@@ -277,6 +495,15 @@ function CwlMatchCard({
     opponentStars: opponent.stars,
     opponentDestruction: opponent.destructionPercentage,
     opponentAttacks: opponent.attacks,
+  });
+
+  /**
+   * Mensagem resumida da análise matemática.
+   */
+  const outlookLabel = getCwlOutlookLabel({
+    outlook: matchOutlook,
+    referenceClan: clan,
+    opponentClan: opponent,
   });
 
   return (
@@ -331,24 +558,20 @@ function CwlMatchCard({
         />
       </div>
 
-      {/*
-       * Situação atual do confronto.
-       *
-       * Esta informação permanece visualmente secundária para
-       * que o placar de estrelas seja o principal destaque.
-       */}
       <div className="mt-5 flex justify-center">
         <div
-          title={matchResult.description}
-          className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-2 text-center ${matchResult.className}`}
+          title={outlookLabel?.description ?? matchResult.description}
+          className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-2 text-center ${
+            outlookLabel?.className ?? matchResult.className
+          }`}
         >
           <span
             aria-hidden="true"
             className="h-2 w-2 shrink-0 rounded-full bg-current"
           />
 
-          <p className="truncate text-[10px] font-black uppercase tracking-[0.14em] sm:text-xs">
-            {matchResult.label}
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] sm:text-xs">
+            {outlookLabel?.label ?? matchResult.label}
           </p>
         </div>
       </div>
@@ -390,6 +613,168 @@ function CwlMatchCard({
       </div>
     </article>
   );
+}
+
+/**
+ * Propriedades de uma métrica da análise matemática.
+ */
+type CwlOutlookMetricProps = {
+  label: string;
+  value: string | number;
+};
+
+/**
+ * Exibe uma métrica resumida da perspectiva matemática
+ * do confronto.
+ */
+function CwlOutlookMetric({ label, value }: CwlOutlookMetricProps) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950/50 px-3 py-3">
+      <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
+
+      <p className="mt-1 text-lg font-black text-white">{value}</p>
+    </div>
+  );
+}
+
+/**
+ * Gera uma mensagem curta e objetiva para representar
+ * a situação matemática atual do confronto.
+ *
+ * Regras visuais:
+ *
+ * - verde: clã atualmente na frente;
+ * - azul: clã atrás ainda consegue alterar o resultado;
+ * - vermelho: derrota matematicamente confirmada.
+ */
+function getCwlOutlookLabel({
+  outlook,
+  referenceClan,
+  opponentClan,
+}: {
+  outlook: CwlMatchOutlook | null;
+  referenceClan: WarClan;
+  opponentClan: WarClan;
+}): {
+  label: string;
+  description: string;
+  className: string;
+} | null {
+  if (!outlook) {
+    return null;
+  }
+
+  /**
+   * O clã usado como referência não consegue mais alcançar
+   * o resultado atual do adversário.
+   */
+  if (
+    outlook.status === "confirmedDefeat" ||
+    outlook.status === "finishedDefeat"
+  ) {
+    return {
+      label: `${referenceClan.name}: derrota confirmada · máximo ${outlook.maximumPossibleStars} ★`,
+      description: outlook.description,
+      className: "border-red-400/30 bg-red-400/10 text-red-300",
+    };
+  }
+
+  /**
+   * Quando a vitória do clã de referência está confirmada,
+   * comunicamos a derrota do outro lado.
+   *
+   * Isso mantém o padrão solicitado: sempre destacar
+   * explicitamente qual clã não possui mais chances.
+   */
+  if (
+    outlook.status === "confirmedVictory" ||
+    outlook.status === "finishedVictory"
+  ) {
+    return {
+      label: `${opponentClan.name}: derrota confirmada · máximo ${outlook.enemyMaximumPossibleStars} ★`,
+      description: outlook.description,
+      className: "border-red-400/30 bg-red-400/10 text-red-300",
+    };
+  }
+
+  if (outlook.status === "finishedDraw") {
+    return {
+      label: "Confronto empatado",
+      description: outlook.description,
+      className: "border-slate-600 bg-slate-800/70 text-slate-300",
+    };
+  }
+
+  /**
+   * Compara primeiro as estrelas e depois a destruição,
+   * seguindo o critério utilizado no resultado da guerra.
+   */
+  const referenceClanIsAhead =
+    referenceClan.stars > opponentClan.stars ||
+    (referenceClan.stars === opponentClan.stars &&
+      referenceClan.destructionPercentage > opponentClan.destructionPercentage);
+
+  const opponentClanIsAhead =
+    opponentClan.stars > referenceClan.stars ||
+    (opponentClan.stars === referenceClan.stars &&
+      opponentClan.destructionPercentage > referenceClan.destructionPercentage);
+
+  /**
+   * O clã de referência está vencendo no placar atual.
+   */
+  if (referenceClanIsAhead) {
+    return {
+      label: `${referenceClan.name} está na frente`,
+      description: "O clã está na frente considerando estrelas e destruição.",
+      className: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
+    };
+  }
+
+  /**
+   * O adversário está na frente, mas o clã de referência
+   * ainda consegue ultrapassá-lo em estrelas.
+   */
+  if (
+    opponentClanIsAhead &&
+    outlook.maximumPossibleStars > outlook.enemyStars
+  ) {
+    return {
+      label: `${referenceClan.name} ainda pode vencer · precisa de ${outlook.starsNeededToLead} ★`,
+      description:
+        outlook.enemyRemainingAttacks > 0
+          ? `${opponentClan.name} ainda possui ataques e a meta pode mudar.`
+          : "O clã ainda consegue assumir a liderança com os ataques restantes.",
+      className: "border-sky-400/30 bg-sky-400/10 text-sky-300",
+    };
+  }
+
+  /**
+   * O máximo possível permite apenas igualar as estrelas.
+   * Nesse caso, a destruição decidirá o confronto.
+   */
+  if (
+    opponentClanIsAhead &&
+    outlook.maximumPossibleStars === outlook.enemyStars
+  ) {
+    return {
+      label: `${referenceClan.name} ainda pode empatar · precisa de ${outlook.starsNeededToTie} ★ + destruição`,
+      description:
+        "Com igualdade nas estrelas, será necessário superar a destruição do adversário.",
+      className: "border-sky-400/30 bg-sky-400/10 text-sky-300",
+    };
+  }
+
+  /**
+   * Placar completamente empatado no momento.
+   */
+  return {
+    label: "Confronto empatado",
+    description:
+      "Os dois clãs possuem o mesmo número de estrelas e destruição.",
+    className: "border-sky-400/30 bg-sky-400/10 text-sky-300",
+  };
 }
 
 /**

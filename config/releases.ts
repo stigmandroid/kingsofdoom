@@ -145,6 +145,88 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.8.2",
+    title: "CWL Intelligence",
+    date: "2026-08-07",
+
+    summary:
+      "A Clash War League evoluiu para um verdadeiro painel estratégico, permitindo navegar entre rodadas, consultar automaticamente qualquer confronto disponível e analisar matematicamente as possibilidades de vitória, empate ou derrota de cada guerra da temporada.",
+
+    current: true,
+
+    changes: [
+      {
+        type: "feature",
+        title: "Seleção dinâmica de rodadas",
+        description:
+          "As sete rodadas da temporada passaram a ser navegáveis diretamente pela interface, permitindo alternar entre os confrontos sem recarregar a página.",
+      },
+
+      {
+        type: "feature",
+        title: "Consulta automática das guerras",
+        description:
+          "Os confrontos da rodada selecionada são consultados automaticamente através da Clash API, exibindo apenas as guerras disponíveis naquele momento.",
+      },
+
+      {
+        type: "feature",
+        title: "Identificação automática do adversário",
+        description:
+          "Os cards das rodadas passaram a identificar automaticamente o adversário do clã selecionado sempre que o confronto estiver disponível.",
+      },
+
+      {
+        type: "feature",
+        title: "Destaque do confronto selecionado",
+        description:
+          "A rodada atualmente selecionada recebe destaque visual e atualiza instantaneamente todos os confrontos exibidos na página.",
+      },
+
+      {
+        type: "feature",
+        title: "Análise matemática dos confrontos",
+        description:
+          "Foi implementado um mecanismo capaz de interpretar o estado atual da guerra e calcular automaticamente as possibilidades matemáticas de vitória, empate ou derrota.",
+      },
+
+      {
+        type: "feature",
+        title: "Indicadores inteligentes de cenário",
+        description:
+          "Cada confronto passou a exibir automaticamente quando um clã está na frente, ainda possui chances matemáticas de vencer, ou quando a derrota já está matematicamente confirmada.",
+      },
+
+      {
+        type: "feature",
+        title: "Projeção de estrelas restantes",
+        description:
+          "Os confrontos agora calculam automaticamente a quantidade máxima de estrelas ainda alcançáveis e o mínimo necessário para evitar uma derrota.",
+      },
+
+      {
+        type: "improvement",
+        title: "Interface das rodadas",
+        description:
+          "Os cards das rodadas foram redesenhados para apresentar adversário, estado atual do confronto e indicadores estratégicos de forma mais clara e intuitiva.",
+      },
+
+      {
+        type: "improvement",
+        title: "Experiência desktop e mobile",
+        description:
+          "Diversos ajustes visuais foram realizados para melhorar a navegação, organização das informações e responsividade da página da Clash War League.",
+      },
+
+      {
+        type: "technical",
+        title: "Engine de inteligência da CWL",
+        description:
+          "Foi criada a primeira engine de análise estratégica do Kings of Doom Command Center, preparando a arquitetura para futuras funcionalidades como classificação em tempo real, simulações de temporada, previsões de colocação e estatísticas avançadas.",
+      },
+    ],
+  },
+  {
     version: "0.8.1",
     title: "CWL War Room",
     date: "2026-08-05",

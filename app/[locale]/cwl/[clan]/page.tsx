@@ -33,7 +33,9 @@ import { notFound } from "next/navigation";
 import { CwlOverview } from "@/components/cwl/CwlOverview";
 import { CwlRoster } from "@/components/cwl/CwlRoster";
 import { CwlRounds, type CwlRoundWar } from "@/components/cwl/CwlRounds";
+import { CwlStandings } from "@/components/cwl/CwlStandings";
 import { CwlUnavailableState } from "@/components/cwl/CwlUnavailableState";
+import { getClan } from "@/services/clan.service";
 
 import { getCurrentCwlGroup, getCwlWar } from "@/services/cwl.service";
 
@@ -98,9 +100,19 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
   const selectedClan = cwlClans[clanSlug];
 
   /**
-   * Consulta o grupo atual do clã presente na URL.
+   * Consulta simultaneamente:
+   *
+   * - o grupo atual da CWL;
+   * - os dados gerais do clã selecionado.
+   *
+   * Os dados gerais são utilizados para identificar
+   * a liga atual do clã e, consequentemente, as zonas
+   * de promoção e rebaixamento.
    */
-  const result = await getCurrentCwlGroup(selectedClan.tag);
+  const [result, clanDetails] = await Promise.all([
+    getCurrentCwlGroup(selectedClan.tag),
+    getClan(selectedClan.tag),
+  ]);
 
   /**
    * Quando não existe CWL ativa para o clã selecionado,
@@ -167,6 +179,8 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
         clans={result.group.clans}
         highlightedClanTag={selectedClan.tag}
       />
+
+      <CwlStandings wars={wars} leagueName={clanDetails.warLeague?.name} />
 
       <CwlRounds
         group={result.group}

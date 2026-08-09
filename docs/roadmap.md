@@ -526,6 +526,150 @@ Transformar a CWL em um painel inteligente de tomada de decisão, permitindo aco
 
 ---
 
+# 🚧 v0.8.3 — CWL Season Pass Event
+
+## Objetivo
+
+Transformar o acompanhamento da CWL em uma experiência completa de temporada e criar a infraestrutura do evento automático do Passe de Temporada, permitindo acompanhar jogadores elegíveis, congelar os participantes ao término da liga, realizar um sorteio único e persistente e preparar uma revelação sincronizada para todos os jogadores.
+
+### Entregas
+
+✅ Classificação geral consolidada da CWL
+
+✅ Soma automática das estrelas conquistadas nas rodadas
+
+✅ Aplicação do bônus oficial de 10 estrelas por vitória
+
+✅ Destruição acumulada utilizada como critério de desempate
+
+✅ Identificação das zonas de promoção, permanência e rebaixamento
+
+✅ Adaptação das zonas de acordo com a liga atual
+
+✅ Refinamento visual das zonas no desktop
+
+✅ Refinamento visual das zonas no mobile
+
+✅ Remoção das setas redundantes de promoção e rebaixamento
+
+✅ Visão geral das rodadas da temporada
+
+✅ Exibição dos clãs que se enfrentaram em cada rodada
+
+✅ Exibição da pontuação de cada confronto
+
+✅ Diferenciação visual entre vencedor e derrotado
+
+✅ Tratamento visual para empates
+
+✅ Tratamento visual para guerras em preparação
+
+✅ Tratamento visual para guerras em andamento
+
+✅ Melhorias de responsividade da visão geral das rodadas
+
+✅ Regra automática de elegibilidade ao Passe de Temporada
+
+✅ Participação mínima de três guerras
+
+✅ Exigência de utilização de todos os ataques disponíveis
+
+✅ Exigência de três estrelas em cada participação válida
+
+✅ Exigência de 100% de destruição em cada participação válida
+
+✅ Acompanhamento dinâmico dos jogadores elegíveis durante a CWL
+
+✅ Definição do sorteio automático após o encerramento da temporada
+
+✅ Horário oficial definido para 12:00 do dia seguinte
+
+✅ Utilização do fuso horário America/Sao_Paulo
+
+✅ Persistência local utilizando SQLite nativo
+
+✅ Integração com node:sqlite no Node.js 24
+
+✅ Criação do schema persistente do Passe de Temporada
+
+✅ Persistência dos eventos por clã e temporada
+
+✅ Persistência da lista definitiva de jogadores elegíveis
+
+✅ Congelamento da elegibilidade após o encerramento da CWL
+
+✅ Persistência permanente do vencedor
+
+✅ Proteção contra execução duplicada do sorteio
+
+✅ Separação entre horário do sorteio e horário da revelação
+
+✅ Criação do repository do Passe de Temporada
+
+✅ Criação do service responsável pelo ciclo completo do evento
+
+✅ Sorteio realizado exclusivamente no servidor
+
+✅ Seleção segura do vencedor
+
+✅ Criação da API interna /api/season-pass
+
+✅ Proteção contra exposição antecipada do vencedor
+
+✅ Criação do CwlSeasonPassEvent
+
+✅ Estado tracking
+
+✅ Estado scheduled
+
+✅ Estado revealing
+
+✅ Estado revealed
+
+✅ Polling automático para sincronização do evento
+
+✅ Contagem regressiva preparada para o sorteio
+
+✅ Interface preparada para acompanhar o evento em tempo real
+
+✅ Correção da renderização duplicada de Rodadas e confrontos
+
+---
+
+## Próximas implementações
+
+⬜ Testar artificialmente o estado scheduled
+
+⬜ Validar a contagem regressiva até o horário do sorteio
+
+⬜ Testar artificialmente a transição scheduled → revealing
+
+⬜ Validar a janela de revelação
+
+⬜ Testar artificialmente a transição revealing → revealed
+
+⬜ Confirmar que múltiplos acessos simultâneos não alteram o vencedor
+
+⬜ Confirmar persistência do vencedor após atualização da página
+
+⬜ Confirmar persistência do vencedor após reinicialização do servidor
+
+⬜ Criar a identidade visual definitiva do evento
+
+⬜ Adicionar a imagem do Passe de Temporada
+
+⬜ Desenvolver a animação de sorteio
+
+⬜ Desenvolver a animação de entrega do Passe ao jogador vencedor
+
+⬜ Refinar a experiência da revelação no desktop
+
+⬜ Refinar a experiência da revelação no mobile
+
+⬜ Validar o fluxo completo antes da primeira execução oficial
+
+---
+
 # v0.9.0 — Community
 
 ## Objetivo

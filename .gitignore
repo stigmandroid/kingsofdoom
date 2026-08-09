@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ==========================================================
+# Local database
+# ----------------------------------------------------------
+# O banco SQLite contém dados persistentes da aplicação
+# e não deve ser versionado no repositório.
+# ==========================================================
+
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.sqlite
+data/*.sqlite3
+data/*.sqlite-wal
+data/*.sqlite-shm

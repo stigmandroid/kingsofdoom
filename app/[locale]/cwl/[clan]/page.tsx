@@ -36,6 +36,8 @@ import { CwlRounds, type CwlRoundWar } from "@/components/cwl/CwlRounds";
 import { CwlStandings } from "@/components/cwl/CwlStandings";
 import { CwlUnavailableState } from "@/components/cwl/CwlUnavailableState";
 import { getClan } from "@/services/clan.service";
+import { CwlSeasonProgress } from "@/components/cwl/CwlSeasonProgress";
+import { CwlSeasonPassEvent } from "@/components/cwl/CwlSeasonPassEvent";
 
 import { getCurrentCwlGroup, getCwlWar } from "@/services/cwl.service";
 
@@ -181,6 +183,10 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
       />
 
       <CwlStandings wars={wars} leagueName={clanDetails.warLeague?.name} />
+
+      <CwlSeasonProgress wars={wars} totalRounds={result.group.rounds.length} />
+
+      <CwlSeasonPassEvent clanSlug={clanSlug} />
 
       <CwlRounds
         group={result.group}

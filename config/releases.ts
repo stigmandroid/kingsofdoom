@@ -145,6 +145,151 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.8.3",
+    title: "CWL Season Pass Event",
+    date: "2026-08-08",
+
+    summary:
+      "A experiência da Clash War League foi ampliada com uma visão consolidada da temporada e a fundação completa do evento automático do Passe de Temporada, incluindo elegibilidade dinâmica, persistência em SQLite, agendamento do sorteio, proteção do vencedor e uma interface preparada para acompanhar todo o evento em tempo real.",
+
+    current: true,
+
+    changes: [
+      {
+        type: "feature",
+        title: "Classificação geral da temporada",
+        description:
+          "O ranking da CWL passou a consolidar automaticamente o desempenho dos clãs ao longo das rodadas, considerando estrelas conquistadas, bônus oficiais por vitória e destruição acumulada.",
+      },
+
+      {
+        type: "feature",
+        title: "Zonas de promoção e rebaixamento",
+        description:
+          "A classificação passou a identificar visualmente os clãs posicionados nas zonas de promoção, permanência e rebaixamento de acordo com a liga atual.",
+      },
+
+      {
+        type: "feature",
+        title: "Visão geral das rodadas",
+        description:
+          "Foi adicionada uma visão consolidada da temporada mostrando os confrontos de cada rodada e suas respectivas pontuações sem substituir a navegação detalhada já existente.",
+      },
+
+      {
+        type: "feature",
+        title: "Resultado visual dos confrontos",
+        description:
+          "As pontuações das rodadas passaram a utilizar indicadores visuais para diferenciar vitória, derrota, empate, guerra em andamento e preparação.",
+      },
+
+      {
+        type: "feature",
+        title: "Elegibilidade automática ao Passe",
+        description:
+          "Foi implementada a regra de elegibilidade do Passe de Temporada, exigindo participação mínima em três guerras, utilização de todos os ataques disponíveis e desempenho perfeito de três estrelas e 100% de destruição em cada participação válida.",
+      },
+
+      {
+        type: "feature",
+        title: "Evento automático do Passe de Temporada",
+        description:
+          "Foi criada a máquina de estados do evento com acompanhamento da elegibilidade durante a CWL, agendamento após o encerramento, fase de revelação e publicação permanente do vencedor.",
+      },
+
+      {
+        type: "feature",
+        title: "Sorteio agendado em horário oficial",
+        description:
+          "Após o encerramento da CWL, o evento é preparado automaticamente para o meio-dia do dia seguinte utilizando o fuso horário oficial de Brasília.",
+      },
+
+      {
+        type: "feature",
+        title: "Lista definitiva de participantes",
+        description:
+          "Ao término da temporada, os jogadores elegíveis são congelados em uma fotografia persistente, impedindo que alterações posteriores nos dados da Clash API modifiquem os participantes do sorteio.",
+      },
+
+      {
+        type: "feature",
+        title: "Sorteio único e persistente",
+        description:
+          "O vencedor passa a ser selecionado exclusivamente no servidor e armazenado de forma persistente, com proteção contra múltiplos sorteios ou substituição acidental do resultado.",
+      },
+
+      {
+        type: "feature",
+        title: "API pública do evento",
+        description:
+          "Foi criada uma rota interna dedicada ao Passe de Temporada para fornecer ao frontend somente o estado público do evento, mantendo o vencedor oculto até o momento oficial da revelação.",
+      },
+
+      {
+        type: "feature",
+        title: "Interface do evento do Passe",
+        description:
+          "Foi criado o CwlSeasonPassEvent com suporte aos estados tracking, scheduled, revealing e revealed, preparando a experiência completa desde a classificação dos participantes até a apresentação do vencedor.",
+      },
+
+      {
+        type: "feature",
+        title: "Contagem regressiva do sorteio",
+        description:
+          "A interface foi preparada para apresentar uma contagem regressiva sincronizada com o horário oficial do evento e atualizar automaticamente seu estado sem exigir recarregamento manual.",
+      },
+
+      {
+        type: "improvement",
+        title: "Responsividade da CWL",
+        description:
+          "A classificação e a visão das rodadas receberam novos ajustes para melhorar alinhamento, legibilidade e aproveitamento de espaço em dispositivos móveis.",
+      },
+
+      {
+        type: "improvement",
+        title: "Simplificação das zonas da liga",
+        description:
+          "As setas de promoção e rebaixamento foram removidas após a adoção das cores das zonas como indicador principal, reduzindo ruído visual especialmente no mobile.",
+      },
+
+      {
+        type: "improvement",
+        title: "Organização da página da CWL",
+        description:
+          "A composição da página foi revisada para eliminar renderizações duplicadas e manter ranking, progresso da temporada, evento do Passe e confrontos organizados em uma única experiência.",
+      },
+
+      {
+        type: "technical",
+        title: "Persistência com SQLite nativo",
+        description:
+          "Foi adicionada uma camada persistente utilizando node:sqlite no Node.js 24 para armazenar eventos do Passe, participantes elegíveis e vencedores oficiais.",
+      },
+
+      {
+        type: "technical",
+        title: "Repository do Passe de Temporada",
+        description:
+          "Foi criada uma camada dedicada de repository para centralizar consultas, criação de eventos, congelamento de participantes, persistência do vencedor e controle da revelação.",
+      },
+
+      {
+        type: "technical",
+        title: "Service do ciclo do evento",
+        description:
+          "Foi implementado um serviço responsável por orquestrar o ciclo completo do Passe, incluindo encerramento da CWL, agendamento, sorteio, persistência e liberação segura do resultado.",
+      },
+
+      {
+        type: "technical",
+        title: "Proteção contra revelação antecipada",
+        description:
+          "O backend passou a controlar separadamente os momentos de sorteio e revelação, impedindo que o vencedor seja enviado ao frontend antes do horário autorizado.",
+      },
+    ],
+  },
+  {
     version: "0.8.2",
     title: "CWL Intelligence",
     date: "2026-08-07",
@@ -152,7 +297,7 @@ export const releases: Release[] = [
     summary:
       "A Clash War League evoluiu para um verdadeiro painel estratégico, permitindo navegar entre rodadas, consultar automaticamente qualquer confronto disponível e analisar matematicamente as possibilidades de vitória, empate ou derrota de cada guerra da temporada.",
 
-    current: true,
+    current: false,
 
     changes: [
       {

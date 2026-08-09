@@ -107,7 +107,136 @@ export function CwlStandings({ wars, leagueName }: CwlStandingsProps) {
           </p>
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-2xl border border-slate-800">
+        {/*
+         * ==========================================================
+         * CLASSIFICAÇÃO — MOBILE
+         * ----------------------------------------------------------
+         * Layout específico para telas pequenas.
+         *
+         * Mantém:
+         * - posição;
+         * - escudo;
+         * - nome;
+         * - guerras disputadas;
+         * - V-D-E;
+         * - estrelas;
+         * - destruição.
+         *
+         * Também possui ajustes extras para telas abaixo de 375px.
+         * ==========================================================
+         */}
+        <div className="mt-8 overflow-hidden rounded-2xl border border-slate-800 md:hidden">
+          <div className="divide-y divide-slate-800">
+            {standings.map((standing, index) => {
+              const movement = getStandingMovement({
+                index,
+                totalClans: standings.length,
+                rule: movementRule,
+              });
+
+              return (
+                <div key={standing.tag} className="bg-slate-950/70 px-4 py-4">
+                  {/*
+                   * Cabeçalho do clã.
+                   */}
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-black ${
+                        movement === "promotion"
+                          ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                          : movement === "relegation"
+                            ? "border-red-400/30 bg-red-400/10 text-red-300"
+                            : "border-slate-700 bg-slate-900 text-white"
+                      }`}
+                      title={
+                        movement === "promotion"
+                          ? "Zona de promoção"
+                          : movement === "relegation"
+                            ? "Zona de rebaixamento"
+                            : "Permanência na liga"
+                      }
+                    >
+                      #{index + 1}
+                    </div>
+
+                    <Image
+                      src={standing.badgeUrl}
+                      alt={`Escudo do clã ${standing.name}`}
+                      width={48}
+                      height={48}
+                      className="h-11 w-11 shrink-0 object-contain"
+                    />
+
+                    <div className="min-w-0">
+                      <p
+                        translate="no"
+                        className="notranslate truncate font-black text-white"
+                      >
+                        {standing.name}
+                      </p>
+
+                      <p className="mt-1 text-xs font-semibold text-slate-600">
+                        {standing.warsPlayed} guerra
+                        {standing.warsPlayed === 1 ? "" : "s"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/*
+                   * Barra compacta de métricas.
+                   *
+                   * Em telas abaixo de 375px:
+                   * - reduz padding;
+                   * - reduz tracking;
+                   * - reduz ligeiramente os valores;
+                   * - preserva as três colunas.
+                   */}
+                  <div className="mt-3 grid grid-cols-3 divide-x divide-slate-800 rounded-xl border border-slate-800 bg-slate-900/40">
+                    <div className="px-1.5 py-3 text-center min-[375px]:px-3">
+                      <p className="text-[9px] font-black uppercase tracking-[0.08em] text-slate-600 min-[375px]:text-[10px] min-[375px]:tracking-wider">
+                        V-D-E
+                      </p>
+
+                      <p className="mt-1 text-base font-black text-slate-200 min-[375px]:text-lg">
+                        {standing.wins}-{standing.losses}-{standing.draws}
+                      </p>
+                    </div>
+
+                    <div className="px-1.5 py-3 text-center min-[375px]:px-3">
+                      <p className="text-[9px] font-black uppercase tracking-[0.08em] text-slate-600 min-[375px]:text-[10px] min-[375px]:tracking-wider">
+                        Estrelas
+                      </p>
+
+                      <p className="mt-1 text-base font-black text-amber-300 min-[375px]:text-lg">
+                        {standing.stars}
+                      </p>
+                    </div>
+
+                    <div className="px-1.5 py-3 text-center min-[375px]:px-3">
+                      <p className="text-[9px] font-black uppercase tracking-[0.04em] text-slate-600 min-[375px]:text-[10px] min-[375px]:tracking-wider">
+                        Destruição
+                      </p>
+
+                      <p className="mt-1 text-[15px] font-black text-slate-200 min-[375px]:text-lg">
+                        {formatPercentage(standing.destruction)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/*
+         * ==========================================================
+         * CLASSIFICAÇÃO — DESKTOP
+         * ----------------------------------------------------------
+         * A tabela tradicional permanece disponível a partir
+         * do breakpoint md.
+         * ==========================================================
+         */}
+        <div className="mt-10 hidden overflow-hidden rounded-2xl border border-slate-800 md:block">
           <div className="grid grid-cols-[72px_minmax(0,1fr)_100px_120px_110px] bg-slate-900/80 px-4 py-3 text-[10px] font-black uppercase tracking-wider text-slate-500">
             <span>Pos.</span>
             <span>Clã</span>
@@ -129,53 +258,23 @@ export function CwlStandings({ wars, leagueName }: CwlStandingsProps) {
                   key={standing.tag}
                   className="grid grid-cols-[72px_minmax(0,1fr)_100px_120px_110px] items-center bg-slate-950/70 px-4 py-4"
                 >
-                  <div className="grid grid-cols-[20px_40px] items-center gap-2">
-                    {/*
-                     * Reserva sempre o mesmo espaço para o indicador
-                     * de promoção ou rebaixamento.
-                     *
-                     * Isso mantém todas as posições perfeitamente
-                     * alinhadas, inclusive as zonas neutras.
-                     */}
-                    <span className="flex w-5 items-center justify-center">
-                      {movement === "promotion" ? (
-                        <span
-                          aria-label="Zona de promoção"
-                          title="Zona de promoção"
-                          className="text-lg font-black text-emerald-400"
-                        >
-                          ▲
-                        </span>
-                      ) : movement === "relegation" ? (
-                        <span
-                          aria-label="Zona de rebaixamento"
-                          title="Zona de rebaixamento"
-                          className="text-lg font-black text-red-400"
-                        >
-                          ▼
-                        </span>
-                      ) : (
-                        /**
-                         * Elemento invisível que preserva a largura
-                         * da coluna nas posições neutras.
-                         */
-                        <span aria-hidden="true" className="invisible">
-                          ▲
-                        </span>
-                      )}
-                    </span>
-
-                    <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl border text-sm font-black ${
-                        movement === "promotion"
-                          ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                          : movement === "relegation"
-                            ? "border-red-400/30 bg-red-400/10 text-red-300"
-                            : "border-slate-700 bg-slate-900 text-white"
-                      }`}
-                    >
-                      #{index + 1}
-                    </div>
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl border text-sm font-black ${
+                      movement === "promotion"
+                        ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                        : movement === "relegation"
+                          ? "border-red-400/30 bg-red-400/10 text-red-300"
+                          : "border-slate-700 bg-slate-900 text-white"
+                    }`}
+                    title={
+                      movement === "promotion"
+                        ? "Zona de promoção"
+                        : movement === "relegation"
+                          ? "Zona de rebaixamento"
+                          : "Permanência na liga"
+                    }
+                  >
+                    #{index + 1}
                   </div>
 
                   <div className="flex min-w-0 items-center gap-3">

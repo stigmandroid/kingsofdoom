@@ -47,6 +47,7 @@ import {
   createScheduledSeasonPassEvent,
   findSeasonPassEligiblePlayers,
   findSeasonPassEvent,
+  findLatestSeasonPassEventByClan,
   markSeasonPassEventAsRevealed,
   replaceSeasonPassEligiblePlayers,
   saveSeasonPassWinner,
@@ -266,6 +267,64 @@ export function getSeasonPassEventState({
       findSeasonPassEvent({
         season,
         clanTag,
+      }) ?? event;
+  }
+
+  return buildPublicEventState({
+    event,
+    players: frozenPlayers,
+    now,
+  });
+}
+
+/**
+ * Recupera e continua o último evento persistido de um clã
+ * quando a Clash API já não disponibiliza a temporada encerrada.
+ *
+ * Esta função não recalcula elegibilidade e não cria novo evento.
+ * Utiliza apenas o evento e a lista congelada no SQLite.
+ */
+export function getPersistedSeasonPassEventState({
+  clanTag,
+  now = new Date(),
+}: {
+  clanTag: string;
+  now?: Date;
+}): SeasonPassEventState | null {
+  let event = findLatestSeasonPassEventByClan(clanTag);
+
+  if (!event) {
+    return null;
+  }
+
+  const frozenPlayers = findSeasonPassEligiblePlayers(event.id);
+
+  if (
+    event.status === "scheduled" &&
+    now.getTime() >= new Date(event.scheduledAt).getTime()
+  ) {
+    executeSeasonPassDraw({
+      event,
+      players: frozenPlayers,
+    });
+
+    event =
+      findSeasonPassEvent({
+        season: event.season,
+        clanTag: event.clanTag,
+      }) ?? event;
+  }
+
+  if (
+    event.status === "drawn" &&
+    now.getTime() >= new Date(event.revealAt).getTime()
+  ) {
+    markSeasonPassEventAsRevealed(event.id);
+
+    event =
+      findSeasonPassEvent({
+        season: event.season,
+        clanTag: event.clanTag,
       }) ?? event;
   }
 

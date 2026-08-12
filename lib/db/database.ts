@@ -30,6 +30,7 @@ import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
 import { initializeDatabaseSchema } from "./schema";
+import { initializeCwlArchiveSchema } from "./cwl-archive-schema";
 
 /**
  * Diretório persistente utilizado pelo banco.
@@ -81,6 +82,12 @@ database.exec(`
  * antes que repositories tentem utilizar o banco.
  */
 initializeDatabaseSchema(database);
+
+/**
+ * Inicializa também as estruturas responsáveis pelo
+ * histórico completo das temporadas da CWL.
+ */
+initializeCwlArchiveSchema(database);
 
 /**
  * Exporta uma única instância para utilização

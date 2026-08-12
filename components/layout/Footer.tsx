@@ -8,8 +8,15 @@
  * Responsabilidade:
  * Exibir o rodapé global do portal.
  *
+ * Funcionalidades:
+ *
+ * - exibir identidade do Command Center;
+ * - fornecer acesso às páginas de Releases e Roadmap;
+ * - identificar automaticamente a versão pública atual;
+ * - manter o ano de copyright atualizado.
+ *
  * Versão:
- * 0.8.0
+ * 0.8.3
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -17,6 +24,8 @@
  */
 
 import Link from "next/link";
+
+import { releases } from "@/config/releases";
 
 /**
  * Propriedades recebidas pelo rodapé.
@@ -26,30 +35,41 @@ type FooterProps = {
    * Idioma atual da aplicação.
    */
   locale: string;
+};
+
+/**
+ * Localiza automaticamente a release marcada
+ * como versão atualmente publicada.
+ *
+ * Isso elimina a necessidade de atualizar
+ * manualmente a versão exibida no rodapé.
+ */
+function getCurrentVersion(): string {
+  const currentRelease = releases.find((release) => release.current);
 
   /**
-   * Versão pública atualmente publicada.
+   * Fallback defensivo.
+   *
+   * Caso nenhuma release esteja marcada como current,
+   * utiliza a primeira release cadastrada.
    */
-  version?: string;
-};
+  return currentRelease?.version ?? releases[0]?.version ?? "0.0.0";
+}
 
 /**
  * Renderiza o rodapé global do Command Center.
  */
-export function Footer({ locale, version = "0.8.0" }: FooterProps) {
+export function Footer({ locale }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
+  const currentVersion = getCurrentVersion();
+
   return (
-    <footer className="mt-12 border-t border-slate-800 bg-slate-950">
+    <footer className="border-t border-slate-800 bg-slate-950">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
+        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>
-            <p
-              translate="no"
-              className="notranslate text-lg font-black text-white"
-            >
-              K.O.D. Command Center
-            </p>
+            <p className="font-black text-white">K.O.D. Command Center</p>
 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
               Plataforma de inteligência para acompanhamento de clãs, jogadores
@@ -82,7 +102,7 @@ export function Footer({ locale, version = "0.8.0" }: FooterProps) {
             </nav>
 
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
-              <span>v{version}</span>
+              <span>v{currentVersion}</span>
 
               <span aria-hidden="true">•</span>
 

@@ -29,17 +29,18 @@
  * stigmandroid
  *
  * Última atualização:
- * 08/08/2026
+ * 12/08/2026
  *
  * Versão:
- * 0.8.0
+ * 0.9.0
  *
  * Status:
- * 🚧 Em desenvolvimento
+ * ✅ Cerimônia oficial integrada
  * ==========================================================
  */
 
 import { useEffect, useMemo, useState } from "react";
+import CwlSeasonPassCeremony from "@/components/cwl/CwlSeasonPassCeremony";
 
 /**
  * Jogador elegível retornado pela API.
@@ -418,33 +419,13 @@ function ScheduledState({ event }: { event: SeasonPassEventState }) {
  * entre o sorteio do servidor e a revelação pública.
  */
 function RevealingState({ event }: { event: SeasonPassEventState }) {
-  const players = event.eligiblePlayers;
-
-  const [activeIndex, setActiveIndex] = useState(0);
-
   /**
-   * Faz os nomes alternarem rapidamente durante
-   * a janela de revelação.
+   * Por segurança, a API não expõe o vencedor durante "revealing".
    *
-   * Essa animação NÃO escolhe o vencedor.
-   * Ela é exclusivamente visual.
+   * Portanto, enquanto revealAt ainda não chegou, mantemos uma cena
+   * neutra. Assim que o polling receber "revealed", o vencedor oficial
+   * poderá ser entregue à cerimônia sem qualquer sorteio no cliente.
    */
-  useEffect(() => {
-    if (players.length === 0) {
-      return;
-    }
-
-    const interval = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % players.length);
-    }, 120);
-
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, [players.length]);
-
-  const currentPlayer = players[activeIndex];
-
   return (
     <div className="overflow-hidden rounded-3xl border border-sky-400/20 bg-gradient-to-b from-sky-400/10 via-slate-950 to-slate-950">
       <div className="px-5 py-14 text-center sm:px-8 sm:py-20">
@@ -453,24 +434,15 @@ function RevealingState({ event }: { event: SeasonPassEventState }) {
         </div>
 
         <p className="mt-8 text-xs font-black uppercase tracking-[0.3em] text-sky-300">
-          Sorteio em andamento
+          Sorteio realizado
         </p>
 
         <h3 className="mt-4 text-3xl font-black text-white sm:text-5xl">
-          Quem levará o Passe?
+          Preparando a revelação...
         </h3>
 
-        <div className="mx-auto mt-10 max-w-xl rounded-3xl border border-slate-700 bg-slate-900/70 px-6 py-8 shadow-2xl">
-          <p
-            translate="no"
-            className="notranslate truncate text-2xl font-black text-white sm:text-4xl"
-          >
-            {currentPlayer?.name ?? "Preparando sorteio..."}
-          </p>
-        </div>
-
         <p className="mt-8 text-sm font-semibold text-slate-500">
-          O resultado oficial será revelado em instantes.
+          O vencedor oficial será revelado em instantes.
         </p>
       </div>
     </div>
@@ -497,65 +469,29 @@ function RevealedState({ event }: { event: SeasonPassEventState }) {
     );
   }
 
-  const player = event.eligiblePlayers.find(
+  /**
+   * O contrato público do winner contém apenas tag e nome.
+   * As métricas completas permanecem na lista congelada.
+   */
+  const winnerPlayer = event.eligiblePlayers.find(
     (candidate) => candidate.tag === winner.tag,
   );
 
-  return (
-    <div className="overflow-hidden rounded-3xl border border-amber-400/30 bg-gradient-to-b from-amber-400/15 via-slate-950 to-slate-950">
-      <div className="px-5 py-12 text-center sm:px-8 sm:py-16">
-        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] border border-amber-400/40 bg-amber-400/10 text-5xl shadow-[0_0_60px_rgba(251,191,36,0.16)]">
-          🏆
-        </div>
-
-        <p className="mt-8 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
-          Vencedor do Passe de Temporada
+  if (!winnerPlayer) {
+    return (
+      <div className="rounded-3xl border border-red-400/20 bg-red-400/5 p-8 text-center">
+        <p className="font-black text-white">
+          Não foi possível localizar o vencedor na lista oficial.
         </p>
-
-        <h3
-          translate="no"
-          className="notranslate mt-4 break-words text-4xl font-black text-white sm:text-6xl"
-        >
-          {winner.name}
-        </h3>
-
-        {player && (
-          <>
-            <p className="mt-3 text-sm font-semibold text-slate-500">
-              {player.tag}
-            </p>
-
-            <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
-              <WinnerMetric label="Guerras" value={player.warsPlayed} />
-
-              <WinnerMetric
-                label="Ataques"
-                value={`${player.attacksUsed}/${player.attacksAvailable}`}
-              />
-
-              <WinnerMetric label="Estrelas" value={player.stars} />
-
-              <WinnerMetric
-                label="Destruição"
-                value={`${player.destruction}%`}
-              />
-            </div>
-          </>
-        )}
-
-        <div className="mx-auto mt-8 max-w-md rounded-2xl border border-emerald-400/20 bg-emerald-400/5 px-5 py-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
-            100% de aproveitamento
-          </p>
-        </div>
-
-        {event.scheduledAt && (
-          <p className="mt-8 text-xs font-semibold text-slate-600">
-            Sorteio realizado em {formatBrasiliaDate(event.scheduledAt)}
-          </p>
-        )}
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <CwlSeasonPassCeremony
+      players={event.eligiblePlayers}
+      winner={winnerPlayer}
+    />
   );
 }
 
@@ -633,27 +569,6 @@ function CountdownMetric({ label, value }: { label: string; value: number }) {
       <p className="mt-2 text-[9px] font-black uppercase tracking-wider text-slate-600 sm:text-[10px]">
         {label}
       </p>
-    </div>
-  );
-}
-
-/**
- * Métrica do vencedor.
- */
-function WinnerMetric({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-950/70 px-3 py-4">
-      <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
-        {label}
-      </p>
-
-      <p className="mt-2 text-lg font-black text-white">{value}</p>
     </div>
   );
 }

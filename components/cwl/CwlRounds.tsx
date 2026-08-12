@@ -209,26 +209,26 @@ export function CwlRounds({
                 }}
                 disabled={!available}
                 aria-pressed={active}
-                className={`min-h-[192px] rounded-2xl border p-4 text-center transition ${
-                  active
-                    ? "border-amber-400/50 bg-amber-400/10"
-                    : available
-                      ? "border-emerald-400/30 bg-emerald-400/10 hover:border-emerald-300/60 hover:bg-emerald-400/15"
-                      : "cursor-not-allowed border-slate-800 bg-slate-950/60"
-                }`}
+                className={`min-h-[192px] rounded-2xl border p-4 text-center transition ${getRoundCardClassName(
+                  {
+                    active,
+                    available,
+                    tone: roundStatus.tone,
+                  },
+                )}`}
               >
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
                   Rodada
                 </p>
 
                 <p
-                  className={`mt-2 text-2xl font-black ${
-                    active
-                      ? "text-amber-300"
-                      : available
-                        ? "text-emerald-300"
-                        : "text-slate-500"
-                  }`}
+                  className={`mt-2 text-2xl font-black ${getRoundNumberClassName(
+                    {
+                      active,
+                      available,
+                      tone: roundStatus.tone,
+                    },
+                  )}`}
                 >
                   {index + 1}
                 </p>
@@ -252,6 +252,7 @@ export function CwlRounds({
                     Aguardando criação da guerra
                   </p>
                 )}
+
                 <p
                   className={`mt-3 text-[10px] font-black uppercase tracking-wider ${roundStatus.className}`}
                 >
@@ -314,12 +315,35 @@ export function CwlRounds({
 }
 
 /**
+ * Tom visual utilizado pelo card de uma rodada.
+ */
+type CwlRoundTone =
+  | "victory"
+  | "defeat"
+  | "draw"
+  | "progress"
+  | "preparation"
+  | "unavailable";
+
+/**
  * Estado resumido do confronto do clã selecionado
  * dentro de uma rodada da CWL.
  */
 type CwlRoundStatus = {
+  /**
+   * Texto exibido no card.
+   */
   label: string;
+
+  /**
+   * Cor utilizada no texto do status.
+   */
   className: string;
+
+  /**
+   * Identidade visual utilizada pelo card da rodada.
+   */
+  tone: CwlRoundTone;
 };
 
 /**
@@ -331,45 +355,57 @@ function getHighlightedRoundStatus(
   highlightedClanTag?: string,
 ): CwlRoundStatus {
   /**
-   * A Supercell ainda não criou a guerra desta rodada.
+   * A guerra ainda não foi criada.
    */
   if (!highlightedWar || !highlightedClanTag) {
     return {
       label: "Ainda não disponível",
       className: "text-slate-600",
+      tone: "unavailable",
     };
   }
 
   const { war } = highlightedWar;
+
   const clan = war.clan;
   const opponent = war.opponent;
 
   /**
-   * Evita calcular o resultado sem os dois lados
-   * completos do confronto.
+   * Evita calcular o resultado caso algum dos
+   * lados do confronto esteja indisponível.
    */
   if (!clan || !opponent) {
     return {
       label: "Dados indisponíveis",
       className: "text-slate-600",
-    };
-  }
-
-  if (war.state === "preparation") {
-    return {
-      label: "Preparação",
-      className: "text-amber-300",
+      tone: "unavailable",
     };
   }
 
   /**
-   * Coloca o clã selecionado sempre como referência
-   * para determinar vitória, derrota ou situação parcial.
+   * Guerra ainda em preparação.
+   */
+  if (war.state === "preparation") {
+    return {
+      label: "Preparação",
+      className: "text-amber-300",
+      tone: "preparation",
+    };
+  }
+
+  /**
+   * Coloca o clã selecionado sempre como referência.
    */
   const ownClan = clan.tag === highlightedClanTag ? clan : opponent;
 
   const enemyClan = clan.tag === highlightedClanTag ? opponent : clan;
 
+  /**
+   * Determina quem está à frente considerando:
+   *
+   * 1. estrelas;
+   * 2. destruição em caso de empate.
+   */
   const ownClanIsAhead =
     ownClan.stars > enemyClan.stars ||
     (ownClan.stars === enemyClan.stars &&
@@ -380,11 +416,15 @@ function getHighlightedRoundStatus(
     (enemyClan.stars === ownClan.stars &&
       enemyClan.destructionPercentage > ownClan.destructionPercentage);
 
+  /**
+   * Resultado definitivo.
+   */
   if (war.state === "warEnded") {
     if (ownClanIsAhead) {
       return {
         label: "Vitória",
         className: "text-emerald-300",
+        tone: "victory",
       };
     }
 
@@ -392,22 +432,25 @@ function getHighlightedRoundStatus(
       return {
         label: "Derrota",
         className: "text-red-300",
+        tone: "defeat",
       };
     }
 
     return {
       label: "Empate",
       className: "text-slate-300",
+      tone: "draw",
     };
   }
 
   /**
-   * Situação parcial de uma guerra em andamento.
+   * Guerra em andamento.
    */
   if (ownClanIsAhead) {
     return {
       label: "Na frente",
       className: "text-emerald-300",
+      tone: "progress",
     };
   }
 
@@ -415,13 +458,154 @@ function getHighlightedRoundStatus(
     return {
       label: "Atrás no placar",
       className: "text-red-300",
+      tone: "progress",
     };
   }
 
   return {
     label: "Empate parcial",
     className: "text-sky-300",
+    tone: "progress",
   };
+}
+
+/**
+ * Define a identidade visual do card de uma rodada.
+ *
+ * A rodada selecionada continua utilizando dourado
+ * independentemente do resultado.
+ */
+function getRoundCardClassName({
+  active,
+  available,
+  tone,
+}: {
+  active: boolean;
+  available: boolean;
+  tone: CwlRoundTone;
+}): string {
+  if (active) {
+    return [
+      "border-amber-400/50",
+      "bg-amber-400/10",
+      "shadow-lg",
+      "shadow-amber-950/10",
+    ].join(" ");
+  }
+
+  if (!available) {
+    return ["cursor-not-allowed", "border-slate-800", "bg-slate-950/60"].join(
+      " ",
+    );
+  }
+
+  switch (tone) {
+    /**
+     * Vitória:
+     * mesma identidade verde já utilizada atualmente.
+     */
+    case "victory":
+      return [
+        "border-emerald-400/30",
+        "bg-emerald-400/10",
+        "hover:border-emerald-300/60",
+        "hover:bg-emerald-400/15",
+      ].join(" ");
+
+    /**
+     * Derrota:
+     * espelha exatamente o padrão da vitória,
+     * substituindo a família verde pela vermelha.
+     */
+    case "defeat":
+      return [
+        "border-red-400/30",
+        "bg-red-400/10",
+        "hover:border-red-300/60",
+        "hover:bg-red-400/15",
+      ].join(" ");
+
+    /**
+     * Empate encerrado.
+     */
+    case "draw":
+      return [
+        "border-slate-600/50",
+        "bg-slate-700/10",
+        "hover:border-slate-500/70",
+        "hover:bg-slate-700/20",
+      ].join(" ");
+
+    /**
+     * Guerra ainda acontecendo.
+     *
+     * Mantemos um tom neutro azulado para não comunicar
+     * vitória ou derrota antes do resultado definitivo.
+     */
+    case "progress":
+      return [
+        "border-sky-400/25",
+        "bg-sky-400/5",
+        "hover:border-sky-300/50",
+        "hover:bg-sky-400/10",
+      ].join(" ");
+
+    /**
+     * Guerra criada, mas ainda em preparação.
+     */
+    case "preparation":
+      return [
+        "border-amber-400/25",
+        "bg-amber-400/5",
+        "hover:border-amber-300/50",
+        "hover:bg-amber-400/10",
+      ].join(" ");
+
+    default:
+      return ["border-slate-800", "bg-slate-950/60"].join(" ");
+  }
+}
+
+/**
+ * Define a cor do número da rodada seguindo
+ * a mesma identidade visual do card.
+ */
+function getRoundNumberClassName({
+  active,
+  available,
+  tone,
+}: {
+  active: boolean;
+  available: boolean;
+  tone: CwlRoundTone;
+}): string {
+  if (active) {
+    return "text-amber-300";
+  }
+
+  if (!available) {
+    return "text-slate-500";
+  }
+
+  switch (tone) {
+    case "victory":
+      return "text-emerald-300";
+
+    case "defeat":
+      return "text-red-300";
+
+    case "draw":
+      return "text-slate-300";
+
+    case "progress":
+      return "text-sky-300";
+
+    case "preparation":
+      return "text-amber-300";
+
+    default:
+      return "text-slate-500";
+  }
 }
 
 /**

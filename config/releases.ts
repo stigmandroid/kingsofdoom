@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 01/08/2026
+ * 12/08/2026
  * ==========================================================
  */
 
@@ -145,14 +145,188 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.8.4",
+    title: "CWL Season Pass Ceremony",
+    date: "2026-08-12",
+
+    summary:
+      "Conclusão do fluxo completo do Passe de Temporada da CWL, consolidando persistência em SQLite, orquestração server-side, congelamento transacional dos elegíveis, sorteio oficial protegido, API pública segura e a cerimônia cinematográfica integrada ao vencedor persistido.",
+
+    current: true,
+
+    changes: [
+      {
+        type: "feature",
+        title: "Cerimônia cinematográfica do Passe",
+        description:
+          "Foi concluída a experiência visual oficial do sorteio do Passe de Temporada, transformando a revelação do vencedor em uma sequência animada integrada ao evento real da CWL.",
+      },
+      {
+        type: "feature",
+        title: "Contagem regressiva 3–2–1",
+        description:
+          "A cerimônia recebeu uma abertura sincronizada com contagem regressiva antes do início da sequência de seleção dos participantes.",
+      },
+      {
+        type: "feature",
+        title: "Rotação dos participantes",
+        description:
+          "Os jogadores elegíveis passam por uma sequência visual de rotação com desaceleração progressiva até o travamento no vencedor oficial.",
+      },
+      {
+        type: "feature",
+        title: "Lock do vencedor oficial",
+        description:
+          "A animação finaliza obrigatoriamente no jogador previamente sorteado e persistido pelo servidor, eliminando qualquer possibilidade de o frontend determinar ou alterar o resultado.",
+      },
+      {
+        type: "feature",
+        title: "Entrega visual do Passe",
+        description:
+          "O Passe de Temporada foi incorporado à cerimônia com entrada animada, destaque luminoso e transição contínua para o jogador vencedor.",
+      },
+      {
+        type: "feature",
+        title: "Impacto e celebração",
+        description:
+          "A revelação recebeu efeitos de impacto, halo, partículas e iluminação para reforçar visualmente o momento oficial da premiação.",
+      },
+      {
+        type: "feature",
+        title: "Resultado integrado à cerimônia",
+        description:
+          "A sequência cinematográfica passa naturalmente para o estado final do evento, apresentando o vencedor oficial e suas métricas de desempenho na CWL.",
+      },
+      {
+        type: "improvement",
+        title: "Cerimônia responsiva",
+        description:
+          "A experiência foi adaptada para desktop e dispositivos móveis, incluindo telas estreitas próximas de 320 pixels, preservando legibilidade e composição visual.",
+      },
+      {
+        type: "improvement",
+        title: "Nome do jogador adaptativo",
+        description:
+          "O nome exibido durante a cerimônia recebeu dimensionamento e tratamento responsivos para acomodar jogadores com nomes de diferentes comprimentos sem quebrar o layout.",
+      },
+      {
+        type: "improvement",
+        title: "Transições contínuas",
+        description:
+          "As etapas anteriormente isoladas foram refinadas para formar uma única experiência de revelação, reduzindo cortes visuais entre seleção, entrega, impacto e resultado.",
+      },
+      {
+        type: "technical",
+        title: "Fundação persistente da CWL com SQLite",
+        description:
+          "A infraestrutura do evento da CWL passou a contar com banco SQLite nativo no backend, criando uma base persistente para manter o estado do Passe de Temporada independentemente do ciclo de renderização do frontend.",
+      },
+      {
+        type: "technical",
+        title: "Configuração central do banco de dados",
+        description:
+          "Foi criada uma instância centralizada do SQLite com configurações de integridade e concorrência, incluindo foreign keys e journal mode WAL para dar suporte seguro às operações persistentes do evento.",
+      },
+      {
+        type: "technical",
+        title: "Persistência do ciclo do Passe da CWL",
+        description:
+          "O banco passou a armazenar o evento por temporada e clã, incluindo status, horário oficial do sorteio, horário de revelação, vencedor, momento do sorteio e momento da revelação.",
+      },
+      {
+        type: "technical",
+        title: "Persistência dos jogadores elegíveis",
+        description:
+          "A fotografia definitiva dos participantes elegíveis passou a ser gravada no SQLite com tag, nome, guerras disputadas, ataques utilizados e disponíveis, estrelas e destruição.",
+      },
+      {
+        type: "technical",
+        title: "Congelamento transacional dos participantes",
+        description:
+          "A substituição da lista de elegíveis é executada dentro de uma transação, garantindo que a fotografia oficial do sorteio seja persistida integralmente ou revertida em caso de falha.",
+      },
+      {
+        type: "technical",
+        title: "Repository dedicado ao Passe",
+        description:
+          "A camada season-pass.repository.ts centraliza criação e consulta de eventos, leitura e congelamento de elegíveis, gravação do vencedor e confirmação da revelação.",
+      },
+      {
+        type: "technical",
+        title: "Orquestração server-side do evento",
+        description:
+          "O season-pass.service.ts passou a controlar o ciclo tracking, scheduled, revealing e revealed, utilizando os dados da CWL para calcular elegibilidade, preparar o evento e liberar o resultado no momento correto.",
+      },
+      {
+        type: "technical",
+        title: "Sorteio criptograficamente seguro no servidor",
+        description:
+          "A escolha oficial do vencedor utiliza randomInt de node:crypto exclusivamente no backend, removendo a responsabilidade de sorteio do navegador.",
+      },
+      {
+        type: "technical",
+        title: "Proteção atômica contra sorteio duplicado",
+        description:
+          "A gravação do vencedor só é aceita enquanto o evento permanece com status scheduled; após a primeira atualização, novas tentativas não conseguem substituir o resultado persistido.",
+      },
+      {
+        type: "technical",
+        title: "Separação entre sorteio e revelação",
+        description:
+          "O backend mantém drawnAt e revealAt como momentos distintos, permitindo sortear e persistir o vencedor antes da apresentação pública sem expor antecipadamente sua identidade.",
+      },
+      {
+        type: "technical",
+        title: "API pública protegida do Passe",
+        description:
+          "A rota /api/season-pass consulta o estado da CWL e devolve ao frontend somente o contrato público do evento, sem revelar o vencedor antes do horário autorizado.",
+      },
+      {
+        type: "technical",
+        title: "Sincronização automática do estado público",
+        description:
+          "O frontend consulta periodicamente a API do Passe para acompanhar as transições do evento sem recarregamento manual, mantendo diferentes navegadores alinhados ao estado persistido no servidor.",
+      },
+      {
+        type: "technical",
+        title: "Integração com o vencedor persistido",
+        description:
+          "O CwlSeasonPassCeremony foi conectado ao estado oficial do evento, consumindo exclusivamente o vencedor autorizado pelo backend no momento de revelação.",
+      },
+      {
+        type: "technical",
+        title: "Remoção do sorteio client-side",
+        description:
+          "A lógica de escolha aleatória no navegador foi removida; o frontend deixou de utilizar Math.random() para definir o vencedor e passou a atuar somente como camada de apresentação.",
+      },
+      {
+        type: "technical",
+        title: "Substituição da simulação do Passe",
+        description:
+          "A antiga experiência CwlSeasonPassSimulation foi retirada do fluxo principal e substituída pela cerimônia conectada ao evento real.",
+      },
+      {
+        type: "fix",
+        title: "Conflito de declaração do vencedor",
+        description:
+          "Foi corrigida a declaração duplicada de winner no componente da cerimônia, eliminando o erro de compilação identificado pelo Turbopack.",
+      },
+      {
+        type: "technical",
+        title: "Build de produção validado",
+        description:
+          "A integração final da cerimônia foi validada com sucesso no build de produção do Next.js 16.2.11 utilizando Turbopack.",
+      },
+    ],
+  },
+
+  {
     version: "0.8.3",
     title: "CWL Season Pass Event",
     date: "2026-08-08",
 
     summary:
       "A experiência da Clash War League foi ampliada com uma visão consolidada da temporada e a fundação completa do evento automático do Passe de Temporada, incluindo elegibilidade dinâmica, persistência em SQLite, agendamento do sorteio, proteção do vencedor e uma interface preparada para acompanhar todo o evento em tempo real.",
-
-    current: true,
 
     changes: [
       {
@@ -297,8 +471,6 @@ export const releases: Release[] = [
     summary:
       "A Clash War League evoluiu para um verdadeiro painel estratégico, permitindo navegar entre rodadas, consultar automaticamente qualquer confronto disponível e analisar matematicamente as possibilidades de vitória, empate ou derrota de cada guerra da temporada.",
 
-    current: false,
-
     changes: [
       {
         type: "feature",
@@ -378,8 +550,6 @@ export const releases: Release[] = [
 
     summary:
       "Introdução da Sala de Guerra da Clash War League, adicionando páginas individuais para cada confronto, acompanhamento ofensivo, informações detalhadas dos ataques e estrutura preparada para inteligência avançada da temporada.",
-
-    current: true,
 
     changes: [
       {
@@ -1086,40 +1256,41 @@ export const roadmap: RoadmapPhase[] = [
 
   {
     phase: 2,
-    title: "CWL Intelligence Foundation",
+    title: "CWL Intelligence — próxima evolução",
     status: "next",
     description:
-      "Construção da primeira experiência dedicada à Liga de Guerras de Clãs.",
+      "Expansão da inteligência da Clash War League após a conclusão da fundação, da Sala de Guerra, da classificação e do evento automático do Passe de Temporada.",
 
     items: [
       {
-        title: "Página dedicada da CWL",
+        title: "Histórico de temporadas",
         description:
-          "Criar uma rota própria para acompanhar a temporada atual da liga.",
+          "Persistir e disponibilizar temporadas anteriores da CWL para consulta mesmo após o encerramento da liga atual.",
       },
       {
-        title: "Classificação do grupo",
+        title: "Histórico de desempenho por jogador",
         description:
-          "Exibir posição, estrelas, destruição e resultados acumulados dos clãs.",
+          "Consolidar participação, ataques, estrelas e destruição dos jogadores ao longo de múltiplas temporadas.",
       },
       {
-        title: "Rodadas da temporada",
-        description: "Apresentar todas as rodadas e seus respectivos estados.",
+        title: "Estatísticas acumuladas da CWL",
+        description:
+          "Criar indicadores históricos dos clãs com resultados, posições, estrelas, destruição e aproveitamento por temporada.",
       },
       {
-        title: "Navegação entre rodadas",
+        title: "Resumo final da temporada",
         description:
-          "Permitir consultar facilmente cada confronto da temporada.",
+          "Gerar uma visão consolidada ao término da CWL com classificação final, desempenho do clã e principais destaques.",
       },
       {
-        title: "Desempenho acumulado",
+        title: "Arquivo dos vencedores do Passe",
         description:
-          "Calcular estrelas, destruição, ataques e resultados durante a CWL.",
+          "Manter um histórico público dos vencedores oficiais do Passe de Temporada e das métricas que os tornaram elegíveis.",
       },
       {
-        title: "Detalhes da guerra selecionada",
+        title: "Evolução da inteligência competitiva",
         description:
-          "Reutilizar componentes da Sala de Guerra para apresentar cada rodada.",
+          "Utilizar os dados históricos persistidos para comparações, tendências e futuras análises estratégicas da CWL.",
       },
     ],
   },

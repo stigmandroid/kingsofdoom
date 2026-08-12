@@ -54,3 +54,10 @@ data/*.sqlite
 data/*.sqlite3
 data/*.sqlite-wal
 data/*.sqlite-shm
+
+# ==========================================================
+# Kings of Doom — SQLite backups
+# ==========================================================
+
+backups/*
+!backups/.gitkeep

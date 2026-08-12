@@ -119,7 +119,7 @@ export default async function LocaleLayout({
         {/*
          * Rodapé global do portal.
          */}
-        <Footer locale={locale} version="0.7.0" />
+        <Footer locale={locale} />
       </div>
     </NextIntlClientProvider>
   );

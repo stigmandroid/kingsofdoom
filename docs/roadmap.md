@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 07/08/2026
+# 12/08/2026
 
 #
 
 # Versão:
 
-# v0.8.2
+# v0.8.5
 
 #
 
@@ -70,12 +70,7 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 # Legenda
 
-| Status | Significado        |
-| ------ | ------------------ |
-| ⬜     | Planejado          |
-| 🟨     | Em desenvolvimento |
-| ✅     | Concluído          |
-| 🚫     | Cancelado          |
+| Status | Significado        || ------ | ------------------ || ⬜     | Planejado          || 🟨     | Em desenvolvimento || ✅     | Concluído          || 🚫     | Cancelado          |
 
 ---
 
@@ -83,15 +78,11 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-```
-v0.8.2
-```
+`v0.8.2`
 
 **Fase do projeto**
 
-```
-War Command Center
-```
+`War Command Center`
 
 **Objetivo atual**
 
@@ -125,8 +116,7 @@ Criar a primeira Sala de Guerra conectada aos dados reais da Clash API.
 
 ---
 
-```md
-# ✅ v0.6.0 — War Intelligence Foundation
+````md# ✅ v0.6.0 — War Intelligence Foundation
 
 ## Objetivo
 
@@ -526,7 +516,7 @@ Transformar a CWL em um painel inteligente de tomada de decisão, permitindo aco
 
 ---
 
-# 🚧 v0.8.3 — CWL Season Pass Event
+# ✅ v0.8.3 — CWL Season Pass Event
 
 ## Objetivo
 
@@ -636,37 +626,263 @@ Transformar o acompanhamento da CWL em uma experiência completa de temporada e 
 
 ---
 
-## Próximas implementações
+## Validações operacionais pendentes
 
-⬜ Testar artificialmente o estado scheduled
+⬜ Confirmar o comportamento do primeiro sorteio oficial em produção
 
-⬜ Validar a contagem regressiva até o horário do sorteio
-
-⬜ Testar artificialmente a transição scheduled → revealing
-
-⬜ Validar a janela de revelação
-
-⬜ Testar artificialmente a transição revealing → revealed
-
-⬜ Confirmar que múltiplos acessos simultâneos não alteram o vencedor
-
-⬜ Confirmar persistência do vencedor após atualização da página
+⬜ Confirmar sincronização da revelação em múltiplos acessos simultâneos
 
 ⬜ Confirmar persistência do vencedor após reinicialização do servidor
 
-⬜ Criar a identidade visual definitiva do evento
+⬜ Registrar evidências da primeira execução oficial do evento
 
-⬜ Adicionar a imagem do Passe de Temporada
+---
 
-⬜ Desenvolver a animação de sorteio
+---
 
-⬜ Desenvolver a animação de entrega do Passe ao jogador vencedor
+# 🚧 v0.8.4 — CWL Historical Archive & Infrastructure
 
-⬜ Refinar a experiência da revelação no desktop
+## Objetivo
 
-⬜ Refinar a experiência da revelação no mobile
+Construir a infraestrutura de persistência histórica da Clash War League, garantindo que os dados completos de cada temporada sejam preservados para análises futuras, inteligência estratégica e evolução histórica dos jogadores e do clã.
 
-⬜ Validar o fluxo completo antes da primeira execução oficial
+### Entregas concluídas
+
+✅ Estrutura histórica da CWL em SQLite
+
+✅ Persistência independente por temporada
+
+✅ Arquivamento dos 8 clãs participantes do grupo
+
+✅ Arquivamento das 7 rodadas da temporada
+
+✅ Arquivamento de todas as 28 guerras do grupo
+
+✅ Persistência das participações individuais em cada guerra
+
+✅ Persistência individual de todos os ataques realizados
+
+✅ Registro do atacante e defensor de cada ataque
+
+✅ Registro do Centro de Vila do atacante e defensor
+
+✅ Registro de estrelas e percentual de destruição
+
+✅ Registro da ordem dos ataques
+
+✅ Preservação dos dados brutos necessários para futuras análises
+
+✅ Atualização idempotente através de UPSERT, evitando duplicação de temporadas e registros
+
+✅ Endpoint administrativo para atualização manual do arquivo histórico
+
+✅ Auditoria automática da integridade do arquivo histórico
+
+✅ Validação da estrutura completa da temporada
+
+✅ Validação de ataques sem atacante ou defensor
+
+✅ Validação de ataques sem informação de Centro de Vila
+
+✅ Validação da ordem dos ataques
+
+✅ Distribuição histórica de ataques por 0★, 1★, 2★ e 3★
+
+✅ Cálculo da taxa de triplas do clã monitorado
+
+✅ Identificação de jogadores que deixaram ataques
+
+✅ Backup físico consistente do banco SQLite
+
+✅ Backup compatível com SQLite em WAL mode
+
+✅ Validação automática do backup através de PRAGMA integrity_check
+
+✅ Reabertura isolada do banco de backup para confirmação dos dados
+
+✅ Primeiro snapshot histórico da CWL de Agosto/2026 protegido
+
+✅ Configuração do PM2 como gerenciador do processo de produção
+
+✅ Persistência da aplicação através de pm2 save
+
+✅ Inicialização automática do PM2 através do systemd
+
+✅ Recuperação automática da aplicação através de pm2 resurrect
+
+✅ Validação do Next.js após reinicialização controlada do PM2
+
+### Validação atual — CWL Agosto/2026
+
+✅ 1 temporada arquivada
+
+✅ 8 clãs
+
+✅ 7 rodadas
+
+✅ 28 guerras
+
+✅ 840 participações em guerras
+
+✅ 744 ataques preservados no snapshot atual
+
+✅ 100 ataques registrados do K.O.D.
+
+✅ 85 triplas do K.O.D.
+
+✅ Taxa atual de triplas de 85%
+
+✅ Nenhum ataque arquivado sem atacante
+
+✅ Nenhum ataque arquivado sem defensor
+
+✅ Nenhum ataque arquivado sem CV do atacante
+
+✅ Nenhum ataque arquivado sem CV do defensor
+
+✅ Nenhum ataque arquivado sem ordem
+
+✅ Integridade geral do arquivo histórico aprovada
+
+✅ Backup físico validado com os mesmos totais do banco principal
+
+### Pendente para fechamento da temporada
+
+⬜ Executar snapshot definitivo após o encerramento da última rodada
+
+⬜ Confirmar estado final da temporada
+
+⬜ Executar auditoria definitiva da CWL de Agosto/2026
+
+⬜ Gerar backup definitivo pós-temporada
+
+⬜ Validar os números finais contra os dados exibidos na CWL
+
+### Próxima evolução — Automação do arquivo histórico
+
+⬜ Detectar automaticamente o início de uma nova temporada da CWL
+
+⬜ Criar automaticamente o registro histórico da nova temporada
+
+⬜ Executar snapshots incrementais durante as rodadas
+
+⬜ Atualizar automaticamente guerras já conhecidas através de UPSERT
+
+⬜ Detectar automaticamente o encerramento da temporada
+
+⬜ Executar snapshot final automático
+
+⬜ Executar auditoria automática após o encerramento
+
+⬜ Gerar backup automático da temporada concluída
+
+⬜ Marcar a temporada como definitivamente arquivada
+
+⬜ Registrar falhas de arquivamento ou integridade para intervenção administrativa
+
+⬜ Proteger os endpoints administrativos de arquivamento, auditoria e backup
+
+### Inteligência histórica futura
+
+⬜ Histórico individual de desempenho por jogador
+
+⬜ Taxa de triplas por temporada
+
+⬜ Taxa de 0★, 1★, 2★ e 3★ por jogador
+
+⬜ Identificação histórica de ataques não utilizados
+
+⬜ Desempenho por Centro de Vila
+
+⬜ Desempenho por matchup de Centro de Vila
+
+⬜ Desempenho ofensivo por rodada
+
+⬜ Evolução do jogador entre temporadas
+
+⬜ Comparativos de 3, 6 e 12 CWLs
+
+⬜ Índice de consistência ofensiva
+
+⬜ Ranking histórico de desempenho
+
+⬜ Identificação de tendências de evolução ou queda de performance
+
+⬜ Base histórica para modelos futuros de previsão e inteligência estratégica
+
+---
+
+# ✅ v0.8.5 — CWL Season Pass Ceremony
+
+## Objetivo
+
+Concluir a experiência pública do Passe de Temporada da CWL, conectando o vencedor oficial persistido no servidor a uma cerimônia cinematográfica responsiva, sem permitir que o frontend determine ou altere o resultado do sorteio.
+
+### Entregas concluídas
+
+✅ Cerimônia cinematográfica oficial do Passe de Temporada
+
+✅ Contagem regressiva 3–2–1
+
+✅ Rotação visual dos jogadores elegíveis
+
+✅ Desaceleração progressiva antes da revelação
+
+✅ Travamento visual no vencedor oficial
+
+✅ Integração da imagem oficial do Passe de Temporada
+
+✅ Animação de entrada e entrega do Passe
+
+✅ Efeito de impacto no momento da premiação
+
+✅ Halo, partículas e iluminação de celebração
+
+✅ Transição contínua entre sorteio, entrega e resultado final
+
+✅ Exibição das métricas do vencedor
+
+✅ Composição responsiva específica para desktop
+
+✅ Composição responsiva específica para dispositivos móveis
+
+✅ Ajustes para telas estreitas próximas de 320px
+
+✅ Dimensionamento adaptativo do nome do jogador
+
+✅ Integração do CwlSeasonPassCeremony ao CwlSeasonPassEvent
+
+✅ Utilização exclusiva do vencedor oficial retornado pelo backend
+
+✅ Remoção do Math.random() como fonte de decisão no frontend
+
+✅ Remoção da antiga CwlSeasonPassSimulation do fluxo principal
+
+✅ Remoção da trava que limitava a cerimônia ao ambiente de desenvolvimento
+
+✅ Correção do conflito de declaração duplicada de winner
+
+✅ Build de produção validado no Next.js 16.2.11 com Turbopack
+
+### Arquitetura da revelação
+
+✅ Sorteio permanece exclusivamente server-side
+
+✅ Vencedor permanece persistido no SQLite
+
+✅ Frontend atua somente como camada de apresentação
+
+✅ Cerimônia não possui autoridade para trocar o vencedor
+
+✅ Resultado público continua protegido até o momento autorizado pelo backend
+
+### Próximas validações
+
+⬜ Validar a cerimônia no primeiro evento oficial em produção
+
+⬜ Confirmar sincronização visual entre múltiplos acessos durante a revelação
+
+⬜ Registrar evidências do vencedor e da cerimônia após a primeira execução oficial
 
 ---
 
@@ -866,12 +1082,7 @@ Planejamento
 
 Uma nova versão deverá ser publicada somente quando:
 
-- Todas as funcionalidades planejadas estiverem concluídas.
-- O build estiver estável.
-- Não existirem erros críticos conhecidos.
-- A documentação estiver atualizada.
-- As Release Notes estiverem publicadas.
-- O CHANGELOG estiver atualizado.
+- Todas as funcionalidades planejadas estiverem concluídas.- O build estiver estável.- Não existirem erros críticos conhecidos.- A documentação estiver atualizada.- As Release Notes estiverem publicadas.- O CHANGELOG estiver atualizado.
 
 ---
 
@@ -881,11 +1092,7 @@ O Kings of Doom Command Center será desenvolvido de forma incremental.
 
 Cada versão deverá tornar o sistema:
 
-- Mais inteligente.
-- Mais útil.
-- Mais automatizado.
-- Mais confiável.
-- Mais fácil de manter.
+- Mais inteligente.- Mais útil.- Mais automatizado.- Mais confiável.- Mais fácil de manter.
 
 Não buscamos adicionar funcionalidades por quantidade.
 
@@ -903,5 +1110,5 @@ Se a resposta for "não", ela deve ser reavaliada.
 
 ---
 
-> **Toda grande plataforma começa com uma única versão. O importante é nunca parar de evoluir.**
-```
+> **Toda grande plataforma começa com uma única versão. O importante é nunca parar de evoluir.**```
+````

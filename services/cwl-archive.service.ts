@@ -43,6 +43,9 @@
 import type { CwlRoundWar } from "@/components/cwl/CwlRounds";
 
 import {
+  findCwlArchivePlayerPerformance,
+  findCwlArchiveWarSnapshots,
+  findLatestCwlArchiveSeason,
   getCwlArchiveSummary,
   upsertCwlAttack,
   upsertCwlRound,
@@ -600,4 +603,119 @@ function getMemberTownHallLevel(member: ArchiveWarMember): number | undefined {
  */
 function serializeJson(value: unknown): string {
   return JSON.stringify(value);
+}
+
+/**
+ * ==========================================================
+ * RESUMO PÓS-CWL
+ * ==========================================================
+ */
+
+/**
+ * Linha pública do desempenho de um participante.
+ */
+export type CwlPostSeasonPlayer = {
+  tag: string;
+  name: string;
+
+  warsPlayed: number;
+
+  triples: number;
+  twoStars: number;
+  oneStar: number;
+  zeroStars: number;
+
+  attacksUsed: number;
+  attacksAvailable: number;
+  unusedAttacks: number;
+
+  stars: number;
+  destruction: number;
+};
+
+/**
+ * Contrato pronto para a interface pós-CWL.
+ *
+ * Importante:
+ *
+ * - wars utiliza o mesmo formato da CWL ativa;
+ * - isso permite reutilizar diretamente CwlStandings;
+ * - nenhuma segunda regra de ranking é criada.
+ */
+export type CwlPostSeasonSummary = {
+  season: string;
+  trackedClanTag: string;
+
+  wars: CwlRoundWar[];
+  players: CwlPostSeasonPlayer[];
+};
+
+/**
+ * Recupera a última temporada arquivada e transforma
+ * o histórico em um modelo pronto para a interface.
+ *
+ * Nenhuma consulta à Clash API é necessária.
+ */
+export function getLatestCwlPostSeasonSummary(
+  trackedClanTag: string,
+): CwlPostSeasonSummary | null {
+  const season = findLatestCwlArchiveSeason(trackedClanTag);
+
+  if (!season) {
+    return null;
+  }
+
+  /**
+   * Reconstrói as guerras exatamente no contrato utilizado
+   * pelos componentes da temporada ativa.
+   */
+  const wars = findCwlArchiveWarSnapshots(season.id).flatMap((snapshot) => {
+    try {
+      return [
+        {
+          warTag: snapshot.warTag,
+          roundIndex: snapshot.roundIndex,
+          war: JSON.parse(snapshot.rawJson) as CwlRoundWar["war"],
+        },
+      ];
+    } catch (error) {
+      console.error(
+        `[Kings of Doom] Falha ao reconstruir guerra arquivada ${snapshot.warTag}.`,
+        error,
+      );
+
+      return [];
+    }
+  });
+
+  const players = findCwlArchivePlayerPerformance({
+    seasonId: season.id,
+    clanTag: trackedClanTag,
+  });
+
+  return {
+    season: season.season,
+    trackedClanTag,
+
+    wars,
+
+    players: players.map((player) => ({
+      tag: player.playerTag,
+      name: player.playerName,
+
+      warsPlayed: player.warsPlayed,
+
+      triples: player.triples,
+      twoStars: player.twoStars,
+      oneStar: player.oneStar,
+      zeroStars: player.zeroStars,
+
+      attacksUsed: player.attacksUsed,
+      attacksAvailable: player.attacksAvailable,
+      unusedAttacks: Math.max(0, player.attacksAvailable - player.attacksUsed),
+
+      stars: player.stars,
+      destruction: player.destruction,
+    })),
+  };
 }

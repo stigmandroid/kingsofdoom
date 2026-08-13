@@ -80,6 +80,18 @@ type SimulationState = "idle" | "countdown" | "ceremony";
 type CwlSeasonPassCeremonyProps = {
   players: SeasonPassCeremonyPlayer[];
   winner: SeasonPassCeremonyPlayer;
+
+  /**
+   * Quando true, a cerimônia começa automaticamente.
+   * Utilizado apenas na janela oficial de revelação.
+   */
+  autoStart?: boolean;
+
+  /**
+   * Replay permanece disponível apenas para ambientes
+   * de teste/simulação. No evento oficial fica desativado.
+   */
+  allowReplay?: boolean;
 };
 
 /**
@@ -172,6 +184,8 @@ const CELEBRATION_PARTICLES = [
 export default function CwlSeasonPassCeremony({
   players,
   winner,
+  autoStart = false,
+  allowReplay = true,
 }: CwlSeasonPassCeremonyProps) {
   const [simulationState, setSimulationState] =
     useState<SimulationState>("idle");
@@ -208,6 +222,12 @@ export default function CwlSeasonPassCeremony({
   const nextNameSwitchAtRef = useRef(0);
 
   const timersRef = useRef<number[]>([]);
+
+  /**
+   * Impede que React Strict Mode ou novos renders
+   * disparem a cerimônia oficial mais de uma vez.
+   */
+  const autoStartedRef = useRef(false);
 
   /**
    * Limpa timers.
@@ -385,26 +405,48 @@ export default function CwlSeasonPassCeremony({
     timersRef.current.push(timer);
   }
 
+  /**
+   * Inicia automaticamente a cerimônia oficial quando solicitado.
+   */
+  useEffect(() => {
+    if (!autoStart || autoStartedRef.current) {
+      return;
+    }
+
+    autoStartedRef.current = true;
+    startSimulation();
+  }, [autoStart, winner.tag, players.length]);
+
   const activePlayer = players[activeIndex];
 
   return (
     <section className="mt-8 overflow-hidden rounded-3xl border border-violet-400/20 bg-violet-400/5">
-      {simulationState === "idle" && (
+      {simulationState === "idle" && !autoStart && (
         <SimulationControlPanel
           playersCount={players.length}
           onStart={startSimulation}
         />
       )}
 
+      {simulationState === "idle" && autoStart && (
+        <div className="px-5 py-12 text-center sm:px-8 sm:py-16">
+          <p className="text-sm font-black text-white">
+            Preparando cerimônia oficial...
+          </p>
+        </div>
+      )}
+
       {simulationState !== "idle" && (
         <div className="relative">
-          <button
-            type="button"
-            onClick={resetSimulation}
-            className="absolute right-4 top-4 z-50 rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-2 text-[10px] font-black uppercase tracking-wider text-slate-400 backdrop-blur transition hover:border-slate-500 hover:text-white"
-          >
-            ↺ Reiniciar
-          </button>
+          {allowReplay && (
+            <button
+              type="button"
+              onClick={resetSimulation}
+              className="absolute right-4 top-4 z-50 rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-2 text-[10px] font-black uppercase tracking-wider text-slate-400 backdrop-blur transition hover:border-slate-500 hover:text-white"
+            >
+              ↺ Reiniciar
+            </button>
+          )}
 
           {simulationState === "countdown" && (
             <SimulationCountdown value={countdown} />

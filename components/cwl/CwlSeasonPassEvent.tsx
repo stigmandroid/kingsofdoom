@@ -39,6 +39,7 @@
  * ==========================================================
  */
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import CwlSeasonPassCeremony from "@/components/cwl/CwlSeasonPassCeremony";
 
@@ -133,6 +134,15 @@ type Countdown = {
 const API_REFRESH_INTERVAL_MS = 5_000;
 
 /**
+ * Janela curta em que a cerimônia oficial pode ser exibida
+ * após revealAt.
+ *
+ * Cada navegador vê a cerimônia no máximo uma vez.
+ * Após essa janela, somente o resultado final permanece.
+ */
+const CEREMONY_LIVE_WINDOW_MS = 90_000;
+
+/**
  * Exibe o evento do Passe de Temporada.
  */
 export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
@@ -141,6 +151,8 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState<string | null>(null);
+
+  const [playOfficialCeremony, setPlayOfficialCeremony] = useState(false);
 
   /**
    * Consulta o estado público do evento.
@@ -191,6 +203,53 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
   useEffect(() => {
     void loadEvent();
   }, [clanSlug]);
+
+  /**
+   * A cerimônia é um acontecimento único.
+   *
+   * Ela só pode iniciar:
+   *
+   * - depois que o servidor libera o vencedor;
+   * - dentro da janela oficial de revelação;
+   * - uma única vez por navegador/sessão.
+   *
+   * Fora dessa janela, o usuário vê somente o resultado final.
+   */
+  useEffect(() => {
+    if (
+      !event ||
+      event.status !== "revealed" ||
+      !event.winner ||
+      !event.revealAt
+    ) {
+      setPlayOfficialCeremony(false);
+      return;
+    }
+
+    const revealTime = new Date(event.revealAt).getTime();
+    const currentTime = Date.now();
+
+    const insideLiveWindow =
+      currentTime >= revealTime &&
+      currentTime <= revealTime + CEREMONY_LIVE_WINDOW_MS;
+
+    const storageKey = [
+      "kings-of-doom",
+      "season-pass-ceremony",
+      event.clanTag,
+      event.season,
+    ].join(":");
+
+    const alreadySeen = window.sessionStorage.getItem(storageKey) === "1";
+
+    if (insideLiveWindow && !alreadySeen) {
+      window.sessionStorage.setItem(storageKey, "1");
+      setPlayOfficialCeremony(true);
+      return;
+    }
+
+    setPlayOfficialCeremony(false);
+  }, [event]);
 
   /**
    * Enquanto a página estiver aberta, consulta
@@ -277,7 +336,9 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
 
           {event.status === "revealing" && <RevealingState event={event} />}
 
-          {event.status === "revealed" && <RevealedState event={event} />}
+          {event.status === "revealed" && (
+            <RevealedState event={event} playCeremony={playOfficialCeremony} />
+          )}
         </div>
       </div>
     </section>
@@ -458,7 +519,13 @@ function RevealingState({ event }: { event: SeasonPassEventState }) {
 /**
  * Exibe permanentemente o vencedor oficial.
  */
-function RevealedState({ event }: { event: SeasonPassEventState }) {
+function RevealedState({
+  event,
+  playCeremony,
+}: {
+  event: SeasonPassEventState;
+  playCeremony: boolean;
+}) {
   const winner = event.winner;
 
   if (!winner) {
@@ -487,11 +554,98 @@ function RevealedState({ event }: { event: SeasonPassEventState }) {
     );
   }
 
+  /**
+   * A cerimônia cinematográfica existe somente na janela oficial
+   * de revelação e inicia automaticamente.
+   *
+   * Depois disso, não existe botão de replay.
+   */
+  if (playCeremony) {
+    return (
+      <CwlSeasonPassCeremony
+        players={event.eligiblePlayers}
+        winner={winnerPlayer}
+        autoStart
+        allowReplay={false}
+      />
+    );
+  }
+
+  /**
+   * Estado permanente após o evento.
+   */
+  return <SeasonPassWinnerCard player={winnerPlayer} />;
+}
+
+/**
+ * Resultado permanente do Passe após o encerramento do evento.
+ */
+function SeasonPassWinnerCard({
+  player,
+}: {
+  player: SeasonPassEligiblePlayer;
+}) {
   return (
-    <CwlSeasonPassCeremony
-      players={event.eligiblePlayers}
-      winner={winnerPlayer}
-    />
+    <article className="overflow-hidden rounded-3xl border border-amber-400/25 bg-gradient-to-b from-amber-400/10 via-slate-950 to-slate-950">
+      <div className="px-5 py-8 sm:px-8 sm:py-10">
+        <div className="flex flex-col items-center text-center">
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-amber-400">
+            🏆 Resultado oficial
+          </p>
+
+          <div className="mt-6 flex h-24 w-24 items-center justify-center rounded-3xl border border-amber-400/20 bg-amber-400/5 sm:h-28 sm:w-28">
+            <Image
+              src="/images/season-pass.png"
+              alt="Passe de Temporada"
+              width={112}
+              height={112}
+              className="h-20 w-20 object-contain sm:h-24 sm:w-24"
+            />
+          </div>
+
+          <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+            Passe de Temporada entregue a
+          </p>
+
+          <h3
+            translate="no"
+            className="notranslate mt-3 break-words text-3xl font-black text-white sm:text-4xl"
+          >
+            {player.name}
+          </h3>
+
+          <p className="mt-2 text-sm font-black text-amber-300">{player.tag}</p>
+        </div>
+
+        <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+          <WinnerMetric label="Guerras" value={player.warsPlayed} />
+          <WinnerMetric
+            label="Ataques"
+            value={`${player.attacksUsed}/${player.attacksAvailable}`}
+          />
+          <WinnerMetric label="Estrelas" value={player.stars} />
+          <WinnerMetric label="Destruição" value={`${player.destruction}%`} />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function WinnerMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="min-w-0 rounded-2xl border border-slate-800 bg-slate-900/60 px-3 py-4 text-center">
+      <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
+
+      <p className="mt-2 break-words text-lg font-black text-white">{value}</p>
+    </div>
   );
 }
 

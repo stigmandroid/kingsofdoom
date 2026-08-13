@@ -9,19 +9,21 @@
  * Renderizar a página da Clash War League do clã
  * selecionado na URL.
  *
- * Rotas suportadas:
+ * Pós-CWL:
  *
- * /pt-BR/cwl/kod
- * /pt-BR/cwl/kod-rec
+ * - recupera a última temporada pelo SQLite;
+ * - reutiliza CwlStandings sem duplicar regra de ranking;
+ * - exibe desempenho resumido dos participantes;
+ * - mantém o resultado do Passe de Temporada.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 02/08/2026
+ * 12/08/2026
  *
  * Versão:
- * 0.8.0
+ * 0.8.6
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -31,24 +33,20 @@
 import { notFound } from "next/navigation";
 
 import { CwlOverview } from "@/components/cwl/CwlOverview";
+import { CwlPostSeasonSummary } from "@/components/cwl/CwlPostSeasonSummary";
 import { CwlRoster } from "@/components/cwl/CwlRoster";
 import { CwlRounds, type CwlRoundWar } from "@/components/cwl/CwlRounds";
+import { CwlSeasonPassEvent } from "@/components/cwl/CwlSeasonPassEvent";
+import { CwlSeasonProgress } from "@/components/cwl/CwlSeasonProgress";
 import { CwlStandings } from "@/components/cwl/CwlStandings";
 import { CwlUnavailableState } from "@/components/cwl/CwlUnavailableState";
-import { getClan } from "@/services/clan.service";
-import { CwlSeasonProgress } from "@/components/cwl/CwlSeasonProgress";
-import { CwlSeasonPassEvent } from "@/components/cwl/CwlSeasonPassEvent";
 
+import { getClan } from "@/services/clan.service";
+import { getLatestCwlPostSeasonSummary } from "@/services/cwl-archive.service";
 import { getCurrentCwlGroup, getCwlWar } from "@/services/cwl.service";
 
 import { isAvailableCwlWarTag } from "@/types/cwl";
 
-/**
- * Clãs oficialmente suportados pela página da CWL.
- *
- * As tags ficam associadas aos mesmos slugs utilizados
- * nas demais páginas do portal.
- */
 const cwlClans = {
   kod: {
     slug: "kod",
@@ -63,14 +61,8 @@ const cwlClans = {
   },
 } as const;
 
-/**
- * Slugs aceitos pela rota.
- */
 type CwlClanSlug = keyof typeof cwlClans;
 
-/**
- * Propriedades recebidas pela página dinâmica.
- */
 type CwlClanPageProps = {
   params: Promise<{
     locale: string;
@@ -78,63 +70,79 @@ type CwlClanPageProps = {
   }>;
 };
 
-/**
- * Verifica se o slug informado pertence a um
- * dos clãs suportados.
- */
 function isCwlClanSlug(value: string): value is CwlClanSlug {
   return value in cwlClans;
 }
 
-/**
- * Renderiza a CWL do clã selecionado.
- */
 export default async function CwlClanPage({ params }: CwlClanPageProps) {
   const { locale, clan: clanSlug } = await params;
 
-  /**
-   * Interrompe a página caso o slug não seja reconhecido.
-   */
   if (!isCwlClanSlug(clanSlug)) {
     notFound();
   }
 
   const selectedClan = cwlClans[clanSlug];
 
-  /**
-   * Consulta simultaneamente:
-   *
-   * - o grupo atual da CWL;
-   * - os dados gerais do clã selecionado.
-   *
-   * Os dados gerais são utilizados para identificar
-   * a liga atual do clã e, consequentemente, as zonas
-   * de promoção e rebaixamento.
-   */
   const [result, clanDetails] = await Promise.all([
     getCurrentCwlGroup(selectedClan.tag),
     getClan(selectedClan.tag),
   ]);
 
   /**
-   * Quando não existe CWL ativa para o clã selecionado,
-   * apresenta o estado vazio profissional.
+   * ==========================================================
+   * PÓS-CWL
+   * ==========================================================
    */
   if (!result.available) {
+    const postSeason = getLatestCwlPostSeasonSummary(selectedClan.tag);
+
+    if (!postSeason) {
+      return (
+        <main className="min-h-screen bg-slate-950 text-white">
+          <CwlUnavailableState locale={locale} reason={result.reason} />
+
+          <CwlSeasonPassEvent clanSlug={clanSlug} />
+        </main>
+      );
+    }
+
     return (
       <main className="min-h-screen bg-slate-950 text-white">
-        <CwlUnavailableState locale={locale} reason={result.reason} />
+        <section className="border-b border-slate-800 bg-slate-950">
+          <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+            <p className="text-sm font-black uppercase tracking-[0.25em] text-amber-400">
+              Última temporada
+            </p>
+
+            <h1 className="mt-3 text-3xl font-black text-white sm:text-4xl">
+              CWL — {formatSeasonLabel(postSeason.season, locale)}
+            </h1>
+
+            <p className="mt-4 max-w-3xl leading-7 text-slate-400">
+              Confira a classificação final, o desempenho dos participantes e o
+              resultado oficial do Passe de Temporada.
+            </p>
+          </div>
+        </section>
+
+        {/*
+         * Reutiliza exatamente o mesmo componente do ranking ativo.
+         *
+         * As guerras vêm do SQLite histórico, preservadas ao final
+         * da temporada.
+         */}
+        <CwlStandings
+          wars={postSeason.wars}
+          leagueName={clanDetails.warLeague?.name}
+        />
+
+        <CwlPostSeasonSummary data={postSeason} />
+
+        <CwlSeasonPassEvent clanSlug={clanSlug} />
       </main>
     );
   }
 
-  /**
-   * Reúne todas as guerras válidas já criadas em todas
-   * as rodadas da temporada.
-   *
-   * A posição da rodada é preservada para que o componente
-   * consiga identificar corretamente qual rodada está ativa.
-   */
   const availableWars = result.group.rounds.flatMap((round, roundIndex) =>
     round.warTags.filter(isAvailableCwlWarTag).map((warTag) => ({
       warTag,
@@ -142,10 +150,6 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
     })),
   );
 
-  /**
-   * Consulta simultaneamente todos os confrontos já criados
-   * em todas as rodadas disponíveis da temporada.
-   */
   const warResults = await Promise.all(
     availableWars.map(async ({ warTag, roundIndex }) => ({
       warTag,
@@ -154,12 +158,6 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
     })),
   );
 
-  /**
-   * Mantém somente as guerras consultadas com sucesso.
-   *
-   * O número da rodada acompanha cada guerra para permitir
-   * a seleção automática da rodada atual.
-   */
   const wars: CwlRoundWar[] = warResults.flatMap(
     ({ warTag, roundIndex, result: warResult }) =>
       warResult.available
@@ -197,4 +195,31 @@ export default async function CwlClanPage({ params }: CwlClanPageProps) {
       />
     </main>
   );
+}
+
+/**
+ * Converte o identificador persistido da temporada
+ * para "Agosto de 2026", "August 2026", etc.
+ *
+ * Utilizamos somente ano e mês para não expor o dia
+ * interno utilizado pela Clash API.
+ */
+function formatSeasonLabel(season: string, locale: string): string {
+  const [year, month] = season.split("-").map(Number);
+
+  if (!year || !month) {
+    return season;
+  }
+
+  const date = new Date(Date.UTC(year, month - 1, 1, 12, 0, 0));
+
+  const formatter = new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+  const formatted = formatter.format(date);
+
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }

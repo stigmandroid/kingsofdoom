@@ -9,17 +9,21 @@
  * Criar e disponibilizar a conexão persistente com o
  * banco SQLite utilizado pelo Command Center.
  *
- * O banco será utilizado inicialmente para persistir
- * os eventos do sorteio do Passe de Temporada da CWL.
+ * O banco é compartilhado pelos módulos persistentes da
+ * plataforma, incluindo:
+ *
+ * - Passe de Temporada da CWL;
+ * - histórico completo da CWL;
+ * - histórico das guerras normais.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 08/08/2026
+ * 15/08/2026
  *
  * Versão:
- * 0.8.0
+ * 0.9.0
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -29,8 +33,10 @@
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
+
 import { initializeDatabaseSchema } from "./schema";
 import { initializeCwlArchiveSchema } from "./cwl-archive-schema";
+import { initializeWarArchiveSchema } from "./war-archive-schema";
 
 /**
  * Diretório persistente utilizado pelo banco.
@@ -69,8 +75,8 @@ const database = new DatabaseSync(databasePath, {
  * WAL melhora o comportamento do SQLite quando existem
  * leituras e gravações acontecendo simultaneamente.
  *
- * foreign_keys garante que relacionamentos futuros
- * respeitem integridade referencial.
+ * foreign_keys garante que os relacionamentos entre
+ * tabelas respeitem integridade referencial.
  */
 database.exec(`
   PRAGMA journal_mode = WAL;
@@ -78,16 +84,28 @@ database.exec(`
 `);
 
 /**
- * Garante que todas as tabelas necessárias existam
- * antes que repositories tentem utilizar o banco.
+ * Inicializa as estruturas gerais da aplicação.
+ *
+ * Atualmente inclui, entre outras responsabilidades,
+ * a persistência utilizada pelo Passe de Temporada.
  */
 initializeDatabaseSchema(database);
 
 /**
- * Inicializa também as estruturas responsáveis pelo
- * histórico completo das temporadas da CWL.
+ * Inicializa as estruturas responsáveis pelo histórico
+ * completo das temporadas da CWL.
  */
 initializeCwlArchiveSchema(database);
+
+/**
+ * Inicializa as estruturas responsáveis pelo histórico
+ * persistente das guerras normais.
+ *
+ * Mantemos esse schema separado do CWL Archive porque os
+ * ciclos de vida e identificadores das duas modalidades
+ * são diferentes.
+ */
+initializeWarArchiveSchema(database);
 
 /**
  * Exporta uma única instância para utilização

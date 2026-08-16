@@ -145,6 +145,89 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.8.6",
+    title: "War Historical Archive & Navigation",
+    date: "2026-08-15",
+    current: true,
+    summary:
+      "Introdução da infraestrutura persistente para histórico de guerras normais, com arquivamento automático de K.O.D. e K.O.D.rec, histórico compacto e navegação para o detalhamento completo de confrontos encerrados.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Histórico persistente de guerras",
+        description:
+          "Criação da infraestrutura SQLite para preservar guerras normais, participantes e ataques, permitindo análises históricas independentes da disponibilidade posterior da API oficial.",
+      },
+      {
+        type: "feature",
+        title: "Arquivamento multi-clã",
+        description:
+          "Implementação do arquivamento das guerras normais de K.O.D. e K.O.D.rec através da mesma rotina administrativa, mantendo históricos independentes para cada clã.",
+      },
+      {
+        type: "technical",
+        title: "Captura automática a cada 5 minutos",
+        description:
+          "Configuração do servidor para atualizar automaticamente o histórico das guerras normais a cada cinco minutos, preservando a evolução dos confrontos em andamento.",
+      },
+      {
+        type: "technical",
+        title: "Persistência idempotente",
+        description:
+          "Criação de uma warKey determinística para identificar cada confronto e utilização de UPSERT para impedir duplicações entre snapshots sucessivos.",
+      },
+      {
+        type: "feature",
+        title: "Persistência de membros e ataques",
+        description:
+          "Registro histórico dos participantes, atacante, defensor, Centros de Vila, estrelas, destruição, ordem e duração dos ataques realizados.",
+      },
+      {
+        type: "feature",
+        title: "Guerras recentes",
+        description:
+          "Nova visualização compacta do histórico na Sala de Guerra, exibindo somente confrontos encerrados e diferenciando visualmente vitórias, derrotas e empates.",
+      },
+      {
+        type: "feature",
+        title: "Detalhamento completo da guerra",
+        description:
+          "Criação de uma rota dedicada para abrir guerras arquivadas e consultar o confronto completo sem depender da disponibilidade atual da Clash API.",
+      },
+      {
+        type: "feature",
+        title: "Mapa histórico da guerra",
+        description:
+          "Reutilização do mapa comparativo da Sala de Guerra para reconstruir posições, participantes e resultados defensivos a partir do snapshot histórico.",
+      },
+      {
+        type: "improvement",
+        title: "Navegação progressiva",
+        description:
+          "Reorganização da experiência com resumo primeiro e detalhamento sob demanda, reduzindo a quantidade de conteúdo exibido simultaneamente.",
+      },
+      {
+        type: "improvement",
+        title: "Subnavegação interna",
+        description:
+          "Criação de navegação interna entre Resumo, Mapa e Ataques não utilizados na página histórica, evitando páginas excessivamente longas.",
+      },
+      {
+        type: "improvement",
+        title: "Experiência responsiva",
+        description:
+          "Histórico e páginas de detalhamento adaptados para desktop e dispositivos móveis, com botões adequados para toque e conteúdo pesado exibido somente quando solicitado.",
+      },
+      {
+        type: "technical",
+        title: "Base para War Intelligence",
+        description:
+          "Separação dos dados históricos em estruturas próprias para guerras, membros e ataques, criando a base para métricas individuais, rankings e inteligência estratégica nas próximas versões.",
+      },
+    ],
+  },
+  {
     version: "0.8.4",
     title: "CWL Season Pass Ceremony",
     date: "2026-08-12",
@@ -152,7 +235,7 @@ export const releases: Release[] = [
     summary:
       "Conclusão do fluxo completo do Passe de Temporada da CWL, consolidando persistência em SQLite, orquestração server-side, congelamento transacional dos elegíveis, sorteio oficial protegido, API pública segura e a cerimônia cinematográfica integrada ao vencedor persistido.",
 
-    current: true,
+    current: false,
 
     changes: [
       {

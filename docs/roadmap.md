@@ -758,19 +758,25 @@ Construir a infraestrutura de persistência histórica da Clash War League, gara
 
 ⬜ Validar os números finais contra os dados exibidos na CWL
 
-### Próxima evolução — Automação do arquivo histórico
+### Automação do arquivo histórico
 
-⬜ Detectar automaticamente o início de uma nova temporada da CWL
+✅ Detecção automática de temporadas CWL disponíveis
 
-⬜ Criar automaticamente o registro histórico da nova temporada
+✅ Arquivamento automático de K.O.D. e K.O.D.rec
 
-⬜ Executar snapshots incrementais durante as rodadas
+✅ Execução automática de snapshots durante a temporada
 
-⬜ Atualizar automaticamente guerras já conhecidas através de UPSERT
+✅ Atualização de guerras já conhecidas através de UPSERT
 
-⬜ Detectar automaticamente o encerramento da temporada
+✅ Execução automática do arquivamento a cada 15 minutos em produção
 
-⬜ Executar snapshot final automático
+✅ Endpoint administrativo protegido por segredo privado
+
+✅ Execução multi-clã através de uma única rotina administrativa
+
+✅ Tratamento seguro quando nenhum dos clãs possui CWL ativa
+
+⬜ Detectar automaticamente o encerramento definitivo da temporada
 
 ⬜ Executar auditoria automática após o encerramento
 
@@ -780,35 +786,7 @@ Construir a infraestrutura de persistência histórica da Clash War League, gara
 
 ⬜ Registrar falhas de arquivamento ou integridade para intervenção administrativa
 
-⬜ Proteger os endpoints administrativos de arquivamento, auditoria e backup
-
-### Inteligência histórica futura
-
-⬜ Histórico individual de desempenho por jogador
-
-⬜ Taxa de triplas por temporada
-
-⬜ Taxa de 0★, 1★, 2★ e 3★ por jogador
-
-⬜ Identificação histórica de ataques não utilizados
-
-⬜ Desempenho por Centro de Vila
-
-⬜ Desempenho por matchup de Centro de Vila
-
-⬜ Desempenho ofensivo por rodada
-
-⬜ Evolução do jogador entre temporadas
-
-⬜ Comparativos de 3, 6 e 12 CWLs
-
-⬜ Índice de consistência ofensiva
-
-⬜ Ranking histórico de desempenho
-
-⬜ Identificação de tendências de evolução ou queda de performance
-
-⬜ Base histórica para modelos futuros de previsão e inteligência estratégica
+⬜ Proteger também os demais endpoints administrativos de auditoria e backup
 
 ---
 
@@ -883,6 +861,174 @@ Concluir a experiência pública do Passe de Temporada da CWL, conectando o venc
 ⬜ Confirmar sincronização visual entre múltiplos acessos durante a revelação
 
 ⬜ Registrar evidências do vencedor e da cerimônia após a primeira execução oficial
+
+---
+
+# ✅ v0.8.6 — War Historical Archive & Navigation
+
+## Objetivo
+
+Transformar a Sala de Guerra em uma estrutura persistente de acompanhamento histórico, permitindo preservar guerras normais de K.O.D. e K.O.D.rec e consultar confrontos encerrados mesmo após deixarem de estar disponíveis pela API oficial.
+
+### Persistência histórica
+
+✅ Criação da estrutura histórica de guerras normais em SQLite
+
+✅ Persistência independente das guerras monitoradas
+
+✅ Identificação determinística de cada guerra através de warKey
+
+✅ Atualização idempotente através de UPSERT
+
+✅ Persistência dos participantes dos dois clãs
+
+✅ Persistência individual dos ataques realizados
+
+✅ Registro do atacante e defensor
+
+✅ Registro do Centro de Vila do atacante
+
+✅ Registro do Centro de Vila do defensor
+
+✅ Registro da diferença de Centro de Vila entre atacante e defensor
+
+✅ Registro de estrelas conquistadas
+
+✅ Registro do percentual de destruição
+
+✅ Registro da ordem do ataque
+
+✅ Registro da duração do ataque
+
+✅ Classificação dos ataques em 0★, 1★, 2★ e 3★
+
+✅ Preservação do payload bruto da guerra para auditoria e análises futuras
+
+### Suporte multi-clã
+
+✅ Histórico independente para K.O.D.
+
+✅ Histórico independente para K.O.D.rec
+
+✅ Arquivamento dos dois clãs através da mesma rotina administrativa
+
+✅ Separação histórica através da tag do clã monitorado
+
+### Automação
+
+✅ Endpoint administrativo para arquivamento das guerras normais
+
+✅ Proteção do endpoint através de segredo privado
+
+✅ Execução automática do War Archive em produção
+
+✅ Snapshot automático a cada 5 minutos
+
+✅ Atualização contínua da guerra durante preparação e ataques
+
+✅ Ausência de duplicação entre snapshots sucessivos
+
+✅ Tratamento seguro quando o clã não está participando de guerra
+
+### Histórico de guerras
+
+✅ Seção de guerras recentes integrada à Sala de Guerra
+
+✅ Exibição exclusiva de guerras encerradas no histórico
+
+✅ Diferenciação visual entre vitória, derrota e empate
+
+✅ Lista compacta para reduzir o tamanho da página
+
+✅ Limitação inicial das guerras exibidas na Sala de Guerra
+
+✅ Navegação para detalhamento completo de cada confronto
+
+### Detalhamento histórico
+
+✅ Rota dedicada para cada guerra histórica
+
+✅ Reconstrução da guerra a partir do snapshot persistido no SQLite
+
+✅ Consulta histórica independente da disponibilidade atual da Clash API
+
+✅ Reutilização do resumo completo da guerra
+
+✅ Reutilização do mapa comparativo da guerra
+
+✅ Consulta dos ataques e situação dos participantes
+
+✅ Subnavegação interna para evitar páginas excessivamente longas
+
+✅ Separação entre Resumo, Mapa e Ataques não utilizados
+
+### Experiência responsiva
+
+✅ Histórico compacto adaptado para desktop
+
+✅ Histórico adaptado para dispositivos móveis
+
+✅ Botões com área de toque adequada
+
+✅ Navegação horizontal responsiva nas áreas internas da guerra
+
+✅ Conteúdo pesado exibido somente sob demanda
+
+✅ Estratégia de resumo primeiro e detalhamento posterior
+
+### Validação atual
+
+✅ War Archive validado localmente
+
+✅ War Archive validado em produção
+
+✅ Idempotência validada para os dois clãs
+
+✅ Cron validado através de execução automática real
+
+✅ Primeira guerra de K.O.D. preservada
+
+✅ Primeira guerra de K.O.D.rec preservada
+
+✅ Membros e ataques persistidos corretamente
+
+### Próximas evoluções — War Intelligence
+
+⬜ Página completa do histórico de guerras
+
+⬜ Estatísticas gerais de vitórias, derrotas e empates
+
+⬜ Histórico individual de guerras por jogador
+
+⬜ Taxa de 0★, 1★, 2★ e 3★ por jogador
+
+⬜ Taxa de triplas por jogador
+
+⬜ Média de estrelas por ataque
+
+⬜ Média de destruição por ataque
+
+⬜ Desempenho por Centro de Vila
+
+⬜ Desempenho por matchup de Centro de Vila
+
+⬜ Identificação histórica de ataques não utilizados
+
+⬜ Análise defensiva dos jogadores
+
+⬜ Evolução de desempenho ao longo do tempo
+
+⬜ Índice de consistência ofensiva
+
+⬜ Ranking histórico dos membros
+
+⬜ Comparação entre guerras normais e CWL
+
+⬜ Identificação de tendências de evolução ou queda de performance
+
+⬜ Base histórica para recomendações futuras de escalação
+
+⬜ Base histórica para inteligência estratégica de guerra
 
 ---
 

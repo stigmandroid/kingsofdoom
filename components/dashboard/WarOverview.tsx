@@ -82,6 +82,17 @@ type WarOverviewProps = {
    * /es/war
    */
   warRoomHref?: string;
+
+  /**
+   * Define o contexto visual do componente.
+   *
+   * current:
+   * utilizado para a guerra atual.
+   *
+   * historical:
+   * utilizado para guerras encerradas carregadas do histórico.
+   */
+  mode?: "current" | "historical";
 };
 
 /**
@@ -277,6 +288,7 @@ export function WarOverview({
   result,
   showWarRoomLink = true,
   warRoomHref = "/war",
+  mode = "current",
 }: WarOverviewProps) {
   /**
    * Primeiro cenário:
@@ -356,15 +368,17 @@ export function WarOverview({
         <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.28em] text-red-400">
-              Sala de Guerra
+              {mode === "historical" ? "Relatório de Guerra" : "Sala de Guerra"}
             </p>
 
             <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
-              Guerra atual
+              {mode === "historical" ? "Resumo do confronto" : "Guerra atual"}
             </h2>
 
             <p className="mt-3 text-slate-400">
-              {warStateLabels[war.state]} · {remainingTime}
+              {mode === "historical"
+                ? "Resultado final do confronto"
+                : `${warStateLabels[war.state]} · ${remainingTime}`}
             </p>
           </div>
 
@@ -423,7 +437,10 @@ export function WarOverview({
               value={String(war.attacksPerMember ?? "—")}
             />
 
-            <WarDetail label="Tempo restante" value={remainingTime} />
+            <WarDetail
+              label={mode === "historical" ? "Status" : "Tempo restante"}
+              value={mode === "historical" ? "Encerrada" : remainingTime}
+            />
           </div>
         </div>
       </div>

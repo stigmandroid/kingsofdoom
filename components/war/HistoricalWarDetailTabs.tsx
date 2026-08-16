@@ -75,7 +75,7 @@ export function HistoricalWarDetailTabs({
       <section className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div
-            className="flex gap-2 overflow-x-auto py-3"
+            className="grid grid-cols-2 gap-2 py-3 sm:flex sm:flex-wrap"
             aria-label="Seções da guerra histórica"
           >
             {tabs.map((tab) => {
@@ -87,7 +87,8 @@ export function HistoricalWarDetailTabs({
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={[
-                    "min-h-11 shrink-0 rounded-xl border px-4 py-2 text-sm font-black transition",
+                    "min-h-11 rounded-xl border px-3 py-2 text-sm font-black transition sm:shrink-0 sm:px-4",
+                    tab.id === "pending" ? "col-span-2 sm:col-span-1" : "",
                     active
                       ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
                       : "border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white",
@@ -102,7 +103,11 @@ export function HistoricalWarDetailTabs({
       </section>
 
       {activeTab === "summary" && (
-        <WarOverview result={result} showWarRoomLink={false} />
+        <WarOverview
+          result={result}
+          showWarRoomLink={false}
+          mode="historical"
+        />
       )}
 
       {activeTab === "map" && <WarMap result={result} />}

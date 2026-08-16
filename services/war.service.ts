@@ -99,7 +99,7 @@ export async function getCurrentWar(
    * Em desenvolvimento, o IP residencial não deve mais
    * participar da comunicação com a Supercell.
    */
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.KOD_USE_DEV_PROXY === "true") {
     return getCurrentWarThroughDevProxy(clanTag);
   }
 

@@ -6,57 +6,101 @@
  * services/player.service.ts
  *
  * Responsabilidade:
- * Consultar os dados detalhados de jogadores na API oficial
- * do Clash of Clans.
+ * Consultar dados detalhados dos jogadores.
  *
- * Diferentemente do endpoint de clãs, este serviço retorna:
- * • liga ranqueada atual;
- * • estatísticas da Liga Lendária;
- * • heróis;
- * • recordes individuais;
- * • demais informações detalhadas do jogador.
+ * Estratégia:
+ * - produção consulta diretamente a Clash API;
+ * - desenvolvimento consulta o gateway privado da VPS.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 26/07/2026
+ * 16/08/2026
+ *
+ * Versão:
+ * 0.8.7
+ *
+ * Status:
+ * 🚧 Em desenvolvimento
  * ==========================================================
  */
 
 import type { Player } from "@/types/player";
 
-/**
- * URL base da API oficial do Clash of Clans.
- */
 const CLASH_API_BASE_URL = "https://api.clashofclans.com/v1";
+const DEFAULT_DEV_PROXY_BASE_URL = "https://kingsofdoom.com";
 
-/**
- * Estrutura simplificada dos erros retornados pela API.
- */
 type ClashApiError = {
   reason?: string;
   message?: string;
 };
 
-/**
- * Consulta os dados detalhados de um jogador utilizando
- * sua tag oficial.
- *
- * Exemplo:
- *
- * await getPlayer("#2PPQCU0JY");
- *
- * @param playerTag Tag oficial do jogador.
- * @returns Dados detalhados do jogador.
- */
+type DevProxyPlayerResponse = {
+  success: boolean;
+  player?: Player;
+  error?: string;
+};
+
 export async function getPlayer(playerTag: string): Promise<Player> {
-  /**
-   * Token privado de autenticação.
-   *
-   * Como este serviço é executado no servidor, o token não
-   * será enviado para o navegador do usuário.
-   */
+  if (!playerTag) {
+    throw new Error("Nenhuma tag de jogador foi informada.");
+  }
+
+  if (process.env.KOD_USE_DEV_PROXY === "true") {
+    return getPlayerThroughDevProxy(playerTag);
+  }
+
+  return getPlayerDirectlyFromClash(playerTag);
+}
+
+async function getPlayerThroughDevProxy(playerTag: string): Promise<Player> {
+  const secret = process.env.KOD_DEV_PROXY_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      "A variável KOD_DEV_PROXY_SECRET não foi configurada no .env.local.",
+    );
+  }
+
+  const proxyBaseUrl = (
+    process.env.KOD_DEV_PROXY_BASE_URL ?? DEFAULT_DEV_PROXY_BASE_URL
+  ).replace(/\/+$/, "");
+
+  const response = await fetch(
+    `${proxyBaseUrl}/api/internal/clash/player?tag=${encodeURIComponent(playerTag)}`,
+    {
+      headers: {
+        Accept: "application/json",
+        "x-kod-dev-proxy-secret": secret,
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    const body = (await response
+      .json()
+      .catch(() => null)) as DevProxyPlayerResponse | null;
+
+    throw new Error(
+      body?.error ??
+        `Gateway de jogador respondeu com status ${response.status}.`,
+    );
+  }
+
+  const data = (await response.json()) as DevProxyPlayerResponse;
+
+  if (!data.success || !data.player) {
+    throw new Error(
+      data.error ?? "O gateway de jogador retornou uma resposta inválida.",
+    );
+  }
+
+  return data.player;
+}
+
+async function getPlayerDirectlyFromClash(playerTag: string): Promise<Player> {
   const token = process.env.CLASH_API_TOKEN;
 
   if (!token) {
@@ -65,25 +109,8 @@ export async function getPlayer(playerTag: string): Promise<Player> {
     );
   }
 
-  /**
-   * Impede consultas sem uma tag válida.
-   */
-  if (!playerTag) {
-    throw new Error("Nenhuma tag de jogador foi informada.");
-  }
-
-  /**
-   * Converte o caractere "#" para "%23", formato exigido
-   * pela API na URL.
-   */
   const encodedPlayerTag = encodeURIComponent(playerTag);
 
-  /**
-   * Consulta o endpoint individual do jogador.
-   *
-   * Cada perfil ficará armazenado no cache do Next.js
-   * durante cinco minutos.
-   */
   const response = await fetch(
     `${CLASH_API_BASE_URL}/players/${encodedPlayerTag}`,
     {
@@ -91,16 +118,12 @@ export async function getPlayer(playerTag: string): Promise<Player> {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
       },
-
       next: {
         revalidate: 300,
       },
     },
   );
 
-  /**
-   * Transforma erros da API em mensagens compreensíveis.
-   */
   if (!response.ok) {
     const error = (await response
       .json()

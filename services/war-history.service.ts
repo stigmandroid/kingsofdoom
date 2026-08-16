@@ -81,7 +81,7 @@ export async function getRecentWarHistory({
   trackedClanTag: string;
   limit?: number;
 }): Promise<WarHistoryListItem[]> {
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.KOD_USE_DEV_PROXY === "true") {
     return getRecentWarHistoryThroughDevProxy({
       trackedClanTag,
       limit,
@@ -104,7 +104,7 @@ export async function getWarHistoryDetail({
   trackedClanTag: string;
   warKey: string;
 }): Promise<WarHistoryDetail | null> {
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.KOD_USE_DEV_PROXY === "true") {
     return getWarHistoryDetailThroughDevProxy({
       trackedClanTag,
       warKey,

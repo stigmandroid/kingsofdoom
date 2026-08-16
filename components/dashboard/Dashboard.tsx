@@ -7,24 +7,31 @@
  *
  * Responsabilidade:
  * Compor as principais seções do painel de um clã,
- * incluindo apresentação geral, estatísticas, guerra atual
- * e lista completa de membros.
+ * incluindo apresentação geral, estatísticas e guerra atual.
+ *
+ * A listagem completa de membros deixa de fazer parte
+ * do Dashboard e passa a pertencer ao módulo dedicado
+ * de Membros.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 01/08/2026
+ * 16/08/2026
+ *
+ * Versão:
+ * 0.9.0
+ *
+ * Status:
+ * 🚧 Em desenvolvimento
  * ==========================================================
  */
 
 import { getLocale } from "next-intl/server";
 
-import { ClanMembers } from "@/components/clan/ClanMembers";
 import { clans } from "@/config/clans";
 
-import type { Clan, ClanMember } from "@/types/clan";
-import type { ClanMemberWithPlayer } from "@/types/player";
+import type { Clan } from "@/types/clan";
 import type { CurrentWarResult } from "@/types/war";
 
 import { ClanHeader } from "./ClanHeader";
@@ -42,12 +49,6 @@ type DashboardProps = {
   clan: Clan;
 
   /**
-   * Lista de membros enriquecida com os dados
-   * individuais retornados pela Player API.
-   */
-  members: ClanMemberWithPlayer<ClanMember>[];
-
-  /**
    * Resultado da consulta da guerra atual.
    */
   currentWar: CurrentWarResult;
@@ -56,14 +57,15 @@ type DashboardProps = {
 /**
  * Renderiza o painel principal do clã selecionado.
  *
- * O componente também monta o endereço correto da Sala
- * de Guerra com base no idioma e na tag do clã atual.
+ * O componente monta o endereço correto da Sala de Guerra
+ * com base no idioma e na configuração do clã atual.
  */
-export async function Dashboard({ clan, members, currentWar }: DashboardProps) {
+export async function Dashboard({ clan, currentWar }: DashboardProps) {
   /**
    * Recupera o idioma atualmente utilizado pela aplicação.
    *
    * Exemplos:
+   *
    * pt-BR
    * en
    * es
@@ -74,7 +76,7 @@ export async function Dashboard({ clan, members, currentWar }: DashboardProps) {
    * Localiza no catálogo central a configuração
    * correspondente ao clã carregado pela API.
    *
-   * A comparação é feita pela tag oficial, que é única.
+   * A comparação utiliza a tag oficial do clã.
    */
   const clanConfig = Object.values(clans).find(
     (configuredClan) => configuredClan.tag === clan.tag,
@@ -87,9 +89,10 @@ export async function Dashboard({ clan, members, currentWar }: DashboardProps) {
   const clanSlug = clanConfig?.slug ?? clans.kod.slug;
 
   /**
-   * Endereço localizado da Sala de Guerra do clã atual.
+   * Endereço localizado da Sala de Guerra.
    *
    * Exemplos:
+   *
    * /pt-BR/war/kod
    * /pt-BR/war/kod-rec
    */
@@ -97,32 +100,67 @@ export async function Dashboard({ clan, members, currentWar }: DashboardProps) {
 
   return (
     <>
-      {/*
-       * Apresentação principal do clã.
+      {/**
+       * ======================================================
+       * APRESENTAÇÃO
+       * ======================================================
        */}
+
       <Hero clan={clan} warRoomHref={warRoomHref} />
 
-      {/*
-       * Informações gerais e identidade do clã.
+      {/**
+       * ======================================================
+       * IDENTIDADE E INFORMAÇÕES DO CLÃ
+       * ======================================================
        */}
+
       <ClanHeader clan={clan} />
 
-      {/*
-       * Resumo das principais estatísticas.
+      {/**
+       * ======================================================
+       * INDICADORES PRINCIPAIS
+       * ======================================================
        */}
+
       <StatsOverview clan={clan} />
 
-      {/*
-       * Prévia da guerra atual.
+      {/**
+       * ======================================================
+       * GUERRA ATUAL
+       * ======================================================
        *
-       * O botão agora respeita o clã selecionado.
+       * O Dashboard mantém somente uma visão resumida
+       * do confronto atual.
+       *
+       * A Sala de Guerra completa continua disponível
+       * através do botão do próprio componente.
        */}
+
       <WarOverview result={currentWar} warRoomHref={warRoomHref} />
 
-      {/*
-       * Lista completa de jogadores do clã.
+      {/**
+       * ======================================================
+       * PRÓXIMA EVOLUÇÃO DO DASHBOARD
+       * ======================================================
+       *
+       * O espaço anteriormente ocupado pela lista completa
+       * de membros ficará disponível para novos blocos
+       * resumidos do Command Center.
+       *
+       * Exemplos futuros:
+       *
+       * - resumo da composição do clã;
+       * - distribuição por Centro de Vila;
+       * - atividade dos membros;
+       * - destaques recentes;
+       * - atalhos para Membros, CWL, Guerra e eventos;
+       * - Raid Weekend;
+       * - Jogos do Clã.
+       *
+       * A implementação será feita posteriormente para
+       * evitar acoplamento entre o Dashboard e módulos
+       * especializados.
        */}
-      <ClanMembers members={members} clanName={clan.name} />
     </>
   );
 }

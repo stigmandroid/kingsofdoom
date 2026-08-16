@@ -6,19 +6,28 @@
  * app/[locale]/clans/[slug]/page.tsx
  *
  * Responsabilidade:
- * Renderizar o painel de um clã com base no slug informado
- * na URL.
+ * Renderizar o painel principal de um clã com base no slug
+ * informado na URL.
  *
  * A página consulta:
+ *
  * • dados gerais do clã;
- * • guerra atual;
- * • dados individuais de cada membro.
+ * • guerra atual.
+ *
+ * A listagem completa de membros passa a pertencer ao módulo
+ * dedicado de Membros.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 26/07/2026
+ * 16/08/2026
+ *
+ * Versão:
+ * 0.8.7
+ *
+ * Status:
+ * 🚧 Em desenvolvimento
  * ==========================================================
  */
 
@@ -27,9 +36,7 @@ import { notFound } from "next/navigation";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { clans, getClanBySlug } from "@/config/clans";
 import { getClan } from "@/services/clan.service";
-import { getPlayer } from "@/services/player.service";
 import { getCurrentWar } from "@/services/war.service";
-import type { ClanMemberWithPlayer } from "@/types/player";
 
 type ClanPageProps = {
   params: Promise<{
@@ -60,7 +67,7 @@ export default async function ClanPage({ params }: ClanPageProps) {
   const { slug } = await params;
 
   /**
-   * Localiza as configurações do clã por meio do slug.
+   * Localiza as configurações oficiais do clã.
    */
   const clanConfig = getClanBySlug(slug);
 
@@ -69,62 +76,21 @@ export default async function ClanPage({ params }: ClanPageProps) {
   }
 
   /**
-   * Os dados gerais do clã e da guerra atual são consultados
+   * Dados gerais do clã e guerra atual são carregados
    * simultaneamente.
+   *
+   * A página principal não consulta mais individualmente
+   * todos os jogadores, reduzindo chamadas desnecessárias
+   * à Player API.
    */
   const [clan, currentWar] = await Promise.all([
     getClan(clanConfig.tag),
     getCurrentWar(clanConfig.tag),
   ]);
 
-  /**
-   * Consulta individualmente cada jogador.
-   *
-   * As requisições são realizadas em paralelo para evitar
-   * que o tempo total seja a soma de todas as consultas.
-   *
-   * Cada erro é tratado isoladamente. Assim, caso um perfil
-   * específico não possa ser carregado, os demais membros
-   * continuam sendo apresentados normalmente.
-   */
-  const membersWithPlayers: ClanMemberWithPlayer<
-    (typeof clan.memberList)[number]
-  >[] = await Promise.all(
-    clan.memberList.map(async (member) => {
-      try {
-        const player = await getPlayer(member.tag);
-
-        return {
-          member,
-          player,
-        };
-      } catch (error) {
-        /**
-         * O erro é registrado apenas no servidor.
-         *
-         * O card utilizará os dados resumidos do clã como
-         * fallback para esse jogador.
-         */
-        console.error(
-          `[Kings of Doom] Falha ao carregar o jogador ${member.tag}:`,
-          error,
-        );
-
-        return {
-          member,
-          player: null,
-        };
-      }
-    }),
-  );
-
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <Dashboard
-        clan={clan}
-        currentWar={currentWar}
-        members={membersWithPlayers}
-      />
+      <Dashboard clan={clan} currentWar={currentWar} />
     </main>
   );
 }

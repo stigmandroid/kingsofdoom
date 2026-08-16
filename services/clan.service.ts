@@ -3,94 +3,127 @@
  * Kings of Doom Command Center
  * ----------------------------------------------------------
  * Arquivo:
- * clan.service.ts
+ * services/clan.service.ts
  *
  * Responsabilidade:
- * Realizar consultas à API oficial do Clash of Clans.
+ * Consultar os dados de clãs utilizados pelo Command Center.
  *
- * Este serviço é responsável por:
- * • autenticar as requisições utilizando o token privado;
- * • consultar informações de qualquer clã;
- * • tratar erros retornados pela API;
- * • devolver os dados tipados para o restante da aplicação.
+ * Estratégia:
+ * - produção consulta diretamente a Clash API;
+ * - desenvolvimento consulta o gateway privado da VPS.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 26/07/2026
+ * 16/08/2026
+ *
+ * Versão:
+ * 0.8.7
+ *
+ * Status:
+ * 🚧 Em desenvolvimento
  * ==========================================================
  */
 
 import type { Clan } from "@/types/clan";
 
-/**
- * URL base da API oficial do Clash of Clans.
- *
- * Todas as consultas deste serviço utilizam este endereço.
- */
 const CLASH_API_BASE_URL = "https://api.clashofclans.com/v1";
+const DEFAULT_DEV_PROXY_BASE_URL = "https://kingsofdoom.com";
 
-/**
- * Estrutura simplificada dos erros retornados pela API.
- *
- * Nem todos os campos são obrigatórios, por isso
- * eles foram definidos como opcionais.
- */
+const supportedClanSlugByTag = {
+  "#2GQ2UC2PV": "kod",
+  "#2RU9QG9CG": "kod-rec",
+} as const;
+
 type ClashApiError = {
   reason?: string;
   message?: string;
 };
 
-/**
- * Consulta qualquer clã utilizando sua tag oficial.
- *
- * Exemplo:
- *
- * await getClan("#2GQ2UC2PV");
- * await getClan("#2RU9QG9CG");
- *
- * @param clanTag Tag oficial do clã.
- * @returns Dados completos do clã.
- */
+type DevProxyClanResponse = {
+  success: boolean;
+  clan?: Clan;
+  error?: string;
+};
+
 export async function getClan(clanTag: string): Promise<Clan> {
-  /**
-   * Token privado utilizado para autenticar a aplicação
-   * junto à API oficial do Clash of Clans.
-   *
-   * Esta variável existe apenas no servidor.
-   */
+  if (!clanTag) {
+    throw new Error("Nenhuma tag de clã foi informada.");
+  }
+
+  if (process.env.KOD_USE_DEV_PROXY === "true") {
+    return getClanThroughDevProxy(clanTag);
+  }
+
+  return getClanDirectlyFromClash(clanTag);
+}
+
+async function getClanThroughDevProxy(clanTag: string): Promise<Clan> {
+  const secret = process.env.KOD_DEV_PROXY_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      "A variável KOD_DEV_PROXY_SECRET não foi configurada no .env.local.",
+    );
+  }
+
+  const clanSlug =
+    supportedClanSlugByTag[clanTag as keyof typeof supportedClanSlugByTag];
+
+  if (!clanSlug) {
+    throw new Error(
+      `O clã ${clanTag} não está autorizado a utilizar o gateway de desenvolvimento.`,
+    );
+  }
+
+  const proxyBaseUrl = (
+    process.env.KOD_DEV_PROXY_BASE_URL ?? DEFAULT_DEV_PROXY_BASE_URL
+  ).replace(/\/+$/, "");
+
+  const response = await fetch(
+    `${proxyBaseUrl}/api/internal/clash/clan?clan=${encodeURIComponent(clanSlug)}`,
+    {
+      headers: {
+        Accept: "application/json",
+        "x-kod-dev-proxy-secret": secret,
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    const body = (await response
+      .json()
+      .catch(() => null)) as DevProxyClanResponse | null;
+
+    throw new Error(
+      body?.error ?? `Gateway de clã respondeu com status ${response.status}.`,
+    );
+  }
+
+  const data = (await response.json()) as DevProxyClanResponse;
+
+  if (!data.success || !data.clan) {
+    throw new Error(
+      data.error ?? "O gateway de clã retornou uma resposta inválida.",
+    );
+  }
+
+  return data.clan;
+}
+
+async function getClanDirectlyFromClash(clanTag: string): Promise<Clan> {
   const token = process.env.CLASH_API_TOKEN;
 
-  /**
-   * Garante que o token foi configurado corretamente.
-   */
   if (!token) {
     throw new Error(
       "A variável CLASH_API_TOKEN não foi configurada no arquivo .env.local.",
     );
   }
 
-  /**
-   * Garante que uma tag foi informada.
-   */
-  if (!clanTag) {
-    throw new Error("Nenhuma tag de clã foi informada.");
-  }
-
-  /**
-   * A API utiliza "%23" no lugar do caractere "#".
-   *
-   * encodeURIComponent realiza essa conversão automaticamente.
-   */
   const encodedClanTag = encodeURIComponent(clanTag);
 
-  /**
-   * Consulta o clã na API oficial.
-   *
-   * O Next.js armazenará a resposta em cache durante
-   * 60 segundos para reduzir chamadas desnecessárias.
-   */
   const response = await fetch(
     `${CLASH_API_BASE_URL}/clans/${encodedClanTag}`,
     {
@@ -98,17 +131,12 @@ export async function getClan(clanTag: string): Promise<Clan> {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
       },
-
       next: {
         revalidate: 60,
       },
     },
   );
 
-  /**
-   * Caso a API retorne erro,
-   * tentamos apresentar uma mensagem amigável.
-   */
   if (!response.ok) {
     const error = (await response
       .json()
@@ -122,9 +150,5 @@ export async function getClan(clanTag: string): Promise<Clan> {
     throw new Error(`Não foi possível carregar o clã: ${reason}`);
   }
 
-  /**
-   * Converte a resposta JSON para o tipo Clan
-   * utilizado pelo restante da aplicação.
-   */
   return response.json() as Promise<Clan>;
 }

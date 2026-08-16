@@ -228,7 +228,7 @@ export const releases: Release[] = [
     ],
   },
   {
-    version: "0.8.4",
+    version: "0.8.5",
     title: "CWL Season Pass Ceremony",
     date: "2026-08-12",
 
@@ -399,6 +399,84 @@ export const releases: Release[] = [
         title: "Build de produção validado",
         description:
           "A integração final da cerimônia foi validada com sucesso no build de produção do Next.js 16.2.11 utilizando Turbopack.",
+      },
+    ],
+  },
+
+  {
+    version: "0.8.4",
+    title: "CWL Historical Archive & Infrastructure",
+    date: "2026-08-11",
+    current: false,
+    summary:
+      "Construção da infraestrutura histórica da CWL, com persistência completa das temporadas em SQLite, auditoria de integridade, backup consistente e preparação da base de dados para futuras análises de desempenho e inteligência estratégica.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Arquivo histórico da CWL",
+        description:
+          "Criação da estrutura histórica em SQLite para preservar temporadas completas da Clash War League independentemente da disponibilidade futura dos dados na API oficial.",
+      },
+      {
+        type: "feature",
+        title: "Persistência completa das temporadas",
+        description:
+          "Arquivamento independente por temporada dos oito clãs participantes, sete rodadas, guerras do grupo, participações individuais e ataques realizados.",
+      },
+      {
+        type: "technical",
+        title: "Persistência detalhada dos ataques",
+        description:
+          "Registro de atacante, defensor, Centro de Vila de ambos os jogadores, estrelas, percentual de destruição e ordem de cada ataque realizado durante a CWL.",
+      },
+      {
+        type: "technical",
+        title: "Atualização idempotente",
+        description:
+          "Implementação de UPSERT para permitir snapshots incrementais e atualização segura de temporadas e guerras já conhecidas sem duplicação de registros.",
+      },
+      {
+        type: "feature",
+        title: "Endpoint administrativo de arquivamento",
+        description:
+          "Criação de endpoint administrativo para execução manual do processo de atualização do arquivo histórico da CWL.",
+      },
+      {
+        type: "technical",
+        title: "Auditoria automática de integridade",
+        description:
+          "Validação da estrutura das temporadas arquivadas, incluindo participantes, atacante, defensor, Centros de Vila, ordem dos ataques e consistência dos dados preservados.",
+      },
+      {
+        type: "feature",
+        title: "Métricas históricas iniciais",
+        description:
+          "Implementação da distribuição de ataques por 0, 1, 2 e 3 estrelas, cálculo da taxa de triplas do clã monitorado e identificação de jogadores que deixaram ataques.",
+      },
+      {
+        type: "technical",
+        title: "Backup consistente do SQLite",
+        description:
+          "Criação de backup físico compatível com WAL mode, validação por PRAGMA integrity_check e reabertura isolada do banco de backup para confirmação da integridade dos dados.",
+      },
+      {
+        type: "technical",
+        title: "Primeiro snapshot histórico protegido",
+        description:
+          "Preservação da CWL de Agosto de 2026 como primeiro conjunto histórico da plataforma, criando a base para análises futuras entre temporadas.",
+      },
+      {
+        type: "technical",
+        title: "Infraestrutura de produção com PM2",
+        description:
+          "Configuração do PM2 para gerenciamento do processo, persistência com pm2 save, inicialização automática via systemd e recuperação da aplicação com pm2 resurrect.",
+      },
+      {
+        type: "improvement",
+        title: "Base para inteligência histórica",
+        description:
+          "Estruturação dos dados necessários para futuras análises individuais, comparativos entre temporadas, índices de consistência, rankings e modelos de inteligência estratégica.",
       },
     ],
   },
@@ -1303,36 +1381,46 @@ export const releases: Release[] = [
 export const roadmap: RoadmapPhase[] = [
   {
     phase: 1,
-    title: "War Intelligence",
+    title: "War Intelligence — conclusão",
     status: "in-development",
     description:
-      "Evolução contínua da Sala de Guerra com informações ofensivas, defensivas e históricas de fácil consulta.",
+      "Concluir a inteligência operacional da Sala de Guerra utilizando a infraestrutura histórica persistente já construída para transformar ataques e resultados em informações rápidas para tomada de decisão.",
 
     items: [
       {
         title: "Pesquisa por jogador",
         description:
-          "Permitir localizar rapidamente um participante dentro da guerra.",
+          "Permitir localizar rapidamente um participante na guerra atual e nos confrontos históricos.",
       },
       {
         title: "Filtros por resultado",
         description:
-          "Filtrar ataques por estrelas, destruição, atacante, alvo ou posição.",
+          "Filtrar ataques por estrelas, destruição, atacante, alvo, posição e resultado ofensivo.",
       },
       {
         title: "Timeline completa",
         description:
-          "Organizar cronologicamente todos os ataques realizados pelos dois clãs.",
+          "Organizar cronologicamente todos os ataques realizados pelos dois clãs durante o confronto.",
       },
       {
         title: "Resumo final da guerra",
         description:
-          "Gerar uma visão consolidada dos principais resultados após o encerramento.",
+          "Gerar uma visão consolidada após o encerramento com resultado, principais números e destaques do confronto.",
       },
       {
-        title: "Histórico de guerras",
+        title: "Destaques ofensivos",
         description:
-          "Armazenar e apresentar guerras anteriores para consultas e comparações.",
+          "Identificar automaticamente os melhores desempenhos ofensivos da guerra utilizando estrelas, destruição e contexto dos ataques.",
+      },
+      {
+        title: "Destaques defensivos",
+        description:
+          "Identificar automaticamente as bases com melhor desempenho defensivo durante o confronto.",
+      },
+      {
+        title: "Relatório individual",
+        description:
+          "Consolidar em uma visão rápida os ataques realizados, resultados e desempenho defensivo de cada participante.",
       },
     ],
   },

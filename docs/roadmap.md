@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 12/08/2026
+# 16/08/2026
 
 #
 
 # Versão:
 
-# v0.8.5
+# v0.8.6
 
 #
 
@@ -78,15 +78,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.8.2`
+`v0.8.6`
 
 **Fase do projeto**
 
-`War Command Center`
+`War Intelligence — conclusão`
 
 **Objetivo atual**
 
-Construir uma base sólida para permitir a evolução do projeto nos próximos anos.
+Concluir a inteligência operacional das guerras normais antes de iniciar a próxima grande fase da plataforma.
 
 ---
 
@@ -1032,7 +1032,35 @@ Transformar a Sala de Guerra em uma estrutura persistente de acompanhamento hist
 
 ---
 
-# v0.9.0 — Community
+# 🟨 v0.9.0 — War Intelligence Completion
+
+## Objetivo
+
+Concluir a primeira geração da inteligência de guerras normais do Kings of Doom Command Center, utilizando os dados persistidos para transformar o histórico de confrontos em informações operacionais e análises de desempenho.
+
+### Planejamento
+
+⬜ Pesquisa por jogador
+
+⬜ Filtros por estrelas, destruição, atacante, alvo e posição
+
+⬜ Timeline cronológica completa dos ataques
+
+⬜ Resumo final automático da guerra
+
+⬜ Destaques ofensivos
+
+⬜ Destaques defensivos
+
+⬜ Relatório individual dos participantes
+
+⬜ Estatísticas gerais do histórico de guerras
+
+⬜ Preparação da integração entre desempenho em guerras e perfil dos membros
+
+---
+
+# v0.10.0 — Community
 
 ## Objetivo
 
@@ -1054,7 +1082,7 @@ Criar ferramentas para facilitar a administração de comunidades.
 
 ---
 
-# v0.10.0 — Automation
+# v0.11.0 — Automation
 
 ---
 

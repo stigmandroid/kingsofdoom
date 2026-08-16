@@ -53,23 +53,16 @@ export function ClanMembers({ members, clanName }: ClanMembersProps) {
 
   return (
     <section
-      aria-labelledby="clan-members-title"
-      className="mx-auto mt-10 w-full max-w-[1600px] px-4 sm:px-6 lg:px-8"
+      aria-label={`Membros do clã ${clanName}`}
+      className="mx-auto w-full max-w-[1600px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8"
     >
-      <header className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+      <header className="mb-6 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-400">
-            Formação do clã
+            Formação atual
           </p>
 
-          <h2
-            id="clan-members-title"
-            className="mt-2 text-2xl font-bold text-white sm:text-3xl"
-          >
-            Membros
-          </h2>
-
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-slate-400">
             Jogadores atualmente pertencentes ao{" "}
             <span
               translate="no"
@@ -81,10 +74,10 @@ export function ClanMembers({ members, clanName }: ClanMembersProps) {
           </p>
         </div>
 
-        <div className="w-fit rounded-xl border border-slate-800 bg-slate-900 px-4 py-2">
+        <div className="shrink-0 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2">
           <span className="text-sm text-slate-400">
-            Total:{" "}
-            <strong className="text-white">{sortedMembers.length}</strong>
+            <strong className="text-white">{sortedMembers.length}</strong>{" "}
+            jogadores
           </span>
         </div>
       </header>

@@ -145,10 +145,87 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.8.7",
+    title: "Members Module & Development Gateway",
+    date: "2026-08-16",
+    current: true,
+    summary:
+      "Criação do módulo dedicado de Membros e conclusão do gateway privado de desenvolvimento, permitindo navegar entre os clãs preservando o contexto e utilizar dados reais da Clash API no ambiente local sem depender do IP residencial.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Página dedicada de Membros",
+        description:
+          "A lista completa de jogadores deixou de ocupar o Dashboard principal e passou a possuir um módulo próprio para cada clã.",
+      },
+      {
+        type: "feature",
+        title: "Membros por clã",
+        description:
+          "Criação das rotas dedicadas /members/kod e /members/kod-rec, permitindo consultar independentemente a formação atual de cada clã.",
+      },
+      {
+        type: "improvement",
+        title: "Dashboard mais enxuto",
+        description:
+          "A listagem completa de membros foi removida da página principal, reduzindo o comprimento do painel e preparando espaço para futuros resumos e indicadores estratégicos.",
+      },
+      {
+        type: "technical",
+        title: "Service reutilizável de membros",
+        description:
+          "Criação de uma camada dedicada para enriquecer os membros do clã com dados individuais da Player API, mantendo falhas isoladas por jogador.",
+      },
+      {
+        type: "technical",
+        title: "Gateway privado para dados de clã",
+        description:
+          "O ambiente local passou a consultar os dados dos clãs através da VPS, impedindo que alterações no IP residencial interrompam o desenvolvimento.",
+      },
+      {
+        type: "technical",
+        title: "Gateway privado para jogadores",
+        description:
+          "As consultas individuais da Player API em desenvolvimento passaram a ser encaminhadas pela VPS utilizando autenticação privada.",
+      },
+      {
+        type: "technical",
+        title: "Gateway unificado de desenvolvimento",
+        description:
+          "Clãs, jogadores, guerra atual e histórico de guerras agora utilizam a VPS como ponto autorizado de acesso à Clash API durante o desenvolvimento local.",
+      },
+      {
+        type: "technical",
+        title: "Configuração explícita de ambiente",
+        description:
+          "A decisão de utilizar o gateway deixou de depender de NODE_ENV e passou a utilizar KOD_USE_DEV_PROXY, permitindo que builds locais também utilizem corretamente a infraestrutura da VPS.",
+      },
+      {
+        type: "improvement",
+        title: "Navegação contextual entre clãs",
+        description:
+          "O seletor de clãs passou a preservar o módulo atual ao alternar entre K.O.D. e K.O.D.rec em Painel, Guerra, CWL e Membros.",
+      },
+      {
+        type: "improvement",
+        title: "Interface dedicada de formação",
+        description:
+          "A página de Membros recebeu cabeçalho próprio, identificação da formação atual e contagem de jogadores sem repetir títulos desnecessariamente.",
+      },
+      {
+        type: "improvement",
+        title: "Fundação para perfis individuais",
+        description:
+          "A nova arquitetura prepara o módulo para futuras páginas individuais de jogadores, histórico de desempenho, guerras, CWL, Raids e Jogos do Clã.",
+      },
+    ],
+  },
+  {
     version: "0.8.6",
     title: "War Historical Archive & Navigation",
     date: "2026-08-15",
-    current: true,
+    current: false,
     summary:
       "Introdução da infraestrutura persistente para histórico de guerras normais, com arquivamento automático de K.O.D. e K.O.D.rec, histórico compacto e navegação para o detalhamento completo de confrontos encerrados.",
 

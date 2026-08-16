@@ -55,7 +55,7 @@ const clanOptions = Object.values(clans);
 /**
  * Módulos que possuem navegação contextual por clã.
  */
-type ClanContextModule = "clans" | "war" | "cwl";
+type ClanContextModule = "clans" | "war" | "cwl" | "members";
 
 /**
  * Renderiza o seletor responsável pela troca de clãs.
@@ -289,6 +289,13 @@ function getCurrentClanModule(
 
   if (pathname === `/${locale}/cwl` || pathname.startsWith(`/${locale}/cwl/`)) {
     return "cwl";
+  }
+
+  if (
+    pathname === `/${locale}/members` ||
+    pathname.startsWith(`/${locale}/members/`)
+  ) {
+    return "members";
   }
 
   return "clans";

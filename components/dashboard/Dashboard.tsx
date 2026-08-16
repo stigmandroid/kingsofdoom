@@ -20,7 +20,7 @@
  * 16/08/2026
  *
  * Versão:
- * 0.9.0
+ * 0.8.7
  *
  * Status:
  * 🚧 Em desenvolvimento

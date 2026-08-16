@@ -104,7 +104,7 @@ export function Navbar() {
     },
     {
       label: "Membros",
-      href: `/${locale}/members`,
+      href: `/${locale}/members/${currentClanSlug}`,
     },
     {
       label: "Novidades",

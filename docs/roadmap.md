@@ -1032,6 +1032,76 @@ Transformar a Sala de Guerra em uma estrutura persistente de acompanhamento hist
 
 ---
 
+# ✅ v0.8.7 — Members Module & Development Gateway
+
+## Objetivo
+
+Separar a gestão e consulta de membros do Dashboard principal e consolidar uma infraestrutura de desenvolvimento independente do IP residencial, preparando o Command Center para os futuros perfis individuais e análises históricas dos jogadores.
+
+### Entregas concluídas
+
+✅ Página dedicada de Membros
+
+✅ Rotas independentes para K.O.D. e K.O.D.rec
+
+✅ Reutilização dos cards existentes de jogadores
+
+✅ Remoção da listagem completa de membros do Dashboard
+
+✅ Redução das consultas desnecessárias à Player API na página inicial
+
+✅ Service reutilizável para enriquecimento dos membros
+
+✅ Gateway privado para dados de clã
+
+✅ Gateway privado para perfis individuais de jogadores
+
+✅ Gateway privado já integrado à guerra atual
+
+✅ Gateway privado já integrado ao histórico de guerras
+
+✅ Flag KOD_USE_DEV_PROXY independente de NODE_ENV
+
+✅ Build local utilizando dados reais através da VPS
+
+✅ Navegação contextual no seletor de clãs
+
+✅ Preservação do módulo Painel ao trocar de clã
+
+✅ Preservação do módulo Guerra ao trocar de clã
+
+✅ Preservação do módulo CWL ao trocar de clã
+
+✅ Preservação do módulo Membros ao trocar de clã
+
+✅ Interface da página de Membros reorganizada
+
+✅ Fundação preparada para perfis individuais dos jogadores
+
+### Próximas evoluções do módulo de Membros
+
+⬜ Busca por nome ou tag
+
+⬜ Filtros por Centro de Vila
+
+⬜ Filtros por cargo
+
+⬜ Filtros por liga
+
+⬜ Ordenação por troféus, doações e posição
+
+⬜ Página individual do jogador
+
+⬜ Histórico de participação em guerras
+
+⬜ Histórico de desempenho na CWL
+
+⬜ Integração futura com Raid Weekend
+
+⬜ Integração futura com Jogos do Clã
+
+---
+
 # 🟨 v0.9.0 — War Intelligence Completion
 
 ## Objetivo

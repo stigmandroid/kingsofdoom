@@ -64,7 +64,7 @@ export default async function HistoricalWarPage({
    * A página histórica não depende da disponibilidade atual
    * da Clash API.
    */
-  const detail = getWarHistoryDetail({
+  const detail = await getWarHistoryDetail({
     trackedClanTag: clan.tag,
     warKey,
   });

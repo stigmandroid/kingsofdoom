@@ -6,17 +6,26 @@
  * services/war-history.service.ts
  *
  * Responsabilidade:
- * Preparar o histórico de guerras para consumo pela interface
- * e reconstruir guerras completas a partir do SQLite.
+ * Preparar o histórico de guerras para consumo pela interface.
+ *
+ * Estratégia por ambiente:
+ *
+ * PRODUÇÃO
+ * - lê diretamente o SQLite persistente da VPS.
+ *
+ * DESENVOLVIMENTO
+ * - consulta o gateway privado da VPS;
+ * - utiliza o mesmo histórico disponível em produção;
+ * - evita depender do banco SQLite local para validar a UI.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 15/08/2026
+ * 16/08/2026
  *
  * Versão:
- * 0.9.2
+ * 0.8.7
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -31,6 +40,13 @@ import {
 
 import type { CurrentWar, CurrentWarResult } from "@/types/war";
 
+const DEFAULT_DEV_PROXY_BASE_URL = "https://kingsofdoom.com";
+
+const supportedClanSlugByTag = {
+  "#2GQ2UC2PV": "kod",
+  "#2RU9QG9CG": "kod-rec",
+} as const;
+
 export type WarHistoryListItem = Omit<WarHistoryRecord, "rawJson"> & {
   statusLabel: string;
 };
@@ -43,16 +59,76 @@ export type WarHistoryDetail = {
   currentWarResult: CurrentWarResult;
 };
 
+type WarHistoryProxyListResponse = {
+  success: boolean;
+  wars?: WarHistoryListItem[];
+  error?: string;
+};
+
+type WarHistoryProxyDetailResponse = {
+  success: boolean;
+  detail?: WarHistoryDetail;
+  error?: string;
+};
+
 /**
- * Recupera as guerras recentes sem expor raw_json para a
- * camada visual da listagem.
+ * Lista guerras encerradas recentes.
  */
-export function getRecentWarHistory({
+export async function getRecentWarHistory({
   trackedClanTag,
   limit = 20,
 }: {
   trackedClanTag: string;
   limit?: number;
+}): Promise<WarHistoryListItem[]> {
+  if (process.env.NODE_ENV === "development") {
+    return getRecentWarHistoryThroughDevProxy({
+      trackedClanTag,
+      limit,
+    });
+  }
+
+  return getRecentWarHistoryFromDatabase({
+    trackedClanTag,
+    limit,
+  });
+}
+
+/**
+ * Recupera uma guerra histórica completa.
+ */
+export async function getWarHistoryDetail({
+  trackedClanTag,
+  warKey,
+}: {
+  trackedClanTag: string;
+  warKey: string;
+}): Promise<WarHistoryDetail | null> {
+  if (process.env.NODE_ENV === "development") {
+    return getWarHistoryDetailThroughDevProxy({
+      trackedClanTag,
+      warKey,
+    });
+  }
+
+  return getWarHistoryDetailFromDatabase({
+    trackedClanTag,
+    warKey,
+  });
+}
+
+/**
+ * ==========================================================
+ * PRODUÇÃO — SQLITE LOCAL DA VPS
+ * ==========================================================
+ */
+
+function getRecentWarHistoryFromDatabase({
+  trackedClanTag,
+  limit,
+}: {
+  trackedClanTag: string;
+  limit: number;
 }): WarHistoryListItem[] {
   return findRecentWarHistory({
     trackedClanTag,
@@ -63,14 +139,7 @@ export function getRecentWarHistory({
   }));
 }
 
-/**
- * Reconstrói a guerra completa exatamente a partir do snapshot
- * preservado no SQLite.
- *
- * Isso permite reutilizar WarOverview, WarMap e
- * WarPendingAttacks sem consultar novamente a Clash API.
- */
-export function getWarHistoryDetail({
+function getWarHistoryDetailFromDatabase({
   trackedClanTag,
   warKey,
 }: {
@@ -114,8 +183,127 @@ export function getWarHistoryDetail({
 }
 
 /**
- * Converte o resultado persistido em um rótulo amigável
- * para a interface.
+ * ==========================================================
+ * DESENVOLVIMENTO — GATEWAY DA VPS
+ * ==========================================================
+ */
+
+async function getRecentWarHistoryThroughDevProxy({
+  trackedClanTag,
+  limit,
+}: {
+  trackedClanTag: string;
+  limit: number;
+}): Promise<WarHistoryListItem[]> {
+  const response = await fetchWarHistoryProxy({
+    trackedClanTag,
+  });
+
+  if (!response.ok) {
+    console.error("[Kings of Doom] Gateway histórico retornou erro:", {
+      trackedClanTag,
+      status: response.status,
+    });
+
+    return [];
+  }
+
+  const data = (await response.json()) as WarHistoryProxyListResponse;
+
+  if (!data.success || !data.wars) {
+    return [];
+  }
+
+  return data.wars.slice(0, limit);
+}
+
+async function getWarHistoryDetailThroughDevProxy({
+  trackedClanTag,
+  warKey,
+}: {
+  trackedClanTag: string;
+  warKey: string;
+}): Promise<WarHistoryDetail | null> {
+  const response = await fetchWarHistoryProxy({
+    trackedClanTag,
+    warKey,
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    console.error(
+      "[Kings of Doom] Gateway de detalhe histórico retornou erro:",
+      {
+        trackedClanTag,
+        warKey,
+        status: response.status,
+      },
+    );
+
+    return null;
+  }
+
+  const data = (await response.json()) as WarHistoryProxyDetailResponse;
+
+  return data.success && data.detail ? data.detail : null;
+}
+
+async function fetchWarHistoryProxy({
+  trackedClanTag,
+  warKey,
+}: {
+  trackedClanTag: string;
+  warKey?: string;
+}): Promise<Response> {
+  const secret = process.env.KOD_DEV_PROXY_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      "A variável KOD_DEV_PROXY_SECRET não foi configurada no .env.local.",
+    );
+  }
+
+  const clanSlug =
+    supportedClanSlugByTag[
+      trackedClanTag as keyof typeof supportedClanSlugByTag
+    ];
+
+  if (!clanSlug) {
+    throw new Error(
+      `O clã ${trackedClanTag} não está autorizado a utilizar o gateway histórico.`,
+    );
+  }
+
+  const proxyBaseUrl = (
+    process.env.KOD_DEV_PROXY_BASE_URL ?? DEFAULT_DEV_PROXY_BASE_URL
+  ).replace(/\/+$/, "");
+
+  const searchParams = new URLSearchParams({
+    clan: clanSlug,
+  });
+
+  if (warKey) {
+    searchParams.set("warKey", warKey);
+  }
+
+  return fetch(
+    `${proxyBaseUrl}/api/internal/clash/war-history?${searchParams.toString()}`,
+    {
+      headers: {
+        Accept: "application/json",
+        "x-kod-dev-proxy-secret": secret,
+      },
+
+      cache: "no-store",
+    },
+  );
+}
+
+/**
+ * Rótulo amigável do resultado.
  */
 function getWarStatusLabel(result: WarHistoryRecord["result"]): string {
   switch (result) {

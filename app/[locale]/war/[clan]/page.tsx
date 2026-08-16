@@ -80,7 +80,7 @@ export default async function WarPage({ params }: WarPageProps) {
    */
   const currentWar = await getCurrentWar(clan.tag);
 
-  const warHistory = getRecentWarHistory({
+  const warHistory = await getRecentWarHistory({
     trackedClanTag: clan.tag,
     limit: 20,
   });

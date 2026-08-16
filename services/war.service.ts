@@ -3,68 +3,92 @@
  * Kings of Doom Command Center
  * ----------------------------------------------------------
  * Arquivo:
- * war.service.ts
+ * services/war.service.ts
  *
  * Responsabilidade:
- * Consultar a guerra atual de qualquer clã na API oficial
- * do Clash of Clans.
+ * Consultar a guerra atual de qualquer clã suportado pelo
+ * Kings of Doom Command Center.
  *
- * Este serviço:
- * • autentica a requisição utilizando o token privado;
- * • recebe a tag do clã como argumento;
- * • identifica guerras indisponíveis ou privadas;
- * • retorna os dados tipados para a aplicação.
+ * Estratégia por ambiente:
+ *
+ * PRODUÇÃO
+ * - a VPS consulta diretamente a Clash API;
+ * - utiliza CLASH_API_TOKEN;
+ * - a Supercell enxerga somente o IP autorizado da VPS.
+ *
+ * DESENVOLVIMENTO
+ * - o localhost não consulta mais a Clash API diretamente;
+ * - utiliza o gateway privado hospedado na VPS;
+ * - o gateway consulta a Supercell utilizando o IP da VPS;
+ * - mudanças no IP residencial deixam de quebrar o ambiente local.
+ *
+ * Segurança:
+ *
+ * - CLASH_API_TOKEN continua exclusivamente server-side;
+ * - KOD_DEV_PROXY_SECRET autentica somente o gateway privado;
+ * - componentes da interface não conhecem nenhuma das chaves;
+ * - somente K.O.D. e K.O.D.rec podem utilizar o gateway.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 26/07/2026
+ * 16/08/2026
+ *
+ * Versão:
+ * 0.8.7
+ *
+ * Status:
+ * 🚧 Em desenvolvimento
  * ==========================================================
  */
 
 import type { CurrentWar, CurrentWarResult } from "@/types/war";
 
 /**
- * URL base utilizada para acessar a API oficial
- * do Clash of Clans.
+ * URL base da API oficial do Clash of Clans.
  */
 const CLASH_API_BASE_URL = "https://api.clashofclans.com/v1";
 
 /**
- * Consulta a guerra atual de um clã utilizando sua tag.
+ * Endereço público utilizado pelo localhost para chegar
+ * ao gateway privado da VPS.
  *
- * Exemplos:
+ * A variável permite trocar domínio/ambiente sem alterar
+ * o código-fonte.
+ */
+const DEFAULT_DEV_PROXY_BASE_URL = "https://kingsofdoom.com";
+
+/**
+ * Mapeamento restrito das tags aceitas pelo gateway.
  *
- * await getCurrentWar("#2GQ2UC2PV");
- * await getCurrentWar("#2RU9QG9CG");
+ * Não encaminhamos tags arbitrárias para a VPS.
+ */
+const supportedClanSlugByTag = {
+  "#2GQ2UC2PV": "kod",
+  "#2RU9QG9CG": "kod-rec",
+} as const;
+
+/**
+ * Estrutura retornada pelo gateway privado da VPS.
+ */
+type DevProxyCurrentWarResponse = {
+  success: boolean;
+
+  result?: CurrentWarResult;
+
+  error?: string;
+};
+
+/**
+ * Consulta a guerra atual do clã.
  *
- * @param clanTag Tag oficial do clã consultado.
- * @returns Resultado da consulta da guerra atual.
+ * O restante da aplicação continua utilizando a mesma função,
+ * independentemente do ambiente em que estiver rodando.
  */
 export async function getCurrentWar(
   clanTag: string,
 ): Promise<CurrentWarResult> {
-  /**
-   * Token privado utilizado para autenticar as requisições.
-   *
-   * Ele deve permanecer somente no servidor e nunca deve
-   * ser enviado para componentes executados no navegador.
-   */
-  const token = process.env.CLASH_API_TOKEN;
-
-  /**
-   * Interrompe a execução quando o token não está configurado.
-   */
-  if (!token) {
-    throw new Error(
-      "A variável CLASH_API_TOKEN não foi configurada no arquivo .env.local.",
-    );
-  }
-
-  /**
-   * Impede a realização de uma consulta sem tag de clã.
-   */
   if (!clanTag) {
     throw new Error(
       "Nenhuma tag de clã foi informada para a consulta da guerra.",
@@ -72,21 +96,136 @@ export async function getCurrentWar(
   }
 
   /**
-   * Converte caracteres especiais da tag para um formato
-   * seguro para utilização dentro da URL.
-   *
-   * Exemplo:
-   * #2GQ2UC2PV → %232GQ2UC2PV
+   * Em desenvolvimento, o IP residencial não deve mais
+   * participar da comunicação com a Supercell.
    */
-  const encodedClanTag = encodeURIComponent(clanTag);
+  if (process.env.NODE_ENV === "development") {
+    return getCurrentWarThroughDevProxy(clanTag);
+  }
 
   /**
-   * Realiza a consulta da guerra atual.
-   *
-   * A opção "no-store" impede o armazenamento da resposta
-   * em cache, pois os dados da guerra podem mudar rapidamente
-   * durante o período de ataques.
+   * Em produção, a VPS continua consultando diretamente
+   * a Clash API como já fazia anteriormente.
    */
+  return getCurrentWarDirectlyFromClash(clanTag);
+}
+
+/**
+ * ==========================================================
+ * DESENVOLVIMENTO — GATEWAY DA VPS
+ * ==========================================================
+ */
+
+/**
+ * Consulta o gateway privado publicado na VPS.
+ */
+async function getCurrentWarThroughDevProxy(
+  clanTag: string,
+): Promise<CurrentWarResult> {
+  const secret = process.env.KOD_DEV_PROXY_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      "A variável KOD_DEV_PROXY_SECRET não foi configurada no .env.local.",
+    );
+  }
+
+  const clanSlug =
+    supportedClanSlugByTag[clanTag as keyof typeof supportedClanSlugByTag];
+
+  if (!clanSlug) {
+    throw new Error(
+      `O clã ${clanTag} não está autorizado a utilizar o gateway de desenvolvimento.`,
+    );
+  }
+
+  /**
+   * Pode ser sobrescrito no .env.local quando necessário.
+   */
+  const proxyBaseUrl = (
+    process.env.KOD_DEV_PROXY_BASE_URL ?? DEFAULT_DEV_PROXY_BASE_URL
+  ).replace(/\/+$/, "");
+
+  const response = await fetch(
+    `${proxyBaseUrl}/api/internal/clash/current-war?clan=${encodeURIComponent(
+      clanSlug,
+    )}`,
+    {
+      headers: {
+        Accept: "application/json",
+        "x-kod-dev-proxy-secret": secret,
+      },
+
+      /**
+       * Guerra é informação dinâmica.
+       */
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    const body = (await response
+      .json()
+      .catch(() => null)) as DevProxyCurrentWarResponse | null;
+
+    console.error(
+      "[Kings of Doom] Erro ao consultar gateway de desenvolvimento:",
+      {
+        clanTag,
+        status: response.status,
+        error: body?.error,
+      },
+    );
+
+    return {
+      available: false,
+      reason: "unavailable",
+    };
+  }
+
+  const data = (await response.json()) as DevProxyCurrentWarResponse;
+
+  if (!data.success || !data.result) {
+    console.error("[Kings of Doom] Gateway retornou uma resposta inválida:", {
+      clanTag,
+      success: data.success,
+      error: data.error,
+    });
+
+    return {
+      available: false,
+      reason: "unavailable",
+    };
+  }
+
+  return data.result;
+}
+
+/**
+ * ==========================================================
+ * PRODUÇÃO — CLASH API DIRETA
+ * ==========================================================
+ */
+
+/**
+ * Consulta diretamente a API oficial.
+ *
+ * Esta função deve ser executada normalmente somente na VPS,
+ * onde o IP está autorizado na chave da Supercell.
+ */
+async function getCurrentWarDirectlyFromClash(
+  clanTag: string,
+): Promise<CurrentWarResult> {
+  const token = process.env.CLASH_API_TOKEN;
+
+  if (!token) {
+    throw new Error(
+      "A variável CLASH_API_TOKEN não foi configurada no arquivo .env.local.",
+    );
+  }
+
+  const encodedClanTag = encodeURIComponent(clanTag);
+
   const response = await fetch(
     `${CLASH_API_BASE_URL}/clans/${encodedClanTag}/currentwar`,
     {
@@ -101,9 +240,6 @@ export async function getCurrentWar(
 
   /**
    * Trata respostas de erro da Clash API.
-   *
-   * Nem todo status 403 significa histórico privado.
-   * Ele também pode indicar token inválido ou IP não autorizado.
    */
   if (!response.ok) {
     const errorData = (await response.json().catch(() => null)) as {
@@ -111,10 +247,6 @@ export async function getCurrentWar(
       message?: string;
     } | null;
 
-    /**
-     * Registra o erro somente no servidor para diagnóstico.
-     * O token nunca é exibido.
-     */
     console.error("[Kings of Doom] Erro ao consultar guerra:", {
       clanTag,
       status: response.status,
@@ -122,10 +254,6 @@ export async function getCurrentWar(
       message: errorData?.message,
     });
 
-    /**
-     * Identifica especificamente quando a API informa
-     * que o histórico de guerra está privado.
-     */
     const apiErrorText = [errorData?.reason, errorData?.message]
       .filter(Boolean)
       .join(" ")
@@ -138,25 +266,17 @@ export async function getCurrentWar(
       };
     }
 
-    /**
-     * Outros erros, inclusive IP não autorizado,
-     * são tratados como indisponibilidade da API.
-     */
     return {
       available: false,
       reason: "unavailable",
     };
   }
 
-  /**
-   * Converte a resposta da API para o tipo utilizado
-   * internamente pela aplicação.
-   */
   const war = (await response.json()) as CurrentWar;
 
   /**
-   * A API pode responder corretamente, mas informar que
-   * o clã não participa de nenhuma guerra neste momento.
+   * A API pode responder corretamente mesmo quando
+   * o clã não está participando de guerra.
    */
   if (war.state === "notInWar") {
     return {
@@ -165,10 +285,6 @@ export async function getCurrentWar(
     };
   }
 
-  /**
-   * Quando existe uma guerra ativa ou em preparação,
-   * devolvemos os dados completos para o Dashboard.
-   */
   return {
     available: true,
     war,

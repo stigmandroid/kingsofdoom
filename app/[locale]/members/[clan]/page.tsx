@@ -56,7 +56,7 @@ export function generateStaticParams() {
  * Renderiza a página completa de membros.
  */
 export default async function MembersPage({ params }: MembersPageProps) {
-  const { clan: clanSlug } = await params;
+  const { locale, clan: clanSlug } = await params;
 
   /**
    * Localiza o clã solicitado no catálogo central.
@@ -106,7 +106,12 @@ export default async function MembersPage({ params }: MembersPageProps) {
         </div>
       </section>
 
-      <ClanMembers members={members} clanName={clan.name} />
+      <ClanMembers
+        members={members}
+        clanName={clan.name}
+        locale={locale}
+        clanSlug={clanSlug}
+      />
     </main>
   );
 }

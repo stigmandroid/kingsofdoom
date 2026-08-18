@@ -20,7 +20,7 @@
 
 import type { ClanMember } from "@/types/clan";
 import type { ClanMemberWithPlayer } from "@/types/player";
-
+import Link from "next/link";
 import { RoleBadge } from "./RoleBadge";
 import { TownHallBadge } from "./TownHallBadge";
 
@@ -29,6 +29,8 @@ type MemberCardProps = {
    * Dados resumidos do membro e dados detalhados do jogador.
    */
   data: ClanMemberWithPlayer<ClanMember>;
+  locale: string;
+  clanSlug: string;
 };
 
 /**
@@ -42,12 +44,16 @@ const numberFormatter = new Intl.NumberFormat("pt-BR");
 /**
  * Renderiza o card individual de um membro do clã.
  */
-export function MemberCard({ data }: MemberCardProps) {
+export function MemberCard({ data, locale, clanSlug }: MemberCardProps) {
   /**
    * Facilita o acesso aos dois objetos sem misturar suas
    * respectivas responsabilidades.
    */
   const { member, player } = data;
+
+  const playerTagForUrl = member.tag.replace(/^#/, "");
+
+  const profileHref = `/${locale}/members/${clanSlug}/${playerTagForUrl}`;
 
   /**
    * O endpoint individual possui prioridade para a liga.
@@ -121,8 +127,16 @@ export function MemberCard({ data }: MemberCardProps) {
             </span>
           </div>
 
-          <div className="mt-3">
+          <div className="mt-3 flex items-center justify-between gap-3">
             <RoleBadge role={member.role} />
+
+            <Link
+              href={profileHref}
+              className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-xs font-bold text-amber-300 transition hover:border-amber-400/60 hover:bg-amber-400/15 hover:text-amber-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              aria-label={`Ver perfil de ${member.name}`}
+            >
+              Ver perfil
+            </Link>
           </div>
         </div>
       </header>

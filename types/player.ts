@@ -332,6 +332,23 @@ export interface Player {
    * Heróis desbloqueados pelo jogador.
    */
   heroes?: PlayerHero[];
+
+  /**
+   * Inventário completo de equipamentos de herói.
+   */
+  heroEquipment?: PlayerHeroEquipment[];
+
+  /**
+   * Unidades desbloqueadas e seus respectivos níveis.
+   *
+   * A API mistura diferentes categorias neste array.
+   */
+  troops?: PlayerTroop[];
+
+  /**
+   * Feitiços desbloqueados e seus respectivos níveis.
+   */
+  spells?: PlayerSpell[];
 }
 
 /**
@@ -356,4 +373,28 @@ export interface ClanMemberWithPlayer<TClanMember> {
    * permitindo que os demais membros continuem aparecendo.
    */
   player: Player | null;
+}
+
+/**
+ * Unidade retornada no array `troops` da Player API.
+ *
+ * A API utiliza esse mesmo formato para diferentes
+ * categorias de unidades, incluindo tropas, supertropas,
+ * máquinas de cerco, pets e unidades da Base do Construtor.
+ */
+export interface PlayerTroop {
+  name: string;
+  level: number;
+  maxLevel: number;
+  village: string;
+}
+
+/**
+ * Feitiço disponível para o jogador.
+ */
+export interface PlayerSpell {
+  name: string;
+  level: number;
+  maxLevel: number;
+  village: string;
 }

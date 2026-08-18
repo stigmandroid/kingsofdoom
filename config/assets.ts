@@ -148,3 +148,75 @@ export function getTownHallAsset(level: number): TownHallAsset | undefined {
 
   return townHallAssets[level];
 }
+
+/**
+ * ==========================================================
+ * PLAYER ASSETS
+ * ==========================================================
+ */
+
+/**
+ * Configuração visual genérica para recursos do jogo.
+ *
+ * O mesmo contrato poderá ser reutilizado futuramente para
+ * heróis, equipamentos, tropas, feitiços, pets e máquinas
+ * de cerco.
+ */
+export type GameAsset = {
+  src: string;
+  alt: string;
+  scale?: number;
+  translateX?: number;
+  translateY?: number;
+};
+
+/**
+ * Recursos visuais dos heróis da Vila Principal.
+ *
+ * As chaves correspondem exatamente aos nomes retornados
+ * pela Clash of Clans API.
+ */
+export const heroAssets: Record<string, GameAsset> = {
+  "Barbarian King": {
+    src: "/game-assets/heroes/barbarian-king.png",
+    alt: "Rei Bárbaro",
+  },
+
+  "Archer Queen": {
+    src: "/game-assets/heroes/archer-queen.png",
+    alt: "Rainha Arqueira",
+  },
+
+  "Grand Warden": {
+    src: "/game-assets/heroes/grand-warden.png",
+    alt: "Grande Guardião",
+  },
+
+  "Royal Champion": {
+    src: "/game-assets/heroes/royal-champion.png",
+    alt: "Campeã Real",
+  },
+
+  "Minion Prince": {
+    src: "/game-assets/heroes/minion-prince.png",
+    alt: "Príncipe Servo",
+  },
+
+  "Dragon Duke": {
+    src: "/game-assets/heroes/dragon-duke.png",
+    alt: "Duque Dracônico",
+  },
+};
+
+/**
+ * Recupera o recurso visual correspondente ao herói.
+ */
+export function getHeroAsset(
+  heroName: string | undefined,
+): GameAsset | undefined {
+  if (!heroName) {
+    return undefined;
+  }
+
+  return heroAssets[heroName];
+}

@@ -36,12 +36,19 @@ type ClanMembersProps = {
    * Nome do clã utilizado no título acessível da seção.
    */
   clanName: string;
+  locale: string;
+  clanSlug: string;
 };
 
 /**
  * Renderiza a seção completa de membros do clã.
  */
-export function ClanMembers({ members, clanName }: ClanMembersProps) {
+export function ClanMembers({
+  members,
+  clanName,
+  locale,
+  clanSlug,
+}: ClanMembersProps) {
   /**
    * A ordenação utiliza o objeto resumido do membro,
    * pois `clanRank` pertence ao endpoint do clã.
@@ -85,7 +92,12 @@ export function ClanMembers({ members, clanName }: ClanMembersProps) {
       {sortedMembers.length > 0 ? (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {sortedMembers.map((member) => (
-            <MemberCard key={member.member.tag} data={member} />
+            <MemberCard
+              key={member.member.tag}
+              data={member}
+              locale={locale}
+              clanSlug={clanSlug}
+            />
           ))}
         </div>
       ) : (

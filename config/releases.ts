@@ -145,10 +145,106 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.8.8",
+    title: "Player Profiles & Hero Equipment",
+    date: "2026-08-18",
+    current: true,
+    summary:
+      "Início dos perfis individuais de jogadores e da fundação visual do Player Intelligence, com navegação a partir do módulo de Membros, dados reais da Player API, heróis e catálogo completo de equipamentos com assets locais, níveis, raridades e experiência responsiva.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Perfil individual do jogador",
+        description:
+          "Cada membro passou a possuir uma página individual acessível diretamente pelo módulo de Membros através de uma rota dinâmica baseada no clã e na tag do jogador.",
+      },
+      {
+        type: "feature",
+        title: "Dados individuais da Player API",
+        description:
+          "O perfil passou a utilizar os dados reais do jogador para apresentar informações como Centro de Vila, experiência, troféus, liga, doações e estrelas de guerra.",
+      },
+      {
+        type: "feature",
+        title: "Heróis do jogador",
+        description:
+          "Criação de uma área visual dedicada aos heróis desbloqueados, apresentando seus níveis atuais e assets próprios.",
+      },
+      {
+        type: "feature",
+        title: "Equipamentos de Herói",
+        description:
+          "O perfil passou a apresentar os equipamentos de herói desbloqueados pelo jogador e seus respectivos níveis atuais.",
+      },
+      {
+        type: "feature",
+        title: "Assets oficiais dos equipamentos",
+        description:
+          "Foi criado um catálogo local de imagens dos equipamentos utilizando assets obtidos do Fan Kit oficial e organizados para reutilização pela aplicação.",
+      },
+      {
+        type: "improvement",
+        title: "Raridade dos equipamentos",
+        description:
+          "Os cards passaram a diferenciar visualmente equipamentos comuns e épicos através de fundos, bordas e tonalidades específicas para cada raridade.",
+      },
+      {
+        type: "improvement",
+        title: "Indicador visual de nível máximo",
+        description:
+          "A antiga indicação textual de MAX foi substituída por um contorno visual aplicado diretamente ao nível numérico do equipamento, reduzindo ruído e aproximando a interface da linguagem visual do jogo.",
+      },
+      {
+        type: "improvement",
+        title: "Experiência responsiva dos equipamentos",
+        description:
+          "A grade de equipamentos foi adaptada para desktop e dispositivos móveis, mantendo densidade de informação, legibilidade e identificação rápida dos níveis.",
+      },
+      {
+        type: "fix",
+        title: "Asset da Lança-Foguetes",
+        description:
+          "O asset incorreto da Lança-Foguetes foi substituído pela representação visual correspondente ao equipamento utilizado no jogo.",
+      },
+      {
+        type: "feature",
+        title: "Baralho Vingativo",
+        description:
+          "O novo equipamento Baralho Vingativo foi integrado ao catálogo visual e passou a ser apresentado corretamente quando retornado pela Player API.",
+      },
+      {
+        type: "technical",
+        title: "Catálogo centralizado de equipamentos",
+        description:
+          "Foi criada uma camada de mapeamento entre os nomes retornados pela Clash API e os assets locais utilizados pela interface.",
+      },
+      {
+        type: "technical",
+        title: "Fallback de assets",
+        description:
+          "Equipamentos sem imagem correspondente permanecem renderizáveis através de um fallback seguro, evitando quebra da página quando novos equipamentos forem adicionados pela API.",
+      },
+      {
+        type: "technical",
+        title: "Fundação do Player Intelligence",
+        description:
+          "A arquitetura do perfil individual foi preparada para receber tropas, feitiços, máquinas de cerco, pets, conquistas e posteriormente o histórico persistido de guerras e CWL.",
+      },
+      {
+        type: "technical",
+        title: "Build de produção validado",
+        description:
+          "A nova estrutura dos perfis, heróis, assets e equipamentos foi validada com sucesso no build de produção do Next.js 16.2.11 utilizando Turbopack.",
+      },
+    ],
+  },
+
+  {
     version: "0.8.7",
     title: "Members Module & Development Gateway",
     date: "2026-08-16",
-    current: true,
+    current: false,
     summary:
       "Criação do módulo dedicado de Membros e conclusão do gateway privado de desenvolvimento, permitindo navegar entre os clãs preservando o contexto e utilizar dados reais da Clash API no ambiente local sem depender do IP residencial.",
 

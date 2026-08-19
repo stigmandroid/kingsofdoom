@@ -45,6 +45,7 @@ import { getClanBySlug } from "@/config/clans";
 import { getClan } from "@/services/clan.service";
 import { getPlayer } from "@/services/player.service";
 import { HeroTile } from "@/components/player/HeroTile";
+import { EquipmentTile } from "@/components/player/EquipmentTile";
 
 import type { PlayerHero } from "@/types/player";
 
@@ -370,6 +371,50 @@ export default async function PlayerProfilePage({
              * Principal for retornado pela Player API.
              */
             <EmptyState text="Nenhum herói da Vila Principal foi retornado pela API." />
+          )}
+        </div>
+      </section>
+
+      {/**
+       * ======================================================
+       * EQUIPAMENTOS DE HERÓI
+       * ======================================================
+       *
+       * A API retorna o inventário completo de equipamentos
+       * desbloqueados pelo jogador por meio de
+       * `player.heroEquipment`.
+       *
+       * A apresentação utiliza uma grade visual compacta,
+       * seguindo a mesma linguagem utilizada nos heróis.
+       */}
+
+      <section className="border-b border-slate-800">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="Exército"
+            title="Equipamentos de Herói"
+            description="Níveis atuais dos equipamentos desbloqueados pelo jogador."
+          />
+
+          {player.heroEquipment && player.heroEquipment.length > 0 ? (
+            /**
+             * Quatro colunas no mobile equilibram densidade
+             * visual e legibilidade.
+             *
+             * Em telas maiores aumentamos progressivamente a
+             * quantidade de itens por linha.
+             */
+            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+              {player.heroEquipment.map((equipment) => (
+                <EquipmentTile key={equipment.name} equipment={equipment} />
+              ))}
+            </div>
+          ) : (
+            /**
+             * Fallback utilizado quando a Player API não
+             * retornar equipamentos para o jogador.
+             */
+            <EmptyState text="Nenhum equipamento de herói foi retornado pela API." />
           )}
         </div>
       </section>

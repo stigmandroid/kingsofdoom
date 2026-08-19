@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 16/08/2026
+# 18/08/2026
 
 #
 
 # Versão:
 
-# v0.8.6
+# v0.8.8
 
 #
 
@@ -78,15 +78,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.8.6`
+`v0.8.8`
 
 **Fase do projeto**
 
-`War Intelligence — conclusão`
+`Player Intelligence — fundação`
 
 **Objetivo atual**
 
-Concluir a inteligência operacional das guerras normais antes de iniciar a próxima grande fase da plataforma.
+Construir os perfis individuais dos jogadores, consolidando a apresentação visual dos dados retornados pela Player API e preparando a integração futura com histórico de guerras, CWL e indicadores individuais de desempenho.
 
 ---
 
@@ -1099,6 +1099,98 @@ Separar a gestão e consulta de membros do Dashboard principal e consolidar uma 
 ⬜ Integração futura com Raid Weekend
 
 ⬜ Integração futura com Jogos do Clã
+
+---
+
+---
+
+# ✅ v0.8.8 — Player Profiles & Hero Equipment
+
+## Objetivo
+
+Iniciar a construção dos perfis individuais dos jogadores e estabelecer a fundação visual do Player Intelligence, permitindo consultar informações detalhadas de cada membro e acompanhar a evolução de heróis e equipamentos diretamente a partir dos dados da Clash API.
+
+### Entregas concluídas
+
+✅ Página individual de cada jogador
+
+✅ Rota dinâmica de perfil por clã e playerTag
+
+✅ Navegação direta da página de Membros para o perfil individual
+
+✅ Integração com dados reais da Player API
+
+✅ Cabeçalho individual do jogador
+
+✅ Exibição de tag, Centro de Vila, nível de experiência e troféus
+
+✅ Exibição da liga atual do jogador
+
+✅ Exibição de doações realizadas e recebidas
+
+✅ Exibição de estrelas de guerra
+
+✅ Seção dedicada ao Exército
+
+✅ Cards individuais dos heróis
+
+✅ Exibição dos níveis atuais dos heróis
+
+✅ Identificação visual de heróis no nível máximo
+
+✅ Integração de assets visuais oficiais dos heróis
+
+✅ Catálogo visual de equipamentos de herói
+
+✅ Integração dos equipamentos retornados pela Clash API
+
+✅ Assets locais dos equipamentos obtidos através do Fan Kit oficial
+
+✅ Organização centralizada dos assets dos equipamentos
+
+✅ Exibição do nível atual de cada equipamento
+
+✅ Identificação visual de equipamentos no nível máximo através do contorno do nível
+
+✅ Diferenciação visual entre equipamentos comuns e épicos
+
+✅ Paleta visual própria para raridade comum
+
+✅ Paleta visual própria para raridade épica
+
+✅ Layout responsivo dos equipamentos para desktop e mobile
+
+✅ Correção do asset visual da Lança-Foguetes
+
+✅ Integração visual do Baralho Vingativo
+
+✅ Fallback seguro para equipamentos sem asset disponível
+
+✅ Build de produção validado com Next.js 16.2.11 e Turbopack
+
+### Player Intelligence — próxima evolução
+
+⬜ Tropas
+
+⬜ Feitiços
+
+⬜ Máquinas de Cerco
+
+⬜ Pets
+
+⬜ Conquistas
+
+⬜ Histórico de guerras por jogador
+
+⬜ Histórico de desempenho na CWL
+
+⬜ Estatísticas ofensivas individuais
+
+⬜ Estatísticas defensivas individuais
+
+⬜ Evolução histórica do jogador
+
+⬜ Índice de consistência
 
 ---
 

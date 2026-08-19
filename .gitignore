@@ -61,3 +61,11 @@ data/*.sqlite-shm
 
 backups/*
 !backups/.gitkeep
+
+# Fan Kit / arquivos temporários de desenvolvimento
+downloads/
+fankit-links.txt
+fankit-network.txt
+clan-raw.json
+player-raw.json
+cwl-kod-export.sqlite

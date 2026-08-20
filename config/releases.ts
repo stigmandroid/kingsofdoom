@@ -145,10 +145,112 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.8.9",
+    title: "Player Army & Pets",
+    date: "2026-08-19",
+    current: true,
+    summary:
+      "Expansão do perfil individual do jogador com a integração completa do Exército da Vila Principal, adicionando tropas, feitiços, Máquinas de Cerco e Pets com assets locais, níveis atuais, identificação visual de nível máximo e experiência responsiva.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Tropas da Vila Principal",
+        description:
+          "O perfil individual passou a apresentar as tropas da Vila Principal retornadas pela Player API, com seus níveis atuais e assets visuais próprios.",
+      },
+      {
+        type: "feature",
+        title: "Feitiços",
+        description:
+          "Foi adicionada uma seção dedicada aos feitiços da Vila Principal, apresentando níveis atuais e representação visual individual de cada feitiço.",
+      },
+      {
+        type: "feature",
+        title: "Máquinas de Cerco",
+        description:
+          "O perfil passou a exibir as Máquinas de Cerco desbloqueadas pelo jogador, separadas das tropas normais e apresentadas em uma seção própria.",
+      },
+      {
+        type: "feature",
+        title: "Pets",
+        description:
+          "Foi criada uma seção dedicada aos Pets do jogador, exibindo os níveis atuais dos 12 Pets retornados pela Player API.",
+      },
+      {
+        type: "feature",
+        title: "Assets visuais do Exército",
+        description:
+          "Foram adicionados catálogos locais para tropas, feitiços, Máquinas de Cerco e Pets, utilizando assets obtidos e organizados a partir do Fan Kit oficial.",
+      },
+      {
+        type: "improvement",
+        title: "Indicador visual de nível máximo",
+        description:
+          "Tropas, feitiços, Máquinas de Cerco e Pets passaram a utilizar o mesmo padrão visual do perfil, destacando o nível máximo através do contorno aplicado diretamente ao número.",
+      },
+      {
+        type: "improvement",
+        title: "Identidade visual por categoria",
+        description:
+          "As novas seções receberam tratamentos visuais próprios, preservando uma linguagem consistente entre Exército, Equipamentos e Heróis.",
+      },
+      {
+        type: "improvement",
+        title: "Experiência responsiva do Exército",
+        description:
+          "As grades de tropas, feitiços, Máquinas de Cerco e Pets foram adaptadas para desktop e dispositivos móveis, mantendo densidade, legibilidade e áreas adequadas para toque.",
+      },
+      {
+        type: "technical",
+        title: "Separação das categorias da Player API",
+        description:
+          "Foi implementada uma separação explícita dos dados retornados em player.troops para distinguir tropas normais, Máquinas de Cerco, Pets, supertropas e unidades de outras vilas.",
+      },
+      {
+        type: "technical",
+        title: "Exportadores de assets do Fan Kit",
+        description:
+          "Foram criadas ferramentas internas para localizar, selecionar e exportar assets de tropas, feitiços, Máquinas de Cerco e Pets para a biblioteca pública do projeto.",
+      },
+      {
+        type: "technical",
+        title: "Catálogo centralizado do Exército",
+        description:
+          "Os novos assets passaram a ser centralizados em config/assets.ts, permitindo que os componentes visuais utilizem um mapeamento único entre os nomes da Clash API e os arquivos locais.",
+      },
+      {
+        type: "technical",
+        title: "Componentes reutilizáveis do perfil",
+        description:
+          "Foram criados componentes dedicados para Tropas, Feitiços, Máquinas de Cerco e Pets, mantendo a mesma arquitetura visual e comportamental das demais áreas do perfil.",
+      },
+      {
+        type: "technical",
+        title: "Fallback seguro de assets",
+        description:
+          "A interface permanece funcional mesmo quando um asset visual ainda não estiver disponível ou precisar de revisão, impedindo que novos conteúdos retornados pela API quebrem o perfil.",
+      },
+      {
+        type: "improvement",
+        title: "Fundação visual do Exército concluída",
+        description:
+          "O perfil individual passou a oferecer uma visão ampla do estado atual do exército do jogador, preparando a próxima etapa do Player Intelligence.",
+      },
+      {
+        type: "technical",
+        title: "Build de produção validado",
+        description:
+          "A integração das novas categorias do perfil foi validada com sucesso no build de produção do Next.js 16.2.11 utilizando Turbopack.",
+      },
+    ],
+  },
+
+  {
     version: "0.8.8",
     title: "Player Profiles & Hero Equipment",
     date: "2026-08-18",
-    current: true,
+    current: false,
     summary:
       "Início dos perfis individuais de jogadores e da fundação visual do Player Intelligence, com navegação a partir do módulo de Membros, dados reais da Player API, heróis e catálogo completo de equipamentos com assets locais, níveis, raridades e experiência responsiva.",
 

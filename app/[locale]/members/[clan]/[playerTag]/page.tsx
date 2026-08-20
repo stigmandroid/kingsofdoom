@@ -46,7 +46,10 @@ import { getClan } from "@/services/clan.service";
 import { getPlayer } from "@/services/player.service";
 import { HeroTile } from "@/components/player/HeroTile";
 import { EquipmentTile } from "@/components/player/EquipmentTile";
-
+import { TroopTile } from "@/components/player/TroopTile";
+import { SpellTile } from "@/components/player/SpellTile";
+import { SiegeMachineTile } from "@/components/player/SiegeMachineTile";
+import { PetTile } from "@/components/player/PetTile";
 import type { PlayerHero } from "@/types/player";
 
 type PlayerProfilePageProps = {
@@ -144,6 +147,118 @@ export default async function PlayerProfilePage({
    * Heróis da Vila Principal.
    */
   const homeHeroes = getHomeHeroes(player.heroes);
+
+  /**
+   * ========================================================
+   * TROPAS DA VILA PRINCIPAL
+   * ========================================================
+   *
+   * O endpoint de jogador mistura no mesmo array:
+   * • tropas normais;
+   * • supertropas;
+   * • máquinas de cerco;
+   * • pets;
+   * • unidades da Base do Construtor.
+   *
+   * Por esse motivo, mantemos uma lista explícita das tropas
+   * que pertencem à seção principal do exército.
+   */
+  const homeVillageTroopNames = new Set([
+    "Barbarian",
+    "Archer",
+    "Goblin",
+    "Giant",
+    "Wall Breaker",
+    "Balloon",
+    "Wizard",
+    "Healer",
+    "Dragon",
+    "P.E.K.K.A",
+    "Minion",
+    "Hog Rider",
+    "Valkyrie",
+    "Golem",
+    "Witch",
+    "Lava Hound",
+    "Bowler",
+    "Baby Dragon",
+    "Miner",
+    "Yeti",
+    "Ice Golem",
+    "Electro Dragon",
+    "Dragon Rider",
+    "Headhunter",
+    "Electro Titan",
+    "Apprentice Warden",
+    "Root Rider",
+    "Druid",
+    "Thrower",
+    "Furnace",
+    "Meteor Golem",
+    "Ruin Witch",
+  ]);
+
+  const homeVillageTroops =
+    player.troops?.filter(
+      (troop) =>
+        troop.village === "home" && homeVillageTroopNames.has(troop.name),
+    ) ?? [];
+
+  /**
+   * ========================================================
+   * MÁQUINAS DE CERCO
+   * ========================================================
+   *
+   * A Player API devolve as Máquinas de Cerco dentro do
+   * mesmo array utilizado para tropas e pets.
+   *
+   * Mantemos uma lista explícita para separar somente as
+   * unidades pertencentes a esta categoria.
+   */
+  const siegeMachineNames = new Set([
+    "Wall Wrecker",
+    "Battle Blimp",
+    "Stone Slammer",
+    "Siege Barracks",
+    "Log Launcher",
+    "Flame Flinger",
+    "Battle Drill",
+    "Troop Launcher",
+    "Sky Wagon",
+  ]);
+
+  const siegeMachines =
+    player.troops?.filter(
+      (troop) => troop.village === "home" && siegeMachineNames.has(troop.name),
+    ) ?? [];
+
+  /**
+   * ========================================================
+   * PETS
+   * ========================================================
+   *
+   * A Player API retorna os Pets dentro do mesmo array
+   * utilizado para tropas e máquinas.
+   */
+  const petNames = new Set([
+    "L.A.S.S.I",
+    "Mighty Yak",
+    "Electro Owl",
+    "Unicorn",
+    "Phoenix",
+    "Poison Lizard",
+    "Diggy",
+    "Frosty",
+    "Spirit Fox",
+    "Angry Jelly",
+    "Sneezy",
+    "Greedy Raven",
+  ]);
+
+  const pets =
+    player.troops?.filter(
+      (troop) => troop.village === "home" && petNames.has(troop.name),
+    ) ?? [];
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -415,6 +530,115 @@ export default async function PlayerProfilePage({
              * retornar equipamentos para o jogador.
              */
             <EmptyState text="Nenhum equipamento de herói foi retornado pela API." />
+          )}
+        </div>
+      </section>
+
+      {/**
+       * ======================================================
+       * TROPAS
+       * ======================================================
+       */}
+
+      <section className="border-b border-slate-800">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="Exército"
+            title="Tropas"
+            description="Níveis atuais das tropas da Vila Principal."
+          />
+
+          {homeVillageTroops.length > 0 ? (
+            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+              {homeVillageTroops.map((troop) => (
+                <TroopTile key={troop.name} troop={troop} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState text="Nenhuma tropa da Vila Principal foi retornada pela API." />
+          )}
+        </div>
+      </section>
+
+      {/**
+       * ======================================================
+       * FEITIÇOS
+       * ======================================================
+       */}
+
+      <section className="border-b border-slate-800">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="Exército"
+            title="Feitiços"
+            description="Níveis atuais dos feitiços da Vila Principal."
+          />
+
+          {player.spells && player.spells.length > 0 ? (
+            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+              {player.spells
+                .filter((spell) => spell.village === "home")
+                .map((spell) => (
+                  <SpellTile key={spell.name} spell={spell} />
+                ))}
+            </div>
+          ) : (
+            <EmptyState text="Nenhum feitiço da Vila Principal foi retornado pela API." />
+          )}
+        </div>
+      </section>
+
+      {/**
+       * ======================================================
+       * MÁQUINAS DE CERCO
+       * ======================================================
+       */}
+
+      <section className="border-b border-slate-800">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="Exército"
+            title="Máquinas de Cerco"
+            description="Níveis atuais das Máquinas de Cerco desbloqueadas pelo jogador."
+          />
+
+          {siegeMachines.length > 0 ? (
+            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+              {siegeMachines.map((siegeMachine) => (
+                <SiegeMachineTile
+                  key={siegeMachine.name}
+                  siegeMachine={siegeMachine}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState text="Nenhuma Máquina de Cerco foi retornada pela API." />
+          )}
+        </div>
+      </section>
+
+      {/**
+       * ======================================================
+       * PETS
+       * ======================================================
+       */}
+
+      <section className="border-b border-slate-800">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="Exército"
+            title="Pets"
+            description="Níveis atuais dos Pets desbloqueados pelo jogador."
+          />
+
+          {pets.length > 0 ? (
+            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+              {pets.map((pet) => (
+                <PetTile key={pet.name} pet={pet} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState text="Nenhum Pet foi retornado pela API." />
           )}
         </div>
       </section>

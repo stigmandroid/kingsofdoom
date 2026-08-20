@@ -549,3 +549,466 @@ export function getEquipmentAsset(
 
   return equipmentAssets[equipmentName];
 }
+
+/**
+ * ==========================================================
+ * TROPAS DA VILA PRINCIPAL
+ * ==========================================================
+ */
+
+/**
+ * Catálogo visual das tropas da Vila Principal.
+ *
+ * As chaves correspondem exatamente aos nomes retornados
+ * pela Clash of Clans API.
+ */
+export const troopAssets: Record<string, GameAsset> = {
+  Barbarian: {
+    src: "/game-assets/troops/barbarian.png",
+    alt: "Bárbaro",
+  },
+
+  Archer: {
+    src: "/game-assets/troops/archer.png",
+    alt: "Arqueira",
+  },
+
+  Goblin: {
+    src: "/game-assets/troops/goblin.png",
+    alt: "Goblin",
+  },
+
+  Giant: {
+    src: "/game-assets/troops/giant.png",
+    alt: "Gigante",
+  },
+
+  "Wall Breaker": {
+    src: "/game-assets/troops/wall-breaker.png",
+    alt: "Quebra-Muros",
+  },
+
+  Balloon: {
+    src: "/game-assets/troops/balloon.png",
+    alt: "Balão",
+  },
+
+  Wizard: {
+    src: "/game-assets/troops/wizard.png",
+    alt: "Mago",
+  },
+
+  Healer: {
+    src: "/game-assets/troops/healer.png",
+    alt: "Curadora",
+  },
+
+  Dragon: {
+    src: "/game-assets/troops/dragon.png",
+    alt: "Dragão",
+  },
+
+  "P.E.K.K.A": {
+    src: "/game-assets/troops/pekka.png",
+    alt: "P.E.K.K.A",
+  },
+
+  Minion: {
+    src: "/game-assets/troops/minion.png",
+    alt: "Servo",
+  },
+
+  "Hog Rider": {
+    src: "/game-assets/troops/hog-rider.png",
+    alt: "Corredor",
+  },
+
+  Valkyrie: {
+    src: "/game-assets/troops/valkyrie.png",
+    alt: "Valquíria",
+  },
+
+  Golem: {
+    src: "/game-assets/troops/golem.png",
+    alt: "Golem",
+  },
+
+  Witch: {
+    src: "/game-assets/troops/witch.png",
+    alt: "Bruxa",
+  },
+
+  "Lava Hound": {
+    src: "/game-assets/troops/lava-hound.png",
+    alt: "Lava Hound",
+  },
+
+  Bowler: {
+    src: "/game-assets/troops/bowler.png",
+    alt: "Lançador",
+  },
+
+  "Baby Dragon": {
+    src: "/game-assets/troops/baby-dragon.png",
+    alt: "Bebê Dragão",
+  },
+
+  Miner: {
+    src: "/game-assets/troops/miner.png",
+    alt: "Mineiro",
+  },
+
+  Yeti: {
+    src: "/game-assets/troops/yeti.png",
+    alt: "Yeti",
+  },
+
+  "Ice Golem": {
+    src: "/game-assets/troops/ice-golem.png",
+    alt: "Golem de Gelo",
+  },
+
+  "Electro Dragon": {
+    src: "/game-assets/troops/electro-dragon.png",
+    alt: "Dragão Elétrico",
+  },
+
+  "Dragon Rider": {
+    src: "/game-assets/troops/dragon-rider.png",
+    alt: "Montador de Dragão",
+  },
+
+  Headhunter: {
+    src: "/game-assets/troops/headhunter.png",
+    alt: "Caçadora de Heróis",
+  },
+
+  "Electro Titan": {
+    src: "/game-assets/troops/electro-titan.png",
+    alt: "Titã Elétrica",
+  },
+
+  "Apprentice Warden": {
+    src: "/game-assets/troops/apprentice-warden.png",
+    alt: "Aprendiz de Guardião",
+  },
+
+  "Root Rider": {
+    src: "/game-assets/troops/root-rider.png",
+    alt: "Montadora de Raiz",
+  },
+
+  Druid: {
+    src: "/game-assets/troops/druid.png",
+    alt: "Druida",
+  },
+
+  Thrower: {
+    src: "/game-assets/troops/thrower.png",
+    alt: "Arremessador",
+  },
+
+  Furnace: {
+    src: "/game-assets/troops/furnace.png",
+    alt: "Fornalha",
+  },
+
+  "Meteor Golem": {
+    src: "/game-assets/troops/meteor-golem.png",
+    alt: "Golem Meteoro",
+  },
+
+  "Ruin Witch": {
+    src: "/game-assets/troops/ruin-witch.png",
+    alt: "Bruxa da Ruína",
+  },
+};
+
+/**
+ * Recupera o asset visual correspondente à tropa.
+ */
+export function getTroopAsset(
+  troopName: string | undefined,
+): GameAsset | undefined {
+  if (!troopName) {
+    return undefined;
+  }
+
+  return troopAssets[troopName];
+}
+
+/**
+ * ==========================================================
+ * FEITIÇOS DA VILA PRINCIPAL
+ * ==========================================================
+ */
+
+/**
+ * Catálogo visual dos feitiços da Vila Principal.
+ *
+ * As chaves correspondem exatamente aos nomes retornados
+ * pela Clash of Clans API.
+ */
+export const spellAssets: Record<string, GameAsset> = {
+  "Lightning Spell": {
+    src: "/game-assets/spells/lightning-spell.png",
+    alt: "Feitiço de Relâmpago",
+  },
+
+  "Healing Spell": {
+    src: "/game-assets/spells/healing-spell.png",
+    alt: "Feitiço de Cura",
+  },
+
+  "Rage Spell": {
+    src: "/game-assets/spells/rage-spell.png",
+    alt: "Feitiço de Fúria",
+  },
+
+  "Jump Spell": {
+    src: "/game-assets/spells/jump-spell.png",
+    alt: "Feitiço de Salto",
+  },
+
+  "Freeze Spell": {
+    src: "/game-assets/spells/freeze-spell.png",
+    alt: "Feitiço de Gelo",
+  },
+
+  "Poison Spell": {
+    src: "/game-assets/spells/poison-spell.png",
+    alt: "Feitiço de Veneno",
+  },
+
+  "Earthquake Spell": {
+    src: "/game-assets/spells/earthquake-spell.png",
+    alt: "Feitiço de Terremoto",
+  },
+
+  "Haste Spell": {
+    src: "/game-assets/spells/haste-spell.png",
+    alt: "Feitiço de Aceleração",
+  },
+
+  "Clone Spell": {
+    src: "/game-assets/spells/clone-spell.png",
+    alt: "Feitiço de Clone",
+  },
+
+  "Skeleton Spell": {
+    src: "/game-assets/spells/skeleton-spell.png",
+    alt: "Feitiço de Esqueletos",
+  },
+
+  "Bat Spell": {
+    src: "/game-assets/spells/bat-spell.png",
+    alt: "Feitiço de Morcegos",
+  },
+
+  "Invisibility Spell": {
+    src: "/game-assets/spells/invisibility-spell.png",
+    alt: "Feitiço de Invisibilidade",
+  },
+
+  "Recall Spell": {
+    src: "/game-assets/spells/recall-spell.png",
+    alt: "Feitiço de Retorno",
+  },
+
+  "Overgrowth Spell": {
+    src: "/game-assets/spells/overgrowth-spell.png",
+    alt: "Feitiço de Supercrescimento",
+  },
+
+  "Revive Spell": {
+    src: "/game-assets/spells/revive-spell.png",
+    alt: "Feitiço de Reviver",
+  },
+
+  "Ice Block Spell": {
+    src: "/game-assets/spells/ice-block-spell.png",
+    alt: "Feitiço de Bloco de Gelo",
+  },
+
+  "Totem Spell": {
+    src: "/game-assets/spells/totem-spell.png",
+    alt: "Feitiço de Totem",
+  },
+
+  "Angry Spell": {
+    src: "/game-assets/spells/angry-spell.png",
+    alt: "Feitiço Furioso",
+  },
+};
+
+/**
+ * Recupera o asset visual correspondente ao feitiço.
+ */
+export function getSpellAsset(
+  spellName: string | undefined,
+): GameAsset | undefined {
+  if (!spellName) {
+    return undefined;
+  }
+
+  return spellAssets[spellName];
+}
+
+/**
+ * ==========================================================
+ * MÁQUINAS DE CERCO
+ * ==========================================================
+ */
+
+/**
+ * Catálogo visual das Máquinas de Cerco.
+ *
+ * As chaves correspondem exatamente aos nomes retornados
+ * pela Clash of Clans API.
+ */
+export const siegeMachineAssets: Record<string, GameAsset> = {
+  "Wall Wrecker": {
+    src: "/game-assets/siege-machines/wall-wrecker.png",
+    alt: "Destruidor de Muros",
+  },
+
+  "Battle Blimp": {
+    src: "/game-assets/siege-machines/battle-blimp.png",
+    alt: "Dirigível de Batalha",
+  },
+
+  "Stone Slammer": {
+    src: "/game-assets/siege-machines/stone-slammer.png",
+    alt: "Lançador de Pedras",
+  },
+
+  "Siege Barracks": {
+    src: "/game-assets/siege-machines/siege-barracks.png",
+    alt: "Quartel de Cerco",
+  },
+
+  "Log Launcher": {
+    src: "/game-assets/siege-machines/log-launcher.png",
+    alt: "Lançador de Troncos",
+  },
+
+  "Flame Flinger": {
+    src: "/game-assets/siege-machines/flame-flinger.png",
+    alt: "Lançador de Chamas",
+  },
+
+  "Battle Drill": {
+    src: "/game-assets/siege-machines/battle-drill.png",
+    alt: "Broca de Batalha",
+  },
+
+  "Troop Launcher": {
+    src: "/game-assets/siege-machines/troop-launcher.png",
+    alt: "Lançador de Tropas",
+  },
+
+  "Sky Wagon": {
+    src: "/game-assets/siege-machines/sky-wagon.png",
+    alt: "Táxi Aéreo",
+  },
+};
+
+/**
+ * Recupera o asset visual correspondente à Máquina de Cerco.
+ */
+export function getSiegeMachineAsset(
+  siegeMachineName: string | undefined,
+): GameAsset | undefined {
+  if (!siegeMachineName) {
+    return undefined;
+  }
+
+  return siegeMachineAssets[siegeMachineName];
+}
+
+/**
+ * ==========================================================
+ * PETS
+ * ==========================================================
+ */
+
+/**
+ * Catálogo visual dos Pets.
+ *
+ * As chaves correspondem exatamente aos nomes retornados
+ * pela Clash of Clans API.
+ */
+export const petAssets: Record<string, GameAsset> = {
+  "L.A.S.S.I": {
+    src: "/game-assets/pets/lassi.png",
+    alt: "L.A.S.S.I",
+  },
+
+  "Mighty Yak": {
+    src: "/game-assets/pets/mighty-yak.png",
+    alt: "Iaque Poderoso",
+  },
+
+  "Electro Owl": {
+    src: "/game-assets/pets/electro-owl.png",
+    alt: "Coruja Elétrica",
+  },
+
+  Unicorn: {
+    src: "/game-assets/pets/unicorn.png",
+    alt: "Unicórnio",
+  },
+
+  Phoenix: {
+    src: "/game-assets/pets/phoenix.png",
+    alt: "Fênix",
+  },
+
+  "Poison Lizard": {
+    src: "/game-assets/pets/poison-lizard.png",
+    alt: "Lagarto Venenoso",
+  },
+
+  Diggy: {
+    src: "/game-assets/pets/diggy.png",
+    alt: "Diggy",
+  },
+
+  Frosty: {
+    src: "/game-assets/pets/frosty.png",
+    alt: "Frosty",
+  },
+
+  "Spirit Fox": {
+    src: "/game-assets/pets/spirit-fox.png",
+    alt: "Raposa Espiritual",
+  },
+
+  "Angry Jelly": {
+    src: "/game-assets/pets/angry-jelly.png",
+    alt: "Água-viva Furiosa",
+  },
+
+  Sneezy: {
+    src: "/game-assets/pets/sneezy.png",
+    alt: "Sneezy",
+  },
+
+  "Greedy Raven": {
+    src: "/game-assets/pets/greedy-raven.png",
+    alt: "Corvo Ganancioso",
+  },
+};
+
+/**
+ * Recupera o asset visual correspondente ao Pet.
+ */
+export function getPetAsset(
+  petName: string | undefined,
+): GameAsset | undefined {
+  if (!petName) {
+    return undefined;
+  }
+
+  return petAssets[petName];
+}

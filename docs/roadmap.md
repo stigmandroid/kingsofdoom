@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 18/08/2026
+# 19/08/2026
 
 #
 
 # Versão:
 
-# v0.8.8
+# v0.8.9
 
 #
 
@@ -78,15 +78,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.8.8`
+`v0.8.9`
 
 **Fase do projeto**
 
-`Player Intelligence — fundação`
+`Player Intelligence — consolidação do perfil`
 
 **Objetivo atual**
 
-Construir os perfis individuais dos jogadores, consolidando a apresentação visual dos dados retornados pela Player API e preparando a integração futura com histórico de guerras, CWL e indicadores individuais de desempenho.
+Concluir e refinar o perfil individual dos jogadores, consolidando Heróis, Equipamentos, Tropas, Feitiços, Máquinas de Cerco e Pets em uma experiência visual completa e responsiva, antes de avançar para conquistas, histórico persistido de guerras e CWL e indicadores individuais de desempenho.
 
 ---
 
@@ -1177,6 +1177,102 @@ Iniciar a construção dos perfis individuais dos jogadores e estabelecer a fund
 ⬜ Máquinas de Cerco
 
 ⬜ Pets
+
+⬜ Conquistas
+
+⬜ Histórico de guerras por jogador
+
+⬜ Histórico de desempenho na CWL
+
+⬜ Estatísticas ofensivas individuais
+
+⬜ Estatísticas defensivas individuais
+
+⬜ Evolução histórica do jogador
+
+⬜ Índice de consistência
+
+---
+
+# ✅ v0.8.9 — Player Army & Pets
+
+## Objetivo
+
+Expandir o perfil individual dos jogadores e avançar o Player Intelligence através da integração visual do Exército da Vila Principal, permitindo consultar tropas, feitiços, Máquinas de Cerco e Pets diretamente a partir dos dados retornados pela Clash API.
+
+### Entregas concluídas
+
+✅ Seção visual de Tropas da Vila Principal
+
+✅ Integração das tropas retornadas pela Player API
+
+✅ Exibição dos níveis atuais das tropas
+
+✅ Identificação visual de tropas no nível máximo
+
+✅ Catálogo local de assets das tropas
+
+✅ Seção visual de Feitiços
+
+✅ Integração dos feitiços retornados pela Player API
+
+✅ Exibição dos níveis atuais dos feitiços
+
+✅ Identificação visual de feitiços no nível máximo
+
+✅ Catálogo local de assets dos feitiços
+
+✅ Integração dos feitiços mais recentes retornados pela API
+
+✅ Seção visual de Máquinas de Cerco
+
+✅ Separação das Máquinas de Cerco das tropas convencionais
+
+✅ Integração das Máquinas de Cerco retornadas pela Player API
+
+✅ Exibição dos níveis atuais das Máquinas de Cerco
+
+✅ Identificação visual de Máquinas de Cerco no nível máximo
+
+✅ Catálogo local de assets das Máquinas de Cerco
+
+✅ Seção visual de Pets
+
+✅ Integração dos Pets retornados pela Player API
+
+✅ Suporte aos 12 Pets atualmente retornados pela API
+
+✅ Exibição dos níveis atuais dos Pets
+
+✅ Identificação visual de Pets no nível máximo
+
+✅ Catálogo local de assets dos Pets
+
+✅ Organização centralizada dos novos assets do Exército
+
+✅ Integração dos assets obtidos através do Fan Kit oficial
+
+✅ Criação de scripts internos para busca, classificação, seleção e exportação de assets do Fan Kit
+
+✅ Componentes visuais reutilizáveis para Tropas, Feitiços, Máquinas de Cerco e Pets
+
+✅ Fallback seguro para unidades sem asset visual disponível
+
+✅ Layout responsivo das novas categorias para desktop e mobile
+
+✅ Expansão da fundação visual do Player Intelligence
+
+✅ Build de produção validado com Next.js 16.2.11 e Turbopack
+
+### Pendências visuais
+
+⬜ Revisar assets de algumas tropas recentes que ainda não correspondem exatamente aos ícones utilizados no jogo
+
+⬜ Revisar assets de algumas Máquinas de Cerco que ainda não correspondem exatamente aos ícones utilizados no jogo
+
+⬜ Corrigir definitivamente a nomenclatura visual de Sky Wagon para Táxi Aéreo e garantir sua exibição exclusiva em Máquinas de Cerco
+
+### Player Intelligence — próxima evolução
 
 ⬜ Conquistas
 

@@ -55,6 +55,10 @@ import { PetTile } from "@/components/player/PetTile";
 import { TrophyLeaguePanel } from "@/components/player/TrophyLeaguePanel";
 import { captureTrophyLeagueSnapshot } from "@/services/trophy-league-snapshot.service";
 import { getTrophyLeaguePlayerSeasonHistory } from "@/services/trophy-league-season-history.service";
+import { getTrophyLeagueBattles } from "@/services/trophy-league-battle.service";
+import { PlayerWarHistoryPanel } from "@/components/player/PlayerWarHistoryPanel";
+
+import { getPlayerWarHistory } from "@/services/player-war-history.service";
 import type { PlayerHero } from "@/types/player";
 
 type PlayerProfilePageProps = {
@@ -207,6 +211,27 @@ export default async function PlayerProfilePage({
 
   /**
    * ========================================================
+   * BATALHAS REAIS DA LIGA DE TROFÉUS
+   * ========================================================
+   */
+
+  let trophyLeagueBattles = null;
+
+  try {
+    trophyLeagueBattles = await getTrophyLeagueBattles(player);
+  } catch (error) {
+    console.error(
+      "[PlayerProfile] Não foi possível carregar as batalhas da Liga de Troféus:",
+      {
+        playerTag: player.tag,
+
+        error,
+      },
+    );
+  }
+
+  /**
+   * ========================================================
    * TROPAS DA VILA PRINCIPAL
    * ========================================================
    *
@@ -316,6 +341,27 @@ export default async function PlayerProfilePage({
     player.troops?.filter(
       (troop) => troop.village === "home" && petNames.has(troop.name),
     ) ?? [];
+
+  /**
+   * ========================================================
+   * HISTÓRICO INDIVIDUAL DE GUERRAS
+   * ========================================================
+   */
+
+  let playerWarHistory = null;
+
+  try {
+    playerWarHistory = getPlayerWarHistory(player.tag);
+  } catch (error) {
+    console.error(
+      "[PlayerProfile] Não foi possível carregar o histórico de guerras:",
+      {
+        playerTag: player.tag,
+
+        error,
+      },
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -512,6 +558,7 @@ export default async function PlayerProfilePage({
         bestTrophies={player.bestTrophies}
         isLegendOne={trophyLeagueContribution.isLegendOne}
         season={currentTrophyLeagueSeason}
+        battles={trophyLeagueBattles}
       />
 
       {/**
@@ -622,11 +669,8 @@ export default async function PlayerProfilePage({
             não utilizados e desempenho ao longo do tempo.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <FutureModule
-              title="Guerras"
-              description="Histórico individual de ataques e desempenho."
-            />
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            <PlayerWarHistoryPanel history={playerWarHistory} />
 
             <FutureModule
               title="CWL"

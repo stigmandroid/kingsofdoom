@@ -145,10 +145,148 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.0",
+    title: "Trophy League & Season Intelligence",
+    date: "2026-08-23",
+    current: true,
+    summary:
+      "Expansão do Player Intelligence com a integração da Liga de Troféus ao perfil individual, adicionando cálculo validado da contribuição para a pontuação do clã, snapshots persistidos, histórico por temporada, reconstrução de movimentações observadas, inferência experimental de estrelas e uma nova interface responsiva para acompanhamento do desempenho ranqueado.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Liga de Troféus no perfil individual",
+        description:
+          "O perfil individual passou a apresentar a liga atual do jogador, pontuação observada da temporada, peso-base da liga, contribuição estimada para a pontuação do clã e melhor marca histórica.",
+      },
+      {
+        type: "feature",
+        title: "Contribuição individual para o Clan Score",
+        description:
+          "Foi implementado o cálculo do peso individual utilizado na composição da pontuação do clã, considerando a posição estrutural do jogador na Liga de Troféus e as regras observadas no sistema ranqueado.",
+      },
+      {
+        type: "technical",
+        title: "Validação da regra Top 30 do Clan Score",
+        description:
+          "A composição da pontuação oficial do clã foi auditada e reproduzida através da soma das 30 maiores contribuições individuais, com correspondência exata aos valores retornados pela Clash API para K.O.D. e K.O.D.rec.",
+      },
+      {
+        type: "technical",
+        title: "Auditoria automática do Clan Score",
+        description:
+          "Foi criado um mecanismo interno de auditoria capaz de comparar a pontuação calculada pelo Command Center com o clanPoints oficial retornado pela Clash API, incluindo diferença e status de correspondência.",
+      },
+      {
+        type: "feature",
+        title: "Snapshots da Liga de Troféus",
+        description:
+          "Foi criada uma estrutura persistente em SQLite para registrar snapshots do estado ranqueado dos jogadores e construir progressivamente um histórico próprio da Liga de Troféus.",
+      },
+      {
+        type: "technical",
+        title: "Coleta dos membros dos clãs monitorados",
+        description:
+          "O coletor da Liga de Troféus passou a processar os membros de K.O.D. e K.O.D.rec, associando cada snapshot ao clã monitorado e preservando os dados necessários para análises posteriores.",
+      },
+      {
+        type: "technical",
+        title: "Deduplicação de snapshots",
+        description:
+          "A persistência passou a distinguir jogadores alterados de jogadores sem mudanças relevantes, evitando a criação desnecessária de snapshots idênticos durante novas coletas.",
+      },
+      {
+        type: "feature",
+        title: "Histórico observado do jogador",
+        description:
+          "Foi implementada a reconstrução cronológica das movimentações do jogador a partir dos snapshots persistidos, permitindo acompanhar pontuação inicial, pontuação atual, variação observada e evolução ao longo das capturas.",
+      },
+      {
+        type: "feature",
+        title: "Histórico separado por temporada",
+        description:
+          "Os snapshots passaram a ser organizados por leagueSeasonId, criando a fundação para consultar temporadas atuais e históricas individualmente no Player Intelligence.",
+      },
+      {
+        type: "feature",
+        title: "Registro da temporada",
+        description:
+          "Foi criada uma nova área visual no perfil para apresentar os movimentos reconstruídos da temporada através das categorias Observados, Ataques e Defesas.",
+      },
+      {
+        type: "technical",
+        title: "Classificação de movimentos observados",
+        description:
+          "Foi criada uma camada de interpretação para classificar variações entre snapshots sem transformar inferências em dados confirmados, distinguindo movimentos possíveis, períodos sem alteração e intervalos agregados.",
+      },
+      {
+        type: "technical",
+        title: "Tratamento de movimentos agregados",
+        description:
+          "Variações incompatíveis com o limite de uma única batalha passaram a ser identificadas como movimentos agregados, preservando a integridade da análise quando múltiplos eventos ocorrerem entre duas capturas.",
+      },
+      {
+        type: "feature",
+        title: "Inferência experimental de estrelas",
+        description:
+          "Foi implementada uma regra empírica inicial para estimar estrelas a partir dos pontos observados em uma batalha, incluindo suporte a resultados de zero estrela e mantendo a classificação explicitamente sujeita a refinamentos com novos dados reais.",
+      },
+      {
+        type: "technical",
+        title: "Fundação para interpretação defensiva",
+        description:
+          "A lógica de batalha passou a considerar a relação entre os pontos preservados pelo defensor e os pontos obtidos pelo atacante, preparando a reconstrução visual futura dos resultados defensivos.",
+      },
+      {
+        type: "improvement",
+        title: "Interface compacta do registro da temporada",
+        description:
+          "Os resultados observados passaram a utilizar cards menores e uma grade de alta densidade, permitindo acomodar vários movimentos simultaneamente e reduzindo a necessidade de rolagem vertical.",
+      },
+      {
+        type: "improvement",
+        title: "Navegação entre Observados, Ataques e Defesas",
+        description:
+          "O registro da temporada recebeu navegação dedicada entre movimentos observados, ataques e defesas, preparando a interface para temporadas com grandes quantidades de batalhas.",
+      },
+      {
+        type: "improvement",
+        title: "Centralização dos indicadores da temporada",
+        description:
+          "Os indicadores de Ataques, Defesas e Observados foram reorganizados e centralizados para melhorar equilíbrio visual e leitura em dispositivos móveis.",
+      },
+      {
+        type: "improvement",
+        title: "Navegação responsiva do Arsenal",
+        description:
+          "O menu de categorias do Arsenal deixou de utilizar rolagem horizontal no mobile e passou a organizar Heróis, Equipamentos, Tropas, Feitiços, Cerco e Pets em uma grade centralizada de duas linhas.",
+      },
+      {
+        type: "improvement",
+        title: "Densidade visual do perfil",
+        description:
+          "O painel ranqueado e seus elementos internos foram compactados para reduzir espaços vazios, melhorar a utilização da área disponível e evitar crescimento excessivo da página conforme o histórico da temporada aumentar.",
+      },
+      {
+        type: "technical",
+        title: "Investigação do battle log da Ranked League",
+        description:
+          "Foram investigadas rotas potenciais da Clash API para obtenção do histórico individual de batalhas da Liga de Troféus. Como nenhum endpoint público válido foi identificado, o Command Center passou a utilizar snapshots próprios como fundação para reconstrução histórica.",
+      },
+      {
+        type: "technical",
+        title: "Build de produção validado",
+        description:
+          "A integração da Liga de Troféus, histórico de temporadas, inferências e ajustes responsivos do perfil foi validada com sucesso no build de produção do Next.js 16.2.11 utilizando Turbopack.",
+      },
+    ],
+  },
+
+  {
     version: "0.8.9",
     title: "Player Army & Pets",
     date: "2026-08-19",
-    current: true,
+    current: false,
     summary:
       "Expansão do perfil individual do jogador com a integração completa do Exército da Vila Principal, adicionando tropas, feitiços, Máquinas de Cerco e Pets com assets locais, níveis atuais, identificação visual de nível máximo e experiência responsiva.",
 

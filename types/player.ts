@@ -349,6 +349,12 @@ export interface Player {
    * Feitiços desbloqueados e seus respectivos níveis.
    */
   spells?: PlayerSpell[];
+
+  currentLeagueGroupTag?: string;
+  currentLeagueSeasonId?: number;
+
+  previousLeagueGroupTag?: string;
+  previousLeagueSeasonId?: number;
 }
 
 /**

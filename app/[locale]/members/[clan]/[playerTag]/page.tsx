@@ -14,12 +14,12 @@
  * • dados competitivos atuais;
  * • atividade recente da temporada;
  * • heróis da Vila Principal;
- * • equipamentos atualmente utilizados.
+ * • equipamentos atualmente utilizados;
+ * • Liga de Troféus e contribuição estimada ao clã.
  *
  * Futuras evoluções:
  * • histórico de guerras;
  * • histórico da CWL;
- * • exército completo;
  * • Raid Weekend;
  * • Jogos do Clã;
  * • inteligência histórica de desempenho.
@@ -28,10 +28,10 @@
  * stigmandroid
  *
  * Última atualização:
- * 17/08/2026
+ * 22/08/2026
  *
  * Versão:
- * 0.8.8
+ * 0.9.0
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -39,8 +39,10 @@
  */
 
 import Link from "next/link";
+import ArmyTabs from "@/components/player/ArmyTabs";
 import { notFound } from "next/navigation";
 
+import { getTrophyLeagueContribution } from "@/lib/trophy-league";
 import { getClanBySlug } from "@/config/clans";
 import { getClan } from "@/services/clan.service";
 import { getPlayer } from "@/services/player.service";
@@ -50,6 +52,9 @@ import { TroopTile } from "@/components/player/TroopTile";
 import { SpellTile } from "@/components/player/SpellTile";
 import { SiegeMachineTile } from "@/components/player/SiegeMachineTile";
 import { PetTile } from "@/components/player/PetTile";
+import { TrophyLeaguePanel } from "@/components/player/TrophyLeaguePanel";
+import { captureTrophyLeagueSnapshot } from "@/services/trophy-league-snapshot.service";
+import { getTrophyLeaguePlayerSeasonHistory } from "@/services/trophy-league-season-history.service";
 import type { PlayerHero } from "@/types/player";
 
 type PlayerProfilePageProps = {
@@ -74,6 +79,14 @@ function getHomeHeroes(heroes: PlayerHero[] | undefined): PlayerHero[] {
   }
 
   return heroes.filter((hero) => hero.village === "home" && Boolean(hero.name));
+}
+
+/**
+ * Normaliza tags da Clash API e da URL para permitir
+ * comparação segura independentemente da presença de "#".
+ */
+function normalizeClashTag(tag: string): string {
+  return tag.trim().replace(/^#/, "").toUpperCase();
 }
 
 export default async function PlayerProfilePage({
@@ -102,7 +115,7 @@ export default async function PlayerProfilePage({
    *
    * #9C9QUPVQL
    */
-  const normalizedPlayerTag = `#${playerTag.replace(/^#/, "").toUpperCase()}`;
+  const normalizedPlayerTag = `#${normalizeClashTag(playerTag)}`;
 
   /**
    * Consulta o clã e o jogador simultaneamente.
@@ -113,14 +126,46 @@ export default async function PlayerProfilePage({
   ]);
 
   /**
+   * Snapshot temporário da Liga de Troféus.
+   *
+   * O objetivo deste log é observar como os dados ranqueados
+   * evoluem entre consultas enquanto definimos a persistência
+   * histórica da Liga de Troféus.
+   *
+   * Remover quando a captura passar a ser persistida no SQLite.
+   */
+  console.log("[RANKED SNAPSHOT]", {
+    capturedAt: new Date().toISOString(),
+    player: player.name,
+    tag: player.tag,
+    leagueTier: player.leagueTier?.name,
+    trophies: player.trophies,
+    bestTrophies: player.bestTrophies,
+    currentLeagueGroupTag: player.currentLeagueGroupTag,
+    currentLeagueSeasonId: player.currentLeagueSeasonId,
+    previousLeagueGroupTag: player.previousLeagueGroupTag,
+    previousLeagueSeasonId: player.previousLeagueSeasonId,
+  });
+
+  /**
    * Garante que o jogador consultado realmente pertence
    * ao clã informado na URL.
    */
+  const normalizedPlayerTagValue = normalizeClashTag(playerTag);
+
   const clanMember = clan.memberList.find(
-    (member) => member.tag.toUpperCase() === normalizedPlayerTag,
+    (member) => normalizeClashTag(member.tag) === normalizedPlayerTagValue,
   );
 
   if (!clanMember) {
+    console.error("[PlayerProfile] Jogador não encontrado no memberList", {
+      clanSlug,
+      playerTag,
+      normalizedPlayerTag,
+      normalizedPlayerTagValue,
+      memberTags: clan.memberList.map((member) => member.tag),
+    });
+
     notFound();
   }
 
@@ -136,6 +181,31 @@ export default async function PlayerProfilePage({
     player.leagueTier?.iconUrls?.small ??
     player.league?.iconUrls?.medium ??
     player.league?.iconUrls?.small;
+
+  const trophyLeagueContribution = getTrophyLeagueContribution({
+    leagueName,
+    trophies: player.trophies,
+  });
+
+  /**
+   * ========================================================
+   * HISTÓRICO DA TEMPORADA DA LIGA DE TROFÉUS
+   * ========================================================
+   */
+
+  const trophyLeagueSeasonHistory = getTrophyLeaguePlayerSeasonHistory(
+    player.tag,
+  );
+
+  const currentTrophyLeagueSeason =
+    trophyLeagueSeasonHistory.seasons[0] ?? null;
+
+  /**
+   * Persiste o estado atual da Liga de Troféus somente
+   * quando houver mudança relevante em relação ao último
+   * snapshot salvo.
+   */
+  captureTrophyLeagueSnapshot(player);
 
   /**
    * Melhor resultado disponível no sistema
@@ -440,142 +510,72 @@ export default async function PlayerProfilePage({
 
       {/**
        * ======================================================
-       * HERÓIS
+       * LIGA DE TROFÉUS
        * ======================================================
-       *
-       * A apresentação utiliza uma grade visual compacta para
-       * permitir a leitura rápida da evolução dos heróis.
-       *
-       * Em dispositivos móveis, três heróis são apresentados
-       * por linha para preservar o tamanho e a legibilidade
-       * das artes.
-       *
-       * Em telas médias ou maiores, os seis heróis da Vila
-       * Principal podem ser apresentados simultaneamente.
        */}
 
-      <section className="border-b border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <SectionHeader
-            eyebrow="Exército"
-            title="Heróis"
-            description="Progresso atual dos heróis da Vila Principal."
-          />
-
-          {homeHeroes.length > 0 ? (
-            /**
-             * Grade responsiva dos heróis.
-             *
-             * Mobile:
-             * 3 colunas.
-             *
-             * Desktop:
-             * 6 colunas.
-             *
-             * Cada HeroTile é responsável pela imagem,
-             * nível atual, nível máximo e estado de evolução.
-             */
-            <div className="mt-6 grid grid-cols-3 gap-3 md:grid-cols-6 md:gap-4">
-              {homeHeroes.map((hero) => (
-                <HeroTile key={`${hero.name}-${hero.village}`} hero={hero} />
-              ))}
-            </div>
-          ) : (
-            /**
-             * Fallback utilizado quando nenhum herói da Vila
-             * Principal for retornado pela Player API.
-             */
-            <EmptyState text="Nenhum herói da Vila Principal foi retornado pela API." />
-          )}
-        </div>
-      </section>
+      <TrophyLeaguePanel
+        leagueName={trophyLeagueContribution.leagueName}
+        leagueIcon={leagueIcon}
+        baseScore={trophyLeagueContribution.baseScore}
+        seasonalScore={trophyLeagueContribution.seasonalScore}
+        estimatedClanContribution={
+          trophyLeagueContribution.estimatedClanContribution
+        }
+        bestTrophies={player.bestTrophies}
+        isLegendOne={trophyLeagueContribution.isLegendOne}
+        season={currentTrophyLeagueSeason}
+      />
 
       {/**
        * ======================================================
-       * EQUIPAMENTOS DE HERÓI
+       * EXÉRCITO
        * ======================================================
        *
-       * A API retorna o inventário completo de equipamentos
-       * desbloqueados pelo jogador por meio de
-       * `player.heroEquipment`.
+       * As seis categorias principais do exército são
+       * apresentadas dentro de uma única área navegável.
        *
-       * A apresentação utiliza uma grade visual compacta,
-       * seguindo a mesma linguagem utilizada nos heróis.
+       * Isso reduz o comprimento da página sem remover
+       * nenhuma informação já existente.
        */}
 
-      <section className="border-b border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <SectionHeader
-            eyebrow="Exército"
-            title="Equipamentos de Herói"
-            description="Níveis atuais dos equipamentos desbloqueados pelo jogador."
-          />
-
-          {player.heroEquipment && player.heroEquipment.length > 0 ? (
-            /**
-             * Quatro colunas no mobile equilibram densidade
-             * visual e legibilidade.
-             *
-             * Em telas maiores aumentamos progressivamente a
-             * quantidade de itens por linha.
-             */
-            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+      <ArmyTabs
+        heroes={
+          homeHeroes.length > 0 ? (
+            <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-6">
+              {homeHeroes.map((hero) => (
+                <HeroTile key={hero.name} hero={hero} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState text="Nenhum herói da Vila Principal foi retornado pela API." />
+          )
+        }
+        equipment={
+          player.heroEquipment && player.heroEquipment.length > 0 ? (
+            <div className="grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
               {player.heroEquipment.map((equipment) => (
                 <EquipmentTile key={equipment.name} equipment={equipment} />
               ))}
             </div>
           ) : (
-            /**
-             * Fallback utilizado quando a Player API não
-             * retornar equipamentos para o jogador.
-             */
             <EmptyState text="Nenhum equipamento de herói foi retornado pela API." />
-          )}
-        </div>
-      </section>
-
-      {/**
-       * ======================================================
-       * TROPAS
-       * ======================================================
-       */}
-
-      <section className="border-b border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <SectionHeader
-            eyebrow="Exército"
-            title="Tropas"
-            description="Níveis atuais das tropas da Vila Principal."
-          />
-
-          {homeVillageTroops.length > 0 ? (
-            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+          )
+        }
+        troops={
+          homeVillageTroops.length > 0 ? (
+            <div className="grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
               {homeVillageTroops.map((troop) => (
                 <TroopTile key={troop.name} troop={troop} />
               ))}
             </div>
           ) : (
             <EmptyState text="Nenhuma tropa da Vila Principal foi retornada pela API." />
-          )}
-        </div>
-      </section>
-
-      {/**
-       * ======================================================
-       * FEITIÇOS
-       * ======================================================
-       */}
-
-      <section className="border-b border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <SectionHeader
-            eyebrow="Exército"
-            title="Feitiços"
-            description="Níveis atuais dos feitiços da Vila Principal."
-          />
-
-          {player.spells && player.spells.length > 0 ? (
-            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+          )
+        }
+        spells={
+          player.spells && player.spells.length > 0 ? (
+            <div className="grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
               {player.spells
                 .filter((spell) => spell.village === "home")
                 .map((spell) => (
@@ -584,26 +584,11 @@ export default async function PlayerProfilePage({
             </div>
           ) : (
             <EmptyState text="Nenhum feitiço da Vila Principal foi retornado pela API." />
-          )}
-        </div>
-      </section>
-
-      {/**
-       * ======================================================
-       * MÁQUINAS DE CERCO
-       * ======================================================
-       */}
-
-      <section className="border-b border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <SectionHeader
-            eyebrow="Exército"
-            title="Máquinas de Cerco"
-            description="Níveis atuais das Máquinas de Cerco desbloqueadas pelo jogador."
-          />
-
-          {siegeMachines.length > 0 ? (
-            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+          )
+        }
+        siege={
+          siegeMachines.length > 0 ? (
+            <div className="grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
               {siegeMachines.map((siegeMachine) => (
                 <SiegeMachineTile
                   key={siegeMachine.name}
@@ -613,35 +598,20 @@ export default async function PlayerProfilePage({
             </div>
           ) : (
             <EmptyState text="Nenhuma Máquina de Cerco foi retornada pela API." />
-          )}
-        </div>
-      </section>
-
-      {/**
-       * ======================================================
-       * PETS
-       * ======================================================
-       */}
-
-      <section className="border-b border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <SectionHeader
-            eyebrow="Exército"
-            title="Pets"
-            description="Níveis atuais dos Pets desbloqueados pelo jogador."
-          />
-
-          {pets.length > 0 ? (
-            <div className="mt-6 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+          )
+        }
+        pets={
+          pets.length > 0 ? (
+            <div className="grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
               {pets.map((pet) => (
                 <PetTile key={pet.name} pet={pet} />
               ))}
             </div>
           ) : (
             <EmptyState text="Nenhum Pet foi retornado pela API." />
-          )}
-        </div>
-      </section>
+          )
+        }
+      />
 
       {/**
        * ======================================================
@@ -674,11 +644,6 @@ export default async function PlayerProfilePage({
             <FutureModule
               title="CWL"
               description="Participação e evolução entre temporadas."
-            />
-
-            <FutureModule
-              title="Exército"
-              description="Tropas, feitiços, pets e equipamentos."
             />
 
             <FutureModule

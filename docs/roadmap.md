@@ -36,19 +36,19 @@
 
 # Última atualização:
 
-# 19/08/2026
+# 23/08/2026
 
 #
 
 # Versão:
 
-# v0.8.9
+# v0.9.0
 
 #
 
 # Status:
 
-# ✅ Produção
+# 🚧 Em desenvolvimento
 
 # ==========================================================
 
@@ -70,7 +70,12 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 # Legenda
 
-| Status | Significado        || ------ | ------------------ || ⬜     | Planejado          || 🟨     | Em desenvolvimento || ✅     | Concluído          || 🚫     | Cancelado          |
+| Status | Significado        |
+| ------ | ------------------ |
+| ⬜     | Planejado          |
+| 🟨     | Em desenvolvimento |
+| ✅     | Concluído          |
+| 🚫     | Cancelado          |
 
 ---
 
@@ -78,15 +83,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.8.9`
+`v0.9.0`
 
 **Fase do projeto**
 
-`Player Intelligence — consolidação do perfil`
+`Player Intelligence — Trophy League & Season Intelligence`
 
 **Objetivo atual**
 
-Concluir e refinar o perfil individual dos jogadores, consolidando Heróis, Equipamentos, Tropas, Feitiços, Máquinas de Cerco e Pets em uma experiência visual completa e responsiva, antes de avançar para conquistas, histórico persistido de guerras e CWL e indicadores individuais de desempenho.
+Expandir o perfil individual dos jogadores através de uma camada histórica própria da Liga de Troféus, permitindo acompanhar evolução de temporada, movimentações observadas, contribuição para a pontuação do clã e resultados inferidos a partir de snapshots persistidos, enquanto novos dados reais são acumulados para aumentar progressivamente a precisão das análises.
 
 ---
 
@@ -1272,7 +1277,161 @@ Expandir o perfil individual dos jogadores e avançar o Player Intelligence atra
 
 ⬜ Corrigir definitivamente a nomenclatura visual de Sky Wagon para Táxi Aéreo e garantir sua exibição exclusiva em Máquinas de Cerco
 
-### Player Intelligence — próxima evolução
+---
+
+# ✅ v0.9.0 — Trophy League & Season Intelligence
+
+## Objetivo
+
+Expandir o Player Intelligence através da integração da Liga de Troféus ao perfil individual, criando uma base histórica própria para acompanhar temporadas, evolução de pontuação, contribuição individual para o Clan Score e movimentações observadas entre capturas.
+
+### Entregas concluídas
+
+✅ Painel de Liga de Troféus no perfil individual
+
+✅ Exibição da liga atual do jogador
+
+✅ Exibição da pontuação observada da temporada
+
+✅ Exibição do peso-base da liga
+
+✅ Cálculo da contribuição estimada do jogador para o Clan Score
+
+✅ Exibição da melhor marca histórica do jogador
+
+✅ Validação da composição do Clan Score através dos 30 maiores pesos individuais
+
+✅ Correspondência exata entre o Clan Score calculado e o clanPoints oficial do K.O.D.
+
+✅ Correspondência exata entre o Clan Score calculado e o clanPoints oficial do K.O.D.rec
+
+✅ Endpoint interno para auditoria automática do Clan Score
+
+✅ Estrutura persistente de snapshots da Liga de Troféus em SQLite
+
+✅ Coleta de snapshots dos membros do K.O.D.
+
+✅ Coleta de snapshots dos membros do K.O.D.rec
+
+✅ Associação dos snapshots ao clã monitorado
+
+✅ Deduplicação de snapshots sem alterações relevantes
+
+✅ Histórico cronológico de pontuação por jogador
+
+✅ Cálculo das variações entre snapshots
+
+✅ Separação do histórico através do leagueSeasonId
+
+✅ Estrutura de histórico individual por temporada
+
+✅ Identificação da temporada atual do jogador
+
+✅ Registro visual da temporada no perfil
+
+✅ Navegação entre Observados, Ataques e Defesas
+
+✅ Classificação segura de movimentos observados
+
+✅ Identificação de movimentos positivos possíveis
+
+✅ Identificação de movimentos negativos possíveis
+
+✅ Identificação de períodos sem alteração líquida
+
+✅ Identificação de intervalos com movimentos agregados
+
+✅ Regra empírica inicial para inferência de estrelas
+
+✅ Suporte a resultados de zero estrela
+
+✅ Fundação para interpretação dos resultados defensivos
+
+✅ Cards compactos para movimentações da temporada
+
+✅ Grade de alta densidade preparada para grandes quantidades de resultados
+
+✅ Centralização dos cards e indicadores no mobile
+
+✅ Redução de espaços vazios no painel da Liga de Troféus
+
+✅ Investigação de possíveis endpoints públicos para battle log individual da Ranked League
+
+✅ Definição de snapshots próprios como base histórica do Command Center
+
+✅ Reformulação responsiva da navegação do Arsenal
+
+✅ Remoção do scroll horizontal das categorias do Arsenal no mobile
+
+✅ Organização das categorias do Arsenal em duas linhas centralizadas no mobile
+
+✅ Build de produção validado com Next.js 16.2.11 e Turbopack
+
+### Trophy League — em validação
+
+🟨 Acumular novos snapshots durante a temporada para aumentar a resolução do histórico
+
+🟨 Refinar a identificação entre ataques, defesas e movimentos agregados
+
+🟨 Validar empiricamente os limites utilizados para inferência de estrelas
+
+🟨 Comparar resultados reconstruídos pelo Command Center com registros reais observados no jogo
+
+🟨 Refinar a interpretação de resultados defensivos
+
+🟨 Identificar casos de múltiplas batalhas ocorridas entre snapshots
+
+🟨 Preparar a interface para temporadas com até dezenas de ataques e defesas por jogador
+
+### Próxima evolução da Liga de Troféus
+
+⬜ Automatizar a coleta recorrente de snapshots
+
+⬜ Exibir ataques reconstruídos na aba Ataques
+
+⬜ Exibir defesas reconstruídas na aba Defesas
+
+⬜ Exibir estrelas inferidas nos resultados em que houver confiança suficiente
+
+⬜ Exibir totais ofensivos observados da temporada
+
+⬜ Exibir totais defensivos observados da temporada
+
+⬜ Comparar temporadas anteriores do jogador
+
+⬜ Criar indicadores de evolução entre temporadas
+
+⬜ Avaliar métricas de consistência ofensiva
+
+⬜ Avaliar métricas de consistência defensiva
+
+---
+
+# 🟨 Assets e refinamento visual
+
+## Objetivo
+
+Revisar os assets já integrados ao perfil individual e corrigir elementos que ainda não correspondem exatamente às representações utilizadas no jogo.
+
+### Pendências
+
+⬜ Revisar assets de tropas recentes que ainda não correspondem exatamente aos ícones utilizados no jogo
+
+⬜ Revisar assets de Máquinas de Cerco que ainda precisam de correção
+
+⬜ Corrigir definitivamente Sky Wagon para Táxi Aéreo
+
+⬜ Garantir a exibição do Táxi Aéreo exclusivamente na categoria Máquinas de Cerco
+
+⬜ Revisar enquadramento e consistência visual dos assets do Arsenal
+
+### Status
+
+🟨 As correções de assets planejadas para 23/08/2026 não foram executadas devido à priorização da implementação da Liga de Troféus e da fundação histórica do Player Intelligence.
+
+---
+
+# Player Intelligence — próximas evoluções
 
 ⬜ Conquistas
 
@@ -1287,34 +1446,6 @@ Expandir o perfil individual dos jogadores e avançar o Player Intelligence atra
 ⬜ Evolução histórica do jogador
 
 ⬜ Índice de consistência
-
----
-
-# 🟨 v0.9.0 — War Intelligence Completion
-
-## Objetivo
-
-Concluir a primeira geração da inteligência de guerras normais do Kings of Doom Command Center, utilizando os dados persistidos para transformar o histórico de confrontos em informações operacionais e análises de desempenho.
-
-### Planejamento
-
-⬜ Pesquisa por jogador
-
-⬜ Filtros por estrelas, destruição, atacante, alvo e posição
-
-⬜ Timeline cronológica completa dos ataques
-
-⬜ Resumo final automático da guerra
-
-⬜ Destaques ofensivos
-
-⬜ Destaques defensivos
-
-⬜ Relatório individual dos participantes
-
-⬜ Estatísticas gerais do histórico de guerras
-
-⬜ Preparação da integração entre desempenho em guerras e perfil dos membros
 
 ---
 

@@ -45,6 +45,7 @@
 import { TrophyLeagueSeasonPanel } from "@/components/player/TrophyLeagueSeasonPanel";
 
 import type { TrophyLeagueSeasonHistory } from "@/services/trophy-league-season-history.service";
+import type { TrophyLeagueBattleSummary } from "@/services/trophy-league-battle.service";
 
 /**
  * ==========================================================
@@ -95,6 +96,8 @@ type TrophyLeaguePanelProps = {
    * Temporada atual já processada pela camada de histórico.
    */
   season?: TrophyLeagueSeasonHistory | null;
+
+  battles?: TrophyLeagueBattleSummary | null;
 };
 
 const numberFormatter = new Intl.NumberFormat("pt-BR");
@@ -114,6 +117,7 @@ export function TrophyLeaguePanel({
   bestTrophies,
   isLegendOne,
   season = null,
+  battles = null,
 }: TrophyLeaguePanelProps) {
   /**
    * Quando existe histórico persistido, o próprio painel de
@@ -259,7 +263,7 @@ export function TrophyLeaguePanel({
            * sem tratá-las como battle log oficial.
            */}
 
-          <TrophyLeagueSeasonPanel season={season} />
+          <TrophyLeagueSeasonPanel season={season} battles={battles} />
         </div>
       </div>
     </section>

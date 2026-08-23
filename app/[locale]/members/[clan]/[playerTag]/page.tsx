@@ -126,28 +126,6 @@ export default async function PlayerProfilePage({
   ]);
 
   /**
-   * Snapshot temporário da Liga de Troféus.
-   *
-   * O objetivo deste log é observar como os dados ranqueados
-   * evoluem entre consultas enquanto definimos a persistência
-   * histórica da Liga de Troféus.
-   *
-   * Remover quando a captura passar a ser persistida no SQLite.
-   */
-  console.log("[RANKED SNAPSHOT]", {
-    capturedAt: new Date().toISOString(),
-    player: player.name,
-    tag: player.tag,
-    leagueTier: player.leagueTier?.name,
-    trophies: player.trophies,
-    bestTrophies: player.bestTrophies,
-    currentLeagueGroupTag: player.currentLeagueGroupTag,
-    currentLeagueSeasonId: player.currentLeagueSeasonId,
-    previousLeagueGroupTag: player.previousLeagueGroupTag,
-    previousLeagueSeasonId: player.previousLeagueSeasonId,
-  });
-
-  /**
    * Garante que o jogador consultado realmente pertence
    * ao clã informado na URL.
    */
@@ -189,16 +167,15 @@ export default async function PlayerProfilePage({
 
   /**
    * ========================================================
-   * HISTÓRICO DA TEMPORADA DA LIGA DE TROFÉUS
+   * SNAPSHOT E HISTÓRICO DA LIGA DE TROFÉUS
    * ========================================================
+   *
+   * O estado atual do jogador deve ser persistido antes da
+   * leitura do histórico.
+   *
+   * Isso garante que, já na primeira abertura do perfil, a
+   * temporada atual esteja disponível para renderização.
    */
-
-  const trophyLeagueSeasonHistory = getTrophyLeaguePlayerSeasonHistory(
-    player.tag,
-  );
-
-  const currentTrophyLeagueSeason =
-    trophyLeagueSeasonHistory.seasons[0] ?? null;
 
   /**
    * Persiste o estado atual da Liga de Troféus somente
@@ -206,6 +183,16 @@ export default async function PlayerProfilePage({
    * snapshot salvo.
    */
   captureTrophyLeagueSnapshot(player);
+
+  /**
+   * Recupera o histórico já considerando o snapshot atual.
+   */
+  const trophyLeagueSeasonHistory = getTrophyLeaguePlayerSeasonHistory(
+    player.tag,
+  );
+
+  const currentTrophyLeagueSeason =
+    trophyLeagueSeasonHistory.seasons[0] ?? null;
 
   /**
    * Melhor resultado disponível no sistema

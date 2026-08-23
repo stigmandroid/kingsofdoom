@@ -175,7 +175,7 @@ export default function ArmyTabs({
          */}
 
         <div
-          className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:justify-center"
+          className="grid grid-cols-3 gap-2 md:flex md:flex-wrap md:justify-center md:gap-2.5"
           role="tablist"
           aria-label="Categorias do exército"
         >
@@ -190,13 +190,13 @@ export default function ArmyTabs({
                 aria-selected={isActive}
                 onClick={() => setActiveTab(tab.id)}
                 className={[
-                  "flex min-h-[42px] min-w-0 items-center justify-center rounded-lg border px-2 py-2 text-center text-xs font-semibold transition sm:min-h-0 sm:px-3.5 sm:text-sm",
+                  "flex min-h-[42px] min-w-0 items-center justify-center rounded-lg border px-2 py-2 text-center text-xs font-semibold transition md:min-h-[44px] md:min-w-[120px] md:px-5 md:text-sm",
                   isActive
                     ? "border-amber-400/50 bg-amber-400/10 text-amber-300"
                     : "border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-700 hover:text-white",
                 ].join(" ")}
               >
-                <span className="truncate">{tab.label}</span>
+                <span className="whitespace-nowrap">{tab.label}</span>
               </button>
             );
           })}

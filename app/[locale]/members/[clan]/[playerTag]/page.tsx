@@ -57,6 +57,8 @@ import { captureTrophyLeagueSnapshot } from "@/services/trophy-league-snapshot.s
 import { getTrophyLeaguePlayerSeasonHistory } from "@/services/trophy-league-season-history.service";
 import { getTrophyLeagueBattles } from "@/services/trophy-league-battle.service";
 import { PlayerWarHistoryPanel } from "@/components/player/PlayerWarHistoryPanel";
+import { PlayerCwlHistoryPanel } from "@/components/player/PlayerCwlHistoryPanel";
+import { getPlayerCwlHistory } from "@/services/player-cwl-history.service";
 
 import { getPlayerWarHistory } from "@/services/player-war-history.service";
 import type { PlayerHero } from "@/types/player";
@@ -355,6 +357,27 @@ export default async function PlayerProfilePage({
   } catch (error) {
     console.error(
       "[PlayerProfile] Não foi possível carregar o histórico de guerras:",
+      {
+        playerTag: player.tag,
+
+        error,
+      },
+    );
+  }
+
+  /**
+   * ========================================================
+   * HISTÓRICO INDIVIDUAL DE CWL
+   * ========================================================
+   */
+
+  let playerCwlHistory = null;
+
+  try {
+    playerCwlHistory = getPlayerCwlHistory(player.tag);
+  } catch (error) {
+    console.error(
+      "[PlayerProfile] Não foi possível carregar o histórico de CWL:",
       {
         playerTag: player.tag,
 
@@ -672,10 +695,7 @@ export default async function PlayerProfilePage({
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             <PlayerWarHistoryPanel history={playerWarHistory} />
 
-            <FutureModule
-              title="CWL"
-              description="Participação e evolução entre temporadas."
-            />
+            <PlayerCwlHistoryPanel history={playerCwlHistory} />
 
             <FutureModule
               title="Eventos"

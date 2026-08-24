@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 23/08/2026
+# 24/08/2026
 
 #
 
 # Versão:
 
-# v0.9.0
+# v0.9.1
 
 #
 
@@ -83,15 +83,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.9.0`
+`v0.9.1`
 
 **Fase do projeto**
 
-`Player Intelligence — Trophy League & Season Intelligence`
+`Player Intelligence — Historical Performance & Raid Archive`
 
 **Objetivo atual**
 
-Expandir o perfil individual dos jogadores através de uma camada histórica própria da Liga de Troféus, permitindo acompanhar evolução de temporada, movimentações observadas, contribuição para a pontuação do clã e resultados inferidos a partir de snapshots persistidos, enquanto novos dados reais são acumulados para aumentar progressivamente a precisão das análises.
+Consolidar o histórico individual dos jogadores através de dados persistidos de Guerras, CWL e Liga de Troféus, enquanto o Command Center começa a preservar Raid Weekends e prepara a camada histórica de contribuições da Capital do Clã.
 
 ---
 
@@ -1433,19 +1433,163 @@ Revisar os assets já integrados ao perfil individual e corrigir elementos que a
 
 # Player Intelligence — próximas evoluções
 
-⬜ Conquistas
+✅ Histórico de guerras por jogador
 
-⬜ Histórico de guerras por jogador
+✅ Histórico de desempenho na CWL
 
-⬜ Histórico de desempenho na CWL
+✅ Estatísticas ofensivas individuais
 
-⬜ Estatísticas ofensivas individuais
+🟨 Estatísticas defensivas individuais
 
-⬜ Estatísticas defensivas individuais
-
-⬜ Evolução histórica do jogador
+🟨 Evolução histórica do jogador
 
 ⬜ Índice de consistência
+
+⬜ Histórico de Raid Weekend
+
+⬜ Jogos do Clã
+
+---
+
+---
+
+# ✅ v0.9.1 — Player History & Raid Archive
+
+## Objetivo
+
+Transformar os dados históricos já persistidos pelo Command Center em inteligência individual útil para cada jogador e iniciar a preservação permanente dos Raid Weekends.
+
+### Player Intelligence — Guerras
+
+✅ Histórico individual de guerras por jogador
+
+✅ Participações em guerras
+
+✅ Ataques realizados
+
+✅ Estrelas conquistadas
+
+✅ Média de estrelas
+
+✅ Destruição média
+
+✅ Distribuição de ataques por 0★, 1★, 2★ e 3★
+
+✅ Quantidade de triples
+
+✅ Taxa de triples
+
+✅ Guerras recentes no perfil
+
+✅ Atualização das métricas durante guerras em andamento
+
+✅ Reconciliação automática de guerras encerradas através do War Log
+
+✅ War Monitor automático em produção
+
+### Player Intelligence — CWL
+
+✅ Histórico individual de CWL por jogador
+
+✅ Temporadas participadas
+
+✅ Guerras disputadas
+
+✅ Ataques realizados
+
+✅ Estrelas conquistadas
+
+✅ Média de estrelas
+
+✅ Destruição média
+
+✅ Distribuição por 0★, 1★, 2★ e 3★
+
+✅ Triple rate
+
+✅ Rodadas recentes
+
+✅ Identificação correta do adversário independentemente do lado do payload
+
+✅ Painel CWL integrado ao perfil individual
+
+### Trophy League
+
+✅ Battle Log real de ataques
+
+✅ Battle Log real de defesas
+
+✅ Separação explícita entre ataque e defesa
+
+✅ Estrelas reais
+
+✅ Destruição real
+
+✅ Troféus reais por batalha
+
+✅ Destaque visual para ataques máximos
+
+✅ Destaque visual para defesas perfeitas
+
+✅ Linguagem visual distinta entre ataques e defesas
+
+### Raid Weekend
+
+✅ Gateway privado para Capital Raid Seasons
+
+✅ Consulta multi-clã de Raid Weekend
+
+✅ Schema persistente em SQLite
+
+✅ Tabela de Raid Weekends
+
+✅ Tabela de participantes
+
+✅ Repository dedicado
+
+✅ Archive Service dedicado
+
+✅ Raid Collector multi-clã
+
+✅ Persistência de Capital Gold saqueado
+
+✅ Persistência de ataques realizados
+
+✅ Persistência de limite de ataques
+
+✅ Persistência de ataques bônus
+
+✅ Recuperação dos três Raid Weekends mais recentes
+
+✅ Persistência validada para K.O.D. e K.O.D.rec
+
+### Clan Capital
+
+✅ Player type preparado para clanCapitalContributions
+
+🟨 Criar snapshots de contribuições acumuladas
+
+🟨 Calcular contribuição realizada no período
+
+⬜ Ranking semanal de Capital Contributions
+
+⬜ Histórico individual de contribuições
+
+### Próximas entregas
+
+🟨 Automatizar o Raid Collector em produção
+
+⬜ Integrar Raid Weekend ao perfil individual
+
+⬜ Ranking geral de Raid Weekend
+
+⬜ Histórico de Raid Weekends por jogador
+
+⬜ Média de Capital Gold por ataque
+
+⬜ Jogos do Clã
+
+⬜ Player Intelligence de Jogos do Clã
 
 ---
 

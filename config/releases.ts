@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 12/08/2026
+ * 24/08/2026
  * ==========================================================
  */
 
@@ -145,10 +145,112 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.1",
+    title: "Player History & Raid Archive",
+    date: "2026-08-24",
+    current: true,
+    summary:
+      "Expansão do Player Intelligence com histórico individual persistente de guerras e CWL, atualização ofensiva durante guerras em andamento, reconciliação automática de resultados, integração de battle logs reais da Liga de Troféus e criação da fundação persistente para Raid Weekends e contribuições da Capital do Clã.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Histórico individual de guerras",
+        description:
+          "O perfil individual passou a apresentar participações em guerras, ataques realizados, estrelas, média de estrelas, destruição média, triples, taxa de triples e distribuição dos resultados ofensivos.",
+      },
+      {
+        type: "feature",
+        title: "Atualização durante guerras em andamento",
+        description:
+          "Ataques realizados durante uma guerra passam a ser incorporados ao Player Intelligence assim que são capturados pelo War Monitor, sem necessidade de aguardar o encerramento do confronto.",
+      },
+      {
+        type: "feature",
+        title: "Guerras recentes no perfil",
+        description:
+          "O perfil individual passou a apresentar os confrontos mais recentes do jogador, incluindo adversário, ataques realizados, estrelas, destruição e quantidade de triples.",
+      },
+      {
+        type: "technical",
+        title: "Reconciliação automática de guerras",
+        description:
+          "Foi criada uma camada de reconciliação que utiliza o War Log oficial para atualizar guerras anteriormente persistidas como ongoing após seu encerramento.",
+      },
+      {
+        type: "technical",
+        title: "War Monitor automático",
+        description:
+          "O monitor de guerras passou a executar automaticamente em produção, mantendo snapshots, ataques e resultados históricos atualizados nos clãs monitorados.",
+      },
+      {
+        type: "feature",
+        title: "Histórico individual de CWL",
+        description:
+          "Foi implementada a reconstrução histórica da participação de cada jogador nas temporadas persistidas da CWL, incluindo guerras, rodadas, ataques, estrelas, destruição e triple rate.",
+      },
+      {
+        type: "feature",
+        title: "Painel de CWL no Player Intelligence",
+        description:
+          "O perfil individual recebeu um painel dedicado à CWL com temporadas participadas, guerras, ataques, estrelas, médias, distribuição de resultados e rodadas recentes.",
+      },
+      {
+        type: "technical",
+        title: "Identificação contextual de adversários da CWL",
+        description:
+          "A leitura histórica passou a determinar corretamente o adversário do jogador independentemente do lado em que o participante foi armazenado no payload da guerra.",
+      },
+      {
+        type: "feature",
+        title: "Battle Log real da Liga de Troféus",
+        description:
+          "A Liga de Troféus passou a utilizar registros reais de ataques e defesas, incluindo troféus, estrelas, percentual de destruição e separação explícita entre resultados ofensivos e defensivos.",
+      },
+      {
+        type: "improvement",
+        title: "Nova linguagem visual da Liga de Troféus",
+        description:
+          "Os cards de ataques e defesas foram refinados com contornos neutros, destaque para ataques máximos e diferenciação visual de defesas totalmente comprometidas ou perfeitamente defendidas.",
+      },
+      {
+        type: "feature",
+        title: "Raid Weekend Archive",
+        description:
+          "Foi criada a fundação persistente dos Raid Weekends, armazenando eventos e participações individuais dos jogadores em SQLite.",
+      },
+      {
+        type: "technical",
+        title: "Raid Weekend Collector",
+        description:
+          "Foi implementado um coletor multi-clã capaz de recuperar os Raid Weekends recentes de K.O.D. e K.O.D.rec e persistir os dados através de UPSERT.",
+      },
+      {
+        type: "technical",
+        title: "Persistência individual de Raid Weekend",
+        description:
+          "Cada participação passa a preservar playerTag, nome, ataques utilizados, limite de ataques, ataques bônus e Capital Gold saqueado.",
+      },
+      {
+        type: "technical",
+        title: "Gateway privado de Raid Weekend",
+        description:
+          "Foi criada uma rota privada para consultar Capital Raid Seasons através da VPS, mantendo o token da Clash API exclusivamente no servidor.",
+      },
+      {
+        type: "technical",
+        title: "Fundação para Capital Contributions",
+        description:
+          "O tipo de jogador passou a reconhecer clanCapitalContributions, preparando a futura coleta de snapshots para calcular quanto cada jogador investiu na Capital do Clã ao longo de cada período.",
+      },
+    ],
+  },
+
+  {
     version: "0.9.0",
     title: "Trophy League & Season Intelligence",
     date: "2026-08-23",
-    current: true,
+    current: false,
     summary:
       "Expansão do Player Intelligence com a integração da Liga de Troféus ao perfil individual, adicionando cálculo validado da contribuição para a pontuação do clã, snapshots persistidos, histórico por temporada, reconstrução de movimentações observadas, inferência experimental de estrelas e uma nova interface responsiva para acompanhamento do desempenho ranqueado.",
 

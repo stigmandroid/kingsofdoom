@@ -355,6 +355,8 @@ export interface Player {
 
   previousLeagueGroupTag?: string;
   previousLeagueSeasonId?: number;
+
+  clanCapitalContributions?: number;
 }
 
 /**

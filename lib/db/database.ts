@@ -38,6 +38,7 @@ import { initializeDatabaseSchema } from "./schema";
 import { initializeCwlArchiveSchema } from "./cwl-archive-schema";
 import { initializeWarArchiveSchema } from "./war-archive-schema";
 import { initializeTrophyLeagueSchema } from "./trophy-league-schema";
+import { initializeRaidArchiveSchema } from "./raid-archive-schema";
 
 /**
  * Diretório persistente utilizado pelo banco.
@@ -113,6 +114,12 @@ initializeWarArchiveSchema(database);
  * persistente da Liga de Troféus.
  */
 initializeTrophyLeagueSchema(database);
+
+/**
+ * Inicializa as estruturas responsáveis pelo histórico
+ * persistente da Raide do final de semana.
+ */
+initializeRaidArchiveSchema(database);
 
 /**
  * Exporta uma única instância para utilização

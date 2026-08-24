@@ -8,47 +8,42 @@
  * components/player/TrophyLeagueSeasonPanel.tsx
  *
  * Responsabilidade:
- * Apresentar o histórico observado da temporada atual da
- * Liga de Troféus de forma compacta e visual.
+ * Apresentar o desempenho da temporada atual da Liga de
+ * Troféus utilizando dados reais de ataques e defesas
+ * retornados pelo leagueGroup da Clash API.
  *
- * O componente mostra:
+ * O componente apresenta:
  *
  * • pontuação atual da temporada;
- * • variação observada;
- * • registro compacto de movimentações;
- * • ataques classificados;
- * • defesas classificadas;
- * • movimentos ainda não classificados;
- * • estrelas inferidas quando houver classificação
- *   suficiente para isso.
+ * • quantidade total de ataques;
+ * • quantidade total de defesas;
+ * • pontos acumulados em ataques;
+ * • pontos acumulados em defesas;
+ * • estrelas de cada batalha;
+ * • percentual de destruição;
+ * • navegação compacta entre Ataques e Defesas.
  *
  * Estratégia visual:
  *
- * O registro utiliza abas para evitar a exibição simultânea
- * de dezenas de ataques e defesas.
- *
- * No mobile, os resultados são organizados em três cards por
- * linha para reduzir o espaço vertical da página.
- *
- * Cada card contém somente as informações essenciais da
- * batalha:
- *
- * • pontos;
- * • estrelas, quando disponíveis.
- *
- * A natureza provável dos resultados é informada uma única
- * vez na observação global da interface.
+ * • três resultados por linha no mobile;
+ * • abas dedicadas para Ataques e Defesas;
+ * • cards compactos para reduzir scroll;
+ * • dados reais da Ranked League, sem inferência de
+ *   classificação entre ataque e defesa.
  *
  * Importante:
  *
- * Os movimentos são derivados de snapshots persistidos pelo
- * Command Center.
+ * Em ataques:
+ * estrelas e destruição representam o desempenho do jogador.
  *
- * Eles NÃO representam battle log oficial da Clash API.
+ * Em defesas:
+ * estrelas e destruição representam o desempenho obtido pelo
+ * adversário contra o jogador.
  *
- * Enquanto a origem de um movimento não puder ser
- * determinada, ele permanece na categoria "Observados" e
- * não é apresentado como ataque ou defesa.
+ * Os snapshots continuam existindo no backend para histórico,
+ * evolução de pontuação, auditoria e Clan Score, mas não são
+ * mais utilizados como fonte principal do registro visual das
+ * batalhas.
  *
  * Autor:
  * stigmandroid
@@ -57,16 +52,21 @@
  * 23/08/2026
  *
  * Versão:
- * 0.9.0
+ * 0.9.1
  *
  * Status:
  * 🚧 Em desenvolvimento
  * ==========================================================
  */
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import type { TrophyLeagueSeasonHistory } from "@/services/trophy-league-season-history.service";
+
+import type {
+  TrophyLeagueBattle,
+  TrophyLeagueBattleSummary,
+} from "@/services/trophy-league-battle.service";
 
 /**
  * ==========================================================
@@ -76,11 +76,11 @@ import type { TrophyLeagueSeasonHistory } from "@/services/trophy-league-season-
 
 type TrophyLeagueSeasonPanelProps = {
   season: TrophyLeagueSeasonHistory | null;
+
+  battles?: TrophyLeagueBattleSummary | null;
 };
 
-type TrophyLeagueRecordTab = "observed" | "attacks" | "defenses";
-
-type TrophyLeagueTimelinePoint = TrophyLeagueSeasonHistory["timeline"][number];
+type TrophyLeagueRecordTab = "attacks" | "defenses";
 
 /**
  * ==========================================================
@@ -98,63 +98,21 @@ const numberFormatter = new Intl.NumberFormat("pt-BR");
 
 export function TrophyLeagueSeasonPanel({
   season,
+  battles = null,
 }: TrophyLeagueSeasonPanelProps) {
-  /**
-   * ========================================================
-   * ABA ATIVA
-   * ========================================================
-   */
-
-  const [activeTab, setActiveTab] = useState<TrophyLeagueRecordTab>("observed");
+  const [activeTab, setActiveTab] = useState<TrophyLeagueRecordTab>("attacks");
 
   /**
    * ========================================================
-   * MOVIMENTOS CLASSIFICADOS
+   * SEM DADOS
    * ========================================================
    */
 
-  const { observedMovements, attackMovements, defenseMovements } =
-    useMemo(() => {
-      if (!season) {
-        return {
-          observedMovements: [],
-          attackMovements: [],
-          defenseMovements: [],
-        };
-      }
-
-      const movements = season.timeline.filter(
-        (point) => point.delta !== null && point.delta !== 0,
-      );
-
-      return {
-        observedMovements: movements.filter(
-          (point) =>
-            point.eventType === "unclassified" ||
-            point.eventType === "aggregate",
-        ),
-
-        attackMovements: movements.filter(
-          (point) => point.eventType === "possible-attack",
-        ),
-
-        defenseMovements: movements.filter(
-          (point) => point.eventType === "possible-defense",
-        ),
-      };
-    }, [season]);
-
-  /**
-   * ========================================================
-   * SEM HISTÓRICO
-   * ========================================================
-   */
-
-  if (!season) {
+  if (!season && !battles) {
     return (
-      <div className="mt-5 rounded-xl border border-dashed border-slate-800 bg-slate-950/40 px-4 py-6">
+      <div className="mt-5 rounded-xl border border-dashed border-slate-800 bg-slate-950/40 px-4 py-5 text-center">
         <p className="text-sm font-semibold text-slate-400">
-          Ainda não há histórico observado suficiente para esta temporada.
+          Ainda não há dados disponíveis para esta temporada.
         </p>
       </div>
     );
@@ -162,21 +120,20 @@ export function TrophyLeagueSeasonPanel({
 
   /**
    * ========================================================
-   * MOVIMENTOS DA ABA ATIVA
+   * DADOS DA TEMPORADA
    * ========================================================
    */
 
-  const activeMovements =
-    activeTab === "attacks"
-      ? attackMovements
-      : activeTab === "defenses"
-        ? defenseMovements
-        : observedMovements;
+  const currentTrophies =
+    season?.currentTrophies ?? battles?.totalBattleTrophies ?? 0;
 
-  const netChangeLabel =
-    season.observedNetChange > 0
-      ? `+${numberFormatter.format(season.observedNetChange)}`
-      : numberFormatter.format(season.observedNetChange);
+  const attacks = battles?.attacks ?? [];
+
+  const defenses = battles?.defenses ?? [];
+
+  const attackTrophies = battles?.attackTrophies ?? 0;
+
+  const defenseTrophies = battles?.defenseTrophies ?? 0;
 
   return (
     <div className="mt-5 border-t border-slate-800 pt-5">
@@ -189,12 +146,12 @@ export function TrophyLeagueSeasonPanel({
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
-            Temporada observada
+            Temporada atual
           </p>
 
           <div className="mt-2 flex items-baseline gap-2">
             <p className="text-2xl font-black text-white">
-              {numberFormatter.format(season.currentTrophies)}
+              {numberFormatter.format(currentTrophies)}
             </p>
 
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -205,22 +162,35 @@ export function TrophyLeagueSeasonPanel({
 
         <div className="text-right">
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
-            Variação observada
+            Batalhas registradas
           </p>
 
-          <p
-            className={[
-              "mt-2 text-lg font-black",
-              season.observedNetChange > 0
-                ? "text-emerald-300"
-                : season.observedNetChange < 0
-                  ? "text-rose-300"
-                  : "text-slate-300",
-            ].join(" ")}
-          >
-            {netChangeLabel}
+          <p className="mt-2 text-lg font-black text-white">
+            {numberFormatter.format(attacks.length + defenses.length)}
           </p>
         </div>
+      </div>
+
+      {/**
+       * ====================================================
+       * RESUMO OFENSIVO / DEFENSIVO
+       * ====================================================
+       */}
+
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        <SeasonSummaryMetric
+          label="Ataques"
+          count={attacks.length}
+          trophies={attackTrophies}
+          accent="attack"
+        />
+
+        <SeasonSummaryMetric
+          label="Defesas"
+          count={defenses.length}
+          trophies={defenseTrophies}
+          accent="defense"
+        />
       </div>
 
       {/**
@@ -240,24 +210,17 @@ export function TrophyLeagueSeasonPanel({
          * ==================================================
          */}
 
-        <div className="mt-3 grid grid-cols-3 gap-1 rounded-xl border border-slate-800 bg-slate-950/60 p-1">
-          <RecordTab
-            label="Observados"
-            count={observedMovements.length}
-            active={activeTab === "observed"}
-            onClick={() => setActiveTab("observed")}
-          />
-
+        <div className="mt-3 grid grid-cols-2 gap-1 rounded-xl border border-slate-800 bg-slate-950/60 p-1">
           <RecordTab
             label="Ataques"
-            count={attackMovements.length}
+            count={attacks.length}
             active={activeTab === "attacks"}
             onClick={() => setActiveTab("attacks")}
           />
 
           <RecordTab
             label="Defesas"
-            count={defenseMovements.length}
+            count={defenses.length}
             active={activeTab === "defenses"}
             onClick={() => setActiveTab("defenses")}
           />
@@ -265,48 +228,25 @@ export function TrophyLeagueSeasonPanel({
 
         {/**
          * ==================================================
-         * OBSERVAÇÃO GLOBAL
+         * CONTEÚDO DA ABA
          * ==================================================
          */}
 
-        <p className="mt-3 text-[10px] leading-4 text-slate-600">
-          Os resultados são reconstruídos a partir das movimentações observadas
-          pelo Command Center e podem representar inferências.
-        </p>
-
-        {/**
-         * ==================================================
-         * GRID DE RESULTADOS
-         * ==================================================
-         */}
-
-        {activeMovements.length > 0 ? (
-          <div className="mt-3 grid grid-cols-3 gap-1.5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
-            {activeMovements.map((point) => (
-              <BattleResultCard
-                key={point.snapshotId}
-                point={point}
-                activeTab={activeTab}
-              />
-            ))}
-          </div>
+        {activeTab === "attacks" ? (
+          <BattleCategory
+            title="Ataques"
+            battles={attacks}
+            totalTrophies={attackTrophies}
+            type="attack"
+          />
         ) : (
-          <EmptyRecordState activeTab={activeTab} />
+          <BattleCategory
+            title="Defesas"
+            battles={defenses}
+            totalTrophies={defenseTrophies}
+            type="defense"
+          />
         )}
-      </div>
-
-      {/**
-       * ====================================================
-       * RESUMO COMPACTO
-       * ====================================================
-       */}
-
-      <div className="mt-5 grid grid-cols-3 gap-2">
-        <SeasonMetric label="Ataques" value={attackMovements.length} />
-
-        <SeasonMetric label="Defesas" value={defenseMovements.length} />
-
-        <SeasonMetric label="Observados" value={observedMovements.length} />
       </div>
     </div>
   );
@@ -314,7 +254,51 @@ export function TrophyLeagueSeasonPanel({
 
 /**
  * ==========================================================
- * ABA DO REGISTRO
+ * RESUMO DA TEMPORADA
+ * ==========================================================
+ */
+
+function SeasonSummaryMetric({
+  label,
+  count,
+  trophies,
+  accent,
+}: {
+  label: string;
+
+  count: number;
+
+  trophies: number;
+
+  accent: "attack" | "defense";
+}) {
+  return (
+    <div
+      className={[
+        "rounded-xl border px-3 py-3 text-center",
+        accent === "attack"
+          ? "border-amber-400/15 bg-amber-400/[0.025]"
+          : "border-sky-400/15 bg-sky-400/[0.025]",
+      ].join(" ")}
+    >
+      <p className="text-[8px] font-black uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
+
+      <p className="mt-1 text-base font-black text-white">
+        {numberFormatter.format(count)}
+      </p>
+
+      <p className="mt-1 text-xs font-black text-emerald-300">
+        +{numberFormatter.format(trophies)} pts
+      </p>
+    </div>
+  );
+}
+
+/**
+ * ==========================================================
+ * ABA
  * ==========================================================
  */
 
@@ -325,8 +309,11 @@ function RecordTab({
   onClick,
 }: {
   label: string;
+
   count: number;
+
   active: boolean;
+
   onClick: () => void;
 }) {
   return (
@@ -334,7 +321,7 @@ function RecordTab({
       type="button"
       onClick={onClick}
       className={[
-        "flex min-w-0 items-center justify-center gap-1 rounded-lg px-1.5 py-2 text-[9px] font-black uppercase tracking-wide transition",
+        "flex min-w-0 items-center justify-center gap-1 rounded-lg px-2 py-2.5 text-[9px] font-black uppercase tracking-wide transition",
         active
           ? "bg-slate-800 text-white"
           : "text-slate-500 hover:bg-slate-900 hover:text-slate-300",
@@ -358,55 +345,79 @@ function RecordTab({
 
 /**
  * ==========================================================
- * CARD DE RESULTADO
+ * CATEGORIA DE BATALHAS
  * ==========================================================
- *
- * O card foi propositalmente reduzido ao mínimo necessário.
- *
- * Não repetimos "ataque provável" ou "defesa provável" em
- * cada resultado porque essa informação já está representada
- * pela aba ativa e pela observação global.
  */
 
-function BattleResultCard({
-  point,
-  activeTab,
+function BattleCategory({
+  title,
+  battles,
+  totalTrophies,
+  type,
 }: {
-  point: TrophyLeagueTimelinePoint;
+  title: string;
 
-  activeTab: TrophyLeagueRecordTab;
+  battles: TrophyLeagueBattle[];
+
+  totalTrophies: number;
+
+  type: "attack" | "defense";
 }) {
-  const delta = point.delta ?? 0;
-
-  const formattedDelta =
-    delta > 0
-      ? `+${numberFormatter.format(delta)}`
-      : numberFormatter.format(delta);
-
-  const showStars =
-    activeTab !== "observed" && typeof point.inferredStars === "number";
+  if (battles.length === 0) {
+    return (
+      <div className="mt-3 rounded-lg border border-dashed border-slate-800 px-3 py-4 text-center">
+        <p className="text-[11px] text-slate-600">
+          Nenhum registro disponível nesta categoria.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-[58px] min-w-0 flex-col items-center justify-center rounded-lg border border-slate-800 bg-slate-950/55 px-1 py-2">
-      <p
-        className={[
-          "text-base font-black leading-none",
-          delta > 0
-            ? "text-emerald-300"
-            : delta < 0
-              ? "text-rose-300"
-              : "text-slate-300",
-        ].join(" ")}
-      >
-        {formattedDelta}
-      </p>
+    <div className="mt-3">
+      {/**
+       * ====================================================
+       * TOTAL DA CATEGORIA
+       * ====================================================
+       */}
 
-      {showStars ? (
-        <BattleStars stars={point.inferredStars ?? 0} />
-      ) : (
-        <span className="mt-1.5 text-[8px] font-bold uppercase tracking-wide text-slate-700">
-          observado
-        </span>
+      <div className="flex items-center justify-between gap-3 px-1">
+        <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+          {battles.length} {title.toLowerCase()}
+        </p>
+
+        <p className="text-xs font-black text-emerald-300">
+          +{numberFormatter.format(totalTrophies)} pts
+        </p>
+      </div>
+
+      {/**
+       * ====================================================
+       * GRID
+       * ====================================================
+       */}
+
+      <div className="mt-2 grid grid-cols-3 gap-1.5 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+        {battles.map((battle, index) => (
+          <BattleResultCard
+            key={`${battle.creationTime ?? "battle"}-${battle.opponentPlayerTag ?? "unknown"}-${index}`}
+            battle={battle}
+            type={type}
+          />
+        ))}
+      </div>
+
+      {/**
+       * ====================================================
+       * OBSERVAÇÃO DEFENSIVA
+       * ====================================================
+       */}
+
+      {type === "defense" && (
+        <p className="mt-3 text-[10px] leading-4 text-slate-600">
+          Nas defesas, estrelas e destruição representam o resultado obtido pelo
+          adversário.
+        </p>
       )}
     </div>
   );
@@ -414,7 +425,150 @@ function BattleResultCard({
 
 /**
  * ==========================================================
- * ESTRELAS DE BATALHA
+ * CARD DE BATALHA
+ * ==========================================================
+ *
+ * Linguagem visual:
+ *
+ * ATAQUES
+ *
+ * • +40:
+ *   resultado perfeito;
+ *   recebe destaque dourado.
+ *
+ * • demais resultados:
+ *   permanecem neutros;
+ *   recebem contorno discretamente quente.
+ *
+ * DEFESAS
+ *
+ * • +40:
+ *   defesa perfeita;
+ *   o adversário não conquistou troféus;
+ *   recebe destaque dourado.
+ *
+ * • +0:
+ *   defesa totalmente comprometida;
+ *   o adversário conquistou o máximo;
+ *   recebe destaque vermelho.
+ *
+ * • +1 até +39:
+ *   resultado defensivo parcial;
+ *   permanece neutro com tonalidade fria.
+ *
+ * Todos os cards possuem contorno para manter consistência
+ * visual na grade.
+ */
+function BattleResultCard({
+  battle,
+  type,
+}: {
+  battle: TrophyLeagueBattle;
+
+  type: "attack" | "defense";
+}) {
+  /**
+   * ========================================================
+   * CLASSIFICAÇÃO VISUAL
+   * ========================================================
+   */
+
+  const isPerfectAttack = type === "attack" && battle.trophies === 40;
+
+  const isPerfectDefense = type === "defense" && battle.trophies === 40;
+
+  const isCompromisedDefense = type === "defense" && battle.trophies === 0;
+
+  const isPerfectResult = isPerfectAttack || isPerfectDefense;
+
+  /**
+   * ========================================================
+   * PONTUAÇÃO
+   * ========================================================
+   */
+
+  const formattedTrophies = `+${numberFormatter.format(battle.trophies)}`;
+
+  /**
+   * ========================================================
+   * ESTILO DO CARD
+   * ========================================================
+   */
+
+  const cardStyle = isPerfectResult
+    ? [
+        "border-amber-400/70",
+        "bg-amber-400/[0.055]",
+        "ring-1",
+        "ring-inset",
+        "ring-amber-300/15",
+      ].join(" ")
+    : isCompromisedDefense
+      ? [
+          "border-rose-500/65",
+          "bg-rose-500/[0.055]",
+          "ring-1",
+          "ring-inset",
+          "ring-rose-400/10",
+        ].join(" ")
+      : ["border-emerald-400/30", "bg-emerald-400/[0.018]"].join(" ");
+
+  /**
+   * ========================================================
+   * ESTILO DOS PONTOS
+   * ========================================================
+   */
+
+  const trophyStyle = isPerfectResult
+    ? "text-amber-300"
+    : isCompromisedDefense
+      ? "text-rose-300"
+      : "text-emerald-300";
+
+  return (
+    <div
+      title={battle.opponentName ? `vs. ${battle.opponentName}` : undefined}
+      className={[
+        "flex min-h-[68px] min-w-0 flex-col items-center justify-center rounded-lg border px-1 py-2 text-center transition",
+        cardStyle,
+      ].join(" ")}
+    >
+      {/**
+       * ====================================================
+       * PONTOS
+       * ====================================================
+       */}
+
+      <p
+        className={["text-base font-black leading-none", trophyStyle].join(" ")}
+      >
+        {formattedTrophies}
+      </p>
+
+      {/**
+       * ====================================================
+       * ESTRELAS
+       * ====================================================
+       */}
+
+      <BattleStars stars={battle.stars} />
+
+      {/**
+       * ====================================================
+       * DESTRUIÇÃO
+       * ====================================================
+       */}
+
+      <p className="mt-1 text-[9px] font-bold leading-none text-slate-500">
+        {numberFormatter.format(battle.destructionPercentage)}%
+      </p>
+    </div>
+  );
+}
+
+/**
+ * ==========================================================
+ * ESTRELAS
  * ==========================================================
  */
 
@@ -444,47 +598,6 @@ function BattleStars({ stars }: { stars: number }) {
           </span>
         );
       })}
-    </div>
-  );
-}
-
-/**
- * ==========================================================
- * ESTADO VAZIO
- * ==========================================================
- */
-
-function EmptyRecordState({ activeTab }: { activeTab: TrophyLeagueRecordTab }) {
-  const message =
-    activeTab === "attacks"
-      ? "Nenhum ataque foi classificado até o momento."
-      : activeTab === "defenses"
-        ? "Nenhuma defesa foi classificada até o momento."
-        : "Nenhum movimento não classificado foi observado.";
-
-  return (
-    <div className="mt-3 rounded-lg border border-dashed border-slate-800 px-3 py-4 text-center">
-      <p className="text-[11px] text-slate-600">{message}</p>
-    </div>
-  );
-}
-
-/**
- * ==========================================================
- * MÉTRICA DE TEMPORADA
- * ==========================================================
- */
-
-function SeasonMetric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="flex min-h-[68px] flex-col items-center justify-center rounded-lg border border-slate-800 bg-slate-950/40 px-2 py-2.5 text-center">
-      <p className="text-[7px] font-black uppercase tracking-wider text-slate-600">
-        {label}
-      </p>
-
-      <p className="mt-1 text-sm font-black text-white">
-        {numberFormatter.format(value)}
-      </p>
     </div>
   );
 }

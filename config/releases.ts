@@ -145,10 +145,69 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.2",
+    title: "Event Intelligence & Raid Weekend",
+    date: "2026-08-26",
+    current: true,
+    summary:
+      "Criação da primeira camada de Event Intelligence do Kings of Doom Command Center, com página global de Eventos, visão consolidada de Raid Weekend, métricas comparativas, histórico persistido e ranking completo dos participantes por clã.",
+    changes: [
+      {
+        type: "feature",
+        title: "Event Intelligence",
+        description:
+          "Foi criada uma nova área global de Eventos para consolidar atividades periódicas do clã fora das modalidades tradicionais de Guerra e CWL.",
+      },
+      {
+        type: "feature",
+        title: "Raid Weekend global",
+        description:
+          "A página de Eventos passou a apresentar o Raid Weekend mais recente com Capital Gold, ataques, raids concluídos, distritos destruídos e quantidade de participantes.",
+      },
+      {
+        type: "feature",
+        title: "Ranking de participantes",
+        description:
+          "Foi implementado um ranking dos participantes do Raid Weekend ordenado por Capital Gold saqueado, com ataques utilizados, limite total e média de loot por ataque.",
+      },
+      {
+        type: "feature",
+        title: "Ranking completo",
+        description:
+          "Foi criada uma página dedicada ao ranking completo do Raid Weekend, com visualização compacta e adequada para dezenas de participantes.",
+      },
+      {
+        type: "feature",
+        title: "Histórico comparativo de Raid Weekend",
+        description:
+          "Os eventos arquivados passaram a ser comparados entre si, exibindo variação de Capital Gold, ataques, raids concluídos e loot médio por ataque.",
+      },
+      {
+        type: "technical",
+        title: "Raid History Service",
+        description:
+          "Foi criada uma camada de leitura baseada exclusivamente no histórico persistido em SQLite, permitindo exibir eventos anteriores sem depender da disponibilidade atual da Clash API.",
+      },
+      {
+        type: "improvement",
+        title: "Navegação contextual de Eventos",
+        description:
+          "Eventos foi adicionado à navegação principal e ao seletor contextual de clãs, preservando o módulo ao alternar entre K.O.D. e K.O.D.rec.",
+      },
+      {
+        type: "technical",
+        title: "Endpoint de diagnóstico do Raid History",
+        description:
+          "Foi criado um endpoint interno para validar a leitura do Raid Archive e o carregamento dos participantes persistidos.",
+      },
+    ],
+  },
+
+  {
     version: "0.9.1",
     title: "Player History & Raid Archive",
     date: "2026-08-24",
-    current: true,
+    current: false,
     summary:
       "Expansão do Player Intelligence com histórico individual persistente de guerras e CWL, atualização ofensiva durante guerras em andamento, reconciliação automática de resultados, integração de battle logs reais da Liga de Troféus e criação da fundação persistente para Raid Weekends e contribuições da Capital do Clã.",
 

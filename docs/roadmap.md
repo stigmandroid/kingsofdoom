@@ -1451,8 +1451,6 @@ Revisar os assets já integrados ao perfil individual e corrigir elementos que a
 
 ---
 
----
-
 # ✅ v0.9.1 — Player History & Raid Archive
 
 ## Objetivo
@@ -1590,6 +1588,98 @@ Transformar os dados históricos já persistidos pelo Command Center em intelig�
 ⬜ Jogos do Clã
 
 ⬜ Player Intelligence de Jogos do Clã
+
+---
+
+# ✅ v0.9.2 — Event Intelligence & Raid Weekend
+
+## Objetivo
+
+Criar a primeira visão global de eventos do clã e transformar os dados persistidos de Raid Weekend em inteligência visual e histórica.
+
+### Event Intelligence
+
+✅ Nova página global de Eventos
+
+✅ Eventos integrado à navbar principal
+
+✅ Navegação contextual entre K.O.D. e K.O.D.rec
+
+✅ Estrutura preparada para múltiplos eventos
+
+✅ Placeholder preparado para Jogos do Clã
+
+### Raid Weekend
+
+✅ Visão global do Raid Weekend mais recente
+
+✅ Capital Gold total
+
+✅ Total de ataques
+
+✅ Raids concluídos
+
+✅ Distritos inimigos destruídos
+
+✅ Quantidade de participantes
+
+✅ Loot médio por ataque
+
+✅ Média de ataques por participante
+
+✅ Taxa de utilização dos ataques
+
+✅ Ranking resumido Top 10
+
+✅ Ranking completo dos participantes
+
+✅ Capital Gold por jogador
+
+✅ Ataques utilizados por jogador
+
+✅ Ataque bônus identificado
+
+✅ Loot médio individual por ataque
+
+✅ Destaque visual do Top 3
+
+### Histórico
+
+✅ Histórico persistido de Raid Weekends
+
+✅ Comparação entre eventos consecutivos
+
+✅ Variação percentual de Capital Gold
+
+✅ Comparação de ataques
+
+✅ Comparação de raids concluídos
+
+✅ Comparação de loot por ataque
+
+### Arquitetura
+
+✅ Raid History Service
+
+✅ Leitura do histórico diretamente do SQLite
+
+✅ Endpoint interno de validação
+
+✅ Independência da Clash API para visualização histórica
+
+### Próximas entregas
+
+⬜ Tornar jogadores do ranking clicáveis
+
+⬜ Integrar Raid Weekend ao perfil individual
+
+⬜ Histórico individual de Raid Weekend
+
+⬜ Capital Contributions por período
+
+⬜ Jogos do Clã
+
+⬜ Event Intelligence de Jogos do Clã
 
 ---
 

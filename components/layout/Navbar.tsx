@@ -103,6 +103,10 @@ export function Navbar() {
       href: `/${locale}/cwl/${currentClanSlug}`,
     },
     {
+      label: "Eventos",
+      href: `/${locale}/events/${currentClanSlug}`,
+    },
+    {
       label: "Membros",
       href: `/${locale}/members/${currentClanSlug}`,
     },

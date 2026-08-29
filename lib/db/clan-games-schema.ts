@@ -15,7 +15,10 @@
  * - armazenar snapshots do achievement "Games Champion";
  * - permitir cálculo incremental da pontuação individual;
  * - preservar a posição oficial após o encerramento;
- * - manter histórico mesmo após o encerramento do evento.
+ * - manter histórico mesmo após o encerramento do evento;
+ * - controlar tentativas de reconciliação da finalização;
+ * - identificar quando o resultado final permanece estável;
+ * - executar migrations de forma segura em builds concorrentes.
  *
  * Autor:
  * stigmandroid
@@ -24,7 +27,7 @@
  * 29/08/2026
  *
  * Versão:
- * 0.9.2
+ * 0.9.3
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -34,10 +37,74 @@
 import type { DatabaseSync } from "node:sqlite";
 
 /**
+ * ==========================================================
+ * MIGRATION HELPER
+ * ==========================================================
+ *
+ * O Next.js pode inicializar o banco simultaneamente durante
+ * o build através de múltiplos workers.
+ *
+ * Portanto, apenas verificar PRAGMA table_info não elimina
+ * completamente uma condição de corrida:
+ *
+ * Worker A verifica → coluna não existe
+ * Worker B verifica → coluna não existe
+ * Worker A adiciona
+ * Worker B tenta adicionar novamente
+ *
+ * Por isso também tratamos "duplicate column name" como uma
+ * migration já concluída por outro worker.
+ */
+function addColumnIfMissing(
+  database: DatabaseSync,
+  tableName: string,
+  columnName: string,
+  columnDefinition: string,
+): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(${tableName})`)
+    .all() as Array<{
+    name: string;
+  }>;
+
+  const exists = columns.some((column) => column.name === columnName);
+
+  if (exists) {
+    return;
+  }
+
+  try {
+    database.exec(`
+      ALTER TABLE ${tableName}
+      ADD COLUMN ${columnName} ${columnDefinition};
+    `);
+  } catch (error) {
+    /**
+     * Outro worker pode ter criado a coluna entre o PRAGMA
+     * acima e o ALTER TABLE.
+     */
+    if (
+      error instanceof Error &&
+      error.message.toLowerCase().includes("duplicate column name")
+    ) {
+      return;
+    }
+
+    throw error;
+  }
+}
+
+/**
  * Inicializa as tabelas utilizadas pelo histórico
  * dos Jogos do Clã.
  */
 export function initializeClanGamesSchema(database: DatabaseSync): void {
+  /**
+   * ========================================================
+   * EVENTOS
+   * ========================================================
+   */
+
   database.exec(`
     CREATE TABLE IF NOT EXISTS clan_games_events (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,6 +123,14 @@ export function initializeClanGamesSchema(database: DatabaseSync): void {
 
       ended_at TEXT,
 
+      finalization_started_at TEXT,
+
+      finalization_attempts INTEGER NOT NULL DEFAULT 0,
+
+      finalization_last_total INTEGER,
+
+      finalization_stable_count INTEGER NOT NULL DEFAULT 0,
+
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -63,6 +138,12 @@ export function initializeClanGamesSchema(database: DatabaseSync): void {
       UNIQUE (clan_tag, season)
     );
   `);
+
+  /**
+   * ========================================================
+   * MEMBROS
+   * ========================================================
+   */
 
   database.exec(`
     CREATE TABLE IF NOT EXISTS clan_games_members (
@@ -102,36 +183,45 @@ export function initializeClanGamesSchema(database: DatabaseSync): void {
 
   /**
    * ========================================================
-   * MIGRAÇÕES
+   * MIGRAÇÕES — MEMBERS
    * ========================================================
-   *
-   * CREATE TABLE IF NOT EXISTS não adiciona novas colunas
-   * quando a tabela já existe.
-   *
-   * Portanto verificamos explicitamente se final_rank já
-   * existe antes de executar ALTER TABLE.
    */
 
-  const memberColumns = database
-    .prepare(
-      `
-      PRAGMA table_info(clan_games_members)
-    `,
-    )
-    .all() as Array<{
-    name: string;
-  }>;
+  addColumnIfMissing(database, "clan_games_members", "final_rank", "INTEGER");
 
-  const hasFinalRank = memberColumns.some(
-    (column) => column.name === "final_rank",
+  /**
+   * ========================================================
+   * MIGRAÇÕES — EVENTS
+   * ========================================================
+   */
+
+  addColumnIfMissing(
+    database,
+    "clan_games_events",
+    "finalization_started_at",
+    "TEXT",
   );
 
-  if (!hasFinalRank) {
-    database.exec(`
-      ALTER TABLE clan_games_members
-      ADD COLUMN final_rank INTEGER;
-    `);
-  }
+  addColumnIfMissing(
+    database,
+    "clan_games_events",
+    "finalization_attempts",
+    "INTEGER NOT NULL DEFAULT 0",
+  );
+
+  addColumnIfMissing(
+    database,
+    "clan_games_events",
+    "finalization_last_total",
+    "INTEGER",
+  );
+
+  addColumnIfMissing(
+    database,
+    "clan_games_events",
+    "finalization_stable_count",
+    "INTEGER NOT NULL DEFAULT 0",
+  );
 
   /**
    * ========================================================
@@ -147,6 +237,11 @@ export function initializeClanGamesSchema(database: DatabaseSync): void {
   database.exec(`
     CREATE INDEX IF NOT EXISTS idx_clan_games_events_season
       ON clan_games_events(season);
+  `);
+
+  database.exec(`
+    CREATE INDEX IF NOT EXISTS idx_clan_games_events_state
+      ON clan_games_events(state);
   `);
 
   database.exec(`

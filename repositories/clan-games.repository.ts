@@ -38,9 +38,16 @@ export type ClanGamesEventRecord = {
   season: string;
   state: string;
   total_points: number;
+
   baseline_captured_at: string | null;
   started_at: string | null;
   ended_at: string | null;
+
+  finalization_started_at: string | null;
+  finalization_attempts: number;
+  finalization_last_total: number | null;
+  finalization_stable_count: number;
+
   created_at: string;
   updated_at: string;
 };
@@ -371,6 +378,75 @@ export function findLatestClanGamesEvent(
   `);
 
   const row = statement.get(clanTag) as ClanGamesEventRecord | undefined;
+
+  return row ?? null;
+}
+
+/**
+ * Lista todas as edições ativas dos Jogos do Clã.
+ *
+ * O collector usa esta função para descobrir automaticamente
+ * quais clãs e temporadas precisam ser atualizados.
+ *
+ * Dessa forma, o motor deixa de depender de tags ou temporadas
+ * hardcoded no serviço.
+ */
+export function listActiveClanGamesEvents(): ClanGamesEventRecord[] {
+  return database
+    .prepare(
+      `
+      SELECT *
+      FROM clan_games_events
+      WHERE state = 'active'
+      ORDER BY
+        season ASC,
+        clan_tag ASC,
+        id ASC
+    `,
+    )
+    .all() as ClanGamesEventRecord[];
+}
+
+/**
+ * Finaliza uma edição dos Jogos do Clã.
+ *
+ * O evento deixa de ser processado pelo collector porque
+ * listActiveClanGamesEvents() considera apenas state = "active".
+ *
+ * A pontuação persistida dos membros não é modificada aqui.
+ */
+export function completeClanGamesEvent(eventId: number, endedAt: string): void {
+  database
+    .prepare(
+      `
+      UPDATE clan_games_events
+      SET
+        state = 'completed',
+        ended_at = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+        AND state = 'active'
+    `,
+    )
+    .run(endedAt, eventId);
+}
+
+/**
+ * Localiza uma edição dos Jogos do Clã pelo ID interno.
+ */
+export function findClanGamesEventById(
+  eventId: number,
+): ClanGamesEventRecord | null {
+  const row = database
+    .prepare(
+      `
+      SELECT *
+      FROM clan_games_events
+      WHERE id = ?
+      LIMIT 1
+    `,
+    )
+    .get(eventId) as ClanGamesEventRecord | undefined;
 
   return row ?? null;
 }

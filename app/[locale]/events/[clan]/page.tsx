@@ -39,6 +39,8 @@ import {
   getRaidWeekendHistory,
 } from "@/services/raid-history.service";
 
+import { getLatestClanGames } from "@/services/clan-games-history.service";
+
 import Link from "next/link";
 
 /**
@@ -94,6 +96,13 @@ export default async function EventsPage({
   const latest = getLatestRaidWeekend(clanData.tag);
 
   const history = getRaidWeekendHistory(clanData.tag, 6);
+
+  const latestClanGames = getLatestClanGames(clanData.tag);
+
+  const clanGamesRanking =
+    latestClanGames?.members
+      .filter((member) => member.currentPoints > 0)
+      .slice(0, 10) ?? [];
 
   const historyWithComparison = history.map((weekend, index) => {
     const previous = history[index + 1];
@@ -309,21 +318,21 @@ export default async function EventsPage({
                   ) : (
                     <>
                       <div className="mt-4 overflow-hidden rounded-2xl border border-slate-800">
-                        <div className="grid grid-cols-[36px_1fr_70px_96px] gap-2 bg-slate-950/80 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-slate-600">
+                        <div className="grid grid-cols-[26px_minmax(0,1fr)_52px_68px] items-center gap-2 bg-slate-950/80 px-2 py-2 text-[8px] font-black uppercase tracking-wider text-slate-600 sm:grid-cols-[36px_minmax(0,1fr)_70px_82px] sm:px-3 sm:text-[9px]">
                           <span>#</span>
 
                           <span>Jogador</span>
 
                           <span className="text-center">Ataques</span>
 
-                          <span className="text-right">Saque</span>
+                          <span className="text-left sm:text-right">Saque</span>
                         </div>
 
                         <div className="divide-y divide-slate-800">
                           {rankingPreview.map((member, index) => (
                             <div
                               key={member.playerTag}
-                              className="grid grid-cols-[36px_1fr_70px_96px] items-center gap-2 bg-slate-900/30 px-3 py-2.5"
+                              className="grid grid-cols-[26px_minmax(0,1fr)_52px_68px] items-center gap-2 bg-slate-900/30 px-2 py-2.5 sm:grid-cols-[36px_minmax(0,1fr)_70px_82px] sm:px-3"
                             >
                               <span
                                 className={[
@@ -341,7 +350,7 @@ export default async function EventsPage({
                               </span>
 
                               <div className="min-w-0">
-                                <p className="truncate text-sm font-bold text-white">
+                                <p className="truncate text-xs font-bold text-white sm:text-sm">
                                   {member.playerName}
                                 </p>
 
@@ -355,7 +364,7 @@ export default async function EventsPage({
                                 {member.attackLimit + member.bonusAttackLimit}
                               </span>
 
-                              <span className="text-right text-sm font-black text-violet-300">
+                              <span className="text-left text-xs font-black text-violet-300 sm:text-right sm:text-sm">
                                 {numberFormatter.format(
                                   member.capitalResourcesLooted,
                                 )}
@@ -472,21 +481,180 @@ export default async function EventsPage({
 
         {/**
          * ==================================================
-         * JOGOS DO CLÃ — PLACEHOLDER
+         * JOGOS DO CLÃ
          * ==================================================
          */}
 
         <section className="mt-4">
-          <div className="rounded-3xl border border-dashed border-slate-800 bg-slate-900/25 p-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">
-              Jogos do Clã
-            </p>
+          <div className="rounded-3xl border border-slate-800 bg-slate-900/45 p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">
+                  Jogos do Clã
+                </p>
 
-            <h2 className="mt-2 text-xl font-black">Clan Games</h2>
+                <h2 className="mt-2 text-2xl font-black">Clan Games</h2>
 
-            <p className="mt-2 text-sm text-slate-500">
-              Este evento será conectado ao Event Intelligence na próxima etapa.
-            </p>
+                {latestClanGames ? (
+                  <p className="mt-2 text-sm font-bold text-slate-300">
+                    {formatClanGamesSeason(latestClanGames.season)}
+                  </p>
+                ) : null}
+
+                <p className="mt-2 text-sm text-slate-400">
+                  Desempenho coletivo e participação dos jogadores nos Jogos do
+                  Clã.
+                </p>
+              </div>
+
+              {latestClanGames ? (
+                <div className="shrink-0 rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-300">
+                    {latestClanGames.state === "completed"
+                      ? "Concluído"
+                      : "Em andamento"}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+
+            {!latestClanGames ? (
+              <div className="mt-6 rounded-2xl border border-dashed border-slate-800 bg-slate-950/40 p-5">
+                <p className="text-sm text-slate-400">
+                  Nenhuma edição dos Jogos do Clã foi arquivada para este clã.
+                </p>
+              </div>
+            ) : (
+              <>
+                {/**
+                 * ==========================================
+                 * MÉTRICAS
+                 * ==========================================
+                 */}
+
+                <div className="mt-6 grid grid-cols-2 gap-2 lg:grid-cols-4">
+                  <ClanGamesMetric
+                    label="Pontuação"
+                    value={numberFormatter.format(latestClanGames.totalPoints)}
+                  />
+
+                  <ClanGamesMetric
+                    label="Participantes"
+                    value={numberFormatter.format(
+                      latestClanGames.positiveParticipantsCount,
+                    )}
+                  />
+
+                  <ClanGamesMetric
+                    label="Média"
+                    value={numberFormatter.format(
+                      Math.round(latestClanGames.averagePointsPerParticipant),
+                    )}
+                    secondary
+                  />
+
+                  <ClanGamesMetric
+                    label="Maior pontuação"
+                    value={numberFormatter.format(latestClanGames.maxPoints)}
+                    secondary
+                  />
+                </div>
+
+                {/**
+                 * ==========================================
+                 * RANKING
+                 * ==========================================
+                 */}
+
+                <div className="mt-7 border-t border-slate-800 pt-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+                        Ranking do clã
+                      </p>
+
+                      <h3 className="mt-1 text-lg font-black">
+                        Top participantes
+                      </h3>
+                    </div>
+
+                    <p className="text-xs font-bold text-slate-500">
+                      {latestClanGames.positiveParticipantsCount} jogadores
+                    </p>
+                  </div>
+
+                  {clanGamesRanking.length === 0 ? (
+                    <div className="mt-4 rounded-xl border border-dashed border-slate-800 bg-slate-950/35 p-4">
+                      <p className="text-sm text-slate-500">
+                        Nenhuma pontuação individual foi registrada nesta
+                        edição.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mt-4 overflow-hidden rounded-2xl border border-slate-800">
+                        <div className="grid grid-cols-[26px_minmax(0,1fr)_76px] items-center gap-2 bg-slate-950/80 px-2 py-2 text-[8px] font-black uppercase tracking-wider text-slate-600 sm:grid-cols-[36px_minmax(0,1fr)_100px] sm:px-3 sm:text-[9px]">
+                          <span>#</span>
+
+                          <span>Jogador</span>
+
+                          <span className="text-right">Pontos</span>
+                        </div>
+
+                        <div className="divide-y divide-slate-800">
+                          {clanGamesRanking.map((member, index) => (
+                            <div
+                              key={member.playerTag}
+                              className="grid grid-cols-[26px_minmax(0,1fr)_76px] items-center gap-2 bg-slate-900/30 px-2 py-2.5 sm:grid-cols-[36px_minmax(0,1fr)_100px] sm:px-3"
+                            >
+                              <span
+                                className={[
+                                  "text-xs font-black",
+                                  index === 0
+                                    ? "text-amber-300"
+                                    : index === 1
+                                      ? "text-slate-300"
+                                      : index === 2
+                                        ? "text-orange-300"
+                                        : "text-slate-600",
+                                ].join(" ")}
+                              >
+                                {index + 1}
+                              </span>
+
+                              <div className="min-w-0">
+                                <p className="truncate text-xs font-bold text-white sm:text-sm">
+                                  {member.playerName}
+                                </p>
+
+                                <p className="truncate text-[9px] text-slate-600">
+                                  {member.playerTag}
+                                </p>
+                              </div>
+
+                              <span className="text-right text-xs font-black text-amber-300 sm:text-sm">
+                                {numberFormatter.format(member.currentPoints)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {latestClanGames.positiveParticipantsCount > 10 ? (
+                        <div className="mt-3 flex justify-center">
+                          <Link
+                            href={`/${locale}/events/${clan}/clan-games`}
+                            className="rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-2 text-xs font-black text-slate-300 transition hover:border-slate-700 hover:text-white"
+                          >
+                            Ver ranking completo
+                          </Link>
+                        </div>
+                      ) : null}
+                    </>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </section>
       </div>
@@ -528,6 +696,42 @@ function RaidMetric({
           secondary
             ? "text-sm text-slate-200"
             : "text-base text-white sm:text-lg",
+        ].join(" ")}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function ClanGamesMetric({
+  label,
+  value,
+  secondary = false,
+}: {
+  label: string;
+  value: string;
+  secondary?: boolean;
+}) {
+  return (
+    <div
+      className={[
+        "rounded-xl border px-3 py-3 text-center",
+        secondary
+          ? "border-amber-950/60 bg-amber-950/10"
+          : "border-amber-900/40 bg-amber-950/20",
+      ].join(" ")}
+    >
+      <p className="text-[8px] font-black uppercase tracking-wider text-amber-700">
+        {label}
+      </p>
+
+      <p
+        className={[
+          "mt-1 font-black",
+          secondary
+            ? "text-sm text-amber-100"
+            : "text-base text-amber-300 sm:text-lg",
         ].join(" ")}
       >
         {value}
@@ -601,4 +805,21 @@ function parseClashTimestamp(value: string): Date | null {
       Number(millisecond),
     ),
   );
+}
+
+function formatClanGamesSeason(season: string): string {
+  const [year, month] = season.split("-");
+
+  const date = new Date(Number(year), Number(month) - 1, 1);
+
+  if (Number.isNaN(date.getTime())) {
+    return season;
+  }
+
+  const formatted = new Intl.DateTimeFormat("pt-BR", {
+    month: "long",
+    year: "numeric",
+  }).format(date);
+
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }

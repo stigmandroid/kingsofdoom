@@ -39,6 +39,7 @@ import { initializeCwlArchiveSchema } from "./cwl-archive-schema";
 import { initializeWarArchiveSchema } from "./war-archive-schema";
 import { initializeTrophyLeagueSchema } from "./trophy-league-schema";
 import { initializeRaidArchiveSchema } from "./raid-archive-schema";
+import { initializeClanGamesSchema } from "./clan-games-schema";
 
 /**
  * Diretório persistente utilizado pelo banco.
@@ -120,6 +121,12 @@ initializeTrophyLeagueSchema(database);
  * persistente da Raide do final de semana.
  */
 initializeRaidArchiveSchema(database);
+
+/**
+ * Inicializa as estruturas responsáveis pelo histórico
+ * persistente dos Jogos do Clã.
+ */
+initializeClanGamesSchema(database);
 
 /**
  * Exporta uma única instância para utilização

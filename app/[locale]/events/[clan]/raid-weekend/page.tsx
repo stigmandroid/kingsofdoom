@@ -170,14 +170,14 @@ export default async function RaidWeekendRankingPage({
 
         <section className="mt-6">
           <div className="overflow-hidden rounded-2xl border border-slate-800">
-            <div className="grid grid-cols-[42px_minmax(0,1fr)_90px_130px] items-center gap-3 bg-slate-950/80 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-slate-600">
+            <div className="grid grid-cols-[26px_minmax(0,1fr)_54px_70px] items-center gap-2 bg-slate-950/80 px-2 py-2 text-[8px] font-black uppercase tracking-wider text-slate-600 sm:grid-cols-[42px_minmax(0,1fr)_90px_110px] sm:gap-3 sm:px-3 sm:text-[9px]">
               <span>#</span>
 
               <span>Jogador</span>
 
               <span className="text-center">Ataques</span>
 
-              <span className="text-right">Saque</span>
+              <span className="text-left sm:text-right">Saque</span>
             </div>
 
             <div className="divide-y divide-slate-800">
@@ -193,7 +193,7 @@ export default async function RaidWeekendRankingPage({
                 return (
                   <div
                     key={member.playerTag}
-                    className="grid grid-cols-[42px_minmax(0,1fr)_90px_130px] items-center gap-3 bg-slate-900/30 px-3 py-2 transition hover:bg-slate-900/60"
+                    className="grid grid-cols-[26px_minmax(0,1fr)_54px_70px] items-center gap-2 bg-slate-900/30 px-2 py-2 transition hover:bg-slate-900/60 sm:grid-cols-[42px_minmax(0,1fr)_90px_110px] sm:gap-3 sm:px-3"
                   >
                     {/*
                      * Posição no ranking.
@@ -238,21 +238,21 @@ export default async function RaidWeekendRankingPage({
                      * Uso dos ataques.
                      */}
                     <div className="text-center">
-                      <span className="text-xs font-black text-white">
+                      <p className="text-xs font-black text-white">
                         {member.attacks}/{totalAttackLimit}
-                      </span>
+                      </p>
 
                       {member.bonusAttackLimit > 0 ? (
-                        <span className="ml-1.5 text-[8px] font-black uppercase tracking-wider text-violet-400">
+                        <p className="mt-0.5 text-[7px] font-black uppercase tracking-wider text-violet-400">
                           bônus
-                        </span>
+                        </p>
                       ) : null}
                     </div>
 
                     {/*
                      * Capital Gold saqueado.
                      */}
-                    <p className="text-right text-sm font-black text-violet-300">
+                    <p className="text-left text-xs font-black text-violet-300 sm:text-right sm:text-sm">
                       {numberFormatter.format(member.capitalResourcesLooted)}
                     </p>
                   </div>

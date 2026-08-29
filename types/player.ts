@@ -229,6 +229,55 @@ export interface PlayerHeroEquipment {
 }
 
 /**
+ * Representa uma conquista individual retornada
+ * pelo endpoint detalhado do jogador.
+ *
+ * Algumas conquistas também funcionam como contadores
+ * históricos acumulativos e podem ser utilizadas como
+ * fonte para métricas derivadas.
+ *
+ * Exemplo importante:
+ * "Games Champion" registra a pontuação histórica
+ * acumulada pelo jogador nos Jogos do Clã.
+ */
+export interface PlayerAchievement {
+  /**
+   * Nome oficial da conquista.
+   */
+  name: string;
+
+  /**
+   * Quantidade de estrelas obtidas na conquista.
+   */
+  stars: number;
+
+  /**
+   * Valor acumulado atual da conquista.
+   */
+  value: number;
+
+  /**
+   * Meta associada ao próximo nível da conquista.
+   */
+  target: number;
+
+  /**
+   * Descrição oficial da conquista.
+   */
+  info: string;
+
+  /**
+   * Texto adicional apresentado quando aplicável.
+   */
+  completionInfo?: string;
+
+  /**
+   * Vila à qual a conquista pertence.
+   */
+  village: string;
+}
+
+/**
  * Representa os dados detalhados de um jogador retornados
  * por:
  *
@@ -357,6 +406,15 @@ export interface Player {
   previousLeagueSeasonId?: number;
 
   clanCapitalContributions?: number;
+
+  /**
+   * Conquistas individuais do jogador.
+   *
+   * O achievement "Games Champion" será utilizado
+   * pelo Event Intelligence para acompanhar a evolução
+   * da pontuação individual nos Jogos do Clã.
+   */
+  achievements?: PlayerAchievement[];
 }
 
 /**

@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 24/08/2026
+# 29/08/2026
 
 #
 
 # Versão:
 
-# v0.9.1
+# v0.9.3
 
 #
 
@@ -83,15 +83,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.9.1`
+`v0.9.3`
 
 **Fase do projeto**
 
-`Player Intelligence — Historical Performance & Raid Archive`
+`Event Intelligence — Clan Games & Raid Weekend`
 
 **Objetivo atual**
 
-Consolidar o histórico individual dos jogadores através de dados persistidos de Guerras, CWL e Liga de Troféus, enquanto o Command Center começa a preservar Raid Weekends e prepara a camada histórica de contribuições da Capital do Clã.
+Consolidar o Event Intelligence como uma camada histórica para os principais eventos periódicos dos clãs, preservando Raid Weekends e Jogos do Clã em SQLite e preparando a evolução para contribuições da Capital, integração com o Player Intelligence e automações completas das próximas edições.
 
 ---
 
@@ -1680,6 +1680,120 @@ Criar a primeira visão global de eventos do clã e transformar os dados persist
 ⬜ Jogos do Clã
 
 ⬜ Event Intelligence de Jogos do Clã
+
+---
+
+# ✅ v0.9.3 — Clan Games Intelligence
+
+## Objetivo
+
+Expandir o Event Intelligence para os Jogos do Clã, criando uma estrutura persistente capaz de preservar eventos e participantes, acompanhar a evolução individual e estabelecer a fundação para coleta e finalização automáticas nas próximas edições.
+
+### Entregas concluídas
+
+✅ Integração dos Jogos do Clã ao Event Intelligence
+
+✅ Estrutura persistente dos Jogos do Clã em SQLite
+
+✅ Eventos independentes por clã e temporada
+
+✅ Persistência individual dos participantes
+
+✅ Preservação dos participantes mesmo após saída do clã
+
+✅ Ranking individual dos Jogos do Clã
+
+✅ Pontuação individual persistida
+
+✅ Posição final persistida quando disponível
+
+✅ Integração da conquista Games Champion da Player API
+
+✅ Snapshots individuais da conquista Games Champion
+
+✅ Estrutura de baseline por jogador
+
+✅ Coletor dos Jogos do Clã
+
+✅ Processamento dos participantes persistidos do evento
+
+✅ Atualização dos snapshots individuais
+
+✅ Atualização da pontuação consolidada do evento
+
+✅ Suporte multi-clã para K.O.D. e K.O.D.rec
+
+✅ Lifecycle dedicado aos Jogos do Clã
+
+✅ Separação entre coleta e finalização
+
+✅ Registro de observações para finalização
+
+✅ Verificação de estabilidade antes do encerramento definitivo
+
+✅ Intervalo mínimo entre observações de finalização
+
+✅ Proteção contra finalização prematura
+
+✅ Preservação do primeiro histórico de Agosto/2026
+
+✅ Reconciliação dos resultados finais disponíveis de Agosto/2026
+
+### Raid Weekend — refinamentos responsivos
+
+✅ Ranking completo otimizado para dispositivos móveis
+
+✅ Redução da largura e dos espaços internos no mobile
+
+✅ Maior densidade de informações em telas estreitas
+
+✅ Organização compacta de posição, jogador, ataques e Capital Gold
+
+✅ Melhor aproveitamento de telas próximas de 375px
+
+### Fundação para as próximas edições dos Jogos do Clã
+
+✅ Fundação para snapshot pré-evento
+
+✅ Fundação para cálculo de evolução através da conquista Games Champion
+
+✅ Fundação para acompanhamento automático durante o evento
+
+✅ Fundação para finalização baseada em observações estáveis
+
+### Próximas evoluções — Jogos do Clã
+
+⬜ Automatizar a preparação de cada nova edição antes do início dos Jogos do Clã
+
+⬜ Capturar automaticamente o baseline antes do início de cada evento
+
+⬜ Definir calendário/configuração confiável para identificação das datas dos Jogos do Clã
+
+⬜ Tratar de forma automática jogadores que entrarem no clã após o snapshot inicial
+
+⬜ Automatizar completamente o fechamento e arquivamento das próximas edições
+
+⬜ Integrar o histórico dos Jogos do Clã ao Player Intelligence
+
+⬜ Criar histórico individual de participações nos Jogos do Clã
+
+⬜ Criar estatísticas históricas de pontuação por jogador
+
+⬜ Criar comparativos entre temporadas dos Jogos do Clã
+
+⬜ Criar indicadores de participação e consistência
+
+⬜ Criar histórico consolidado de eventos por jogador
+
+### Próximas evoluções — Capital do Clã
+
+⬜ Capturar snapshots periódicos de clanCapitalContributions
+
+⬜ Calcular a contribuição individual de Capital Gold por período
+
+⬜ Criar histórico semanal de contribuições da Capital do Clã
+
+⬜ Integrar as contribuições da Capital ao Player Intelligence
 
 ---
 

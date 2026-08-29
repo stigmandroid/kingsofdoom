@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 24/08/2026
+ * 29/08/2026
  * ==========================================================
  */
 
@@ -145,10 +145,100 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.3",
+    title: "Clan Games Intelligence",
+    date: "2026-08-29",
+    current: true,
+    summary:
+      "Expansão do Event Intelligence com a primeira estrutura persistente dos Jogos do Clã, incluindo histórico por temporada, participantes preservados, coleta baseada na conquista Games Champion, suporte multi-clã, ciclo de finalização segura e refinamentos responsivos no ranking do Raid Weekend.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Clan Games Intelligence",
+        description:
+          "Os Jogos do Clã passaram a integrar a arquitetura de Event Intelligence, criando uma nova camada para acompanhamento e preservação histórica desse evento.",
+      },
+      {
+        type: "feature",
+        title: "Histórico persistente dos Jogos do Clã",
+        description:
+          "Foi criada uma estrutura própria em SQLite para armazenar eventos dos Jogos do Clã e preservar individualmente os participantes associados a cada temporada.",
+      },
+      {
+        type: "feature",
+        title: "Ranking individual dos Jogos do Clã",
+        description:
+          "A interface passou a apresentar a classificação dos participantes com pontuação individual e posição registrada no evento.",
+      },
+      {
+        type: "technical",
+        title: "Snapshots da conquista Games Champion",
+        description:
+          "Foi criada uma estratégia de snapshots da conquista Games Champion para permitir que futuras edições calculem a evolução individual dos jogadores a partir de uma referência capturada antes do evento.",
+      },
+      {
+        type: "technical",
+        title: "Coleta automática dos participantes",
+        description:
+          "O coletor dos Jogos do Clã processa os participantes persistidos do evento, consulta seus perfis e atualiza os snapshots individuais durante o período de acompanhamento.",
+      },
+      {
+        type: "technical",
+        title: "Preservação histórica de participantes",
+        description:
+          "Os participantes permanecem associados ao snapshot do evento mesmo quando deixam posteriormente o clã, evitando a perda do histórico individual durante a coleta.",
+      },
+      {
+        type: "technical",
+        title: "Suporte multi-clã",
+        description:
+          "A arquitetura dos Jogos do Clã foi preparada para manter eventos independentes de K.O.D. e K.O.D.rec através da mesma estrutura de persistência e coleta.",
+      },
+      {
+        type: "technical",
+        title: "Lifecycle dos Jogos do Clã",
+        description:
+          "Foi criada uma camada dedicada ao ciclo de vida do evento, separando coleta, acompanhamento, preparação da finalização e encerramento definitivo.",
+      },
+      {
+        type: "technical",
+        title: "Finalização segura",
+        description:
+          "O encerramento de um evento passou a exigir observações estáveis antes da finalização definitiva, reduzindo o risco de congelar resultados enquanto os dados ainda estão sendo atualizados.",
+      },
+      {
+        type: "feature",
+        title: "Primeiro histórico de Jogos do Clã",
+        description:
+          "Os resultados de Agosto de 2026 foram preservados como primeira edição histórica dos Jogos do Clã no Command Center, incluindo reconciliação dos resultados finais disponíveis.",
+      },
+      {
+        type: "improvement",
+        title: "Raid Weekend otimizado para mobile",
+        description:
+          "O ranking do Raid Weekend foi compactado e reorganizado em dispositivos móveis, reduzindo espaços desnecessários e melhorando a leitura das posições, jogadores, ataques e Capital Gold em telas estreitas.",
+      },
+      {
+        type: "technical",
+        title: "Fundação para automação das próximas edições",
+        description:
+          "A nova arquitetura estabelece a base para que futuras edições utilizem snapshots pré-evento e acompanhamento automático, reduzindo a necessidade de reconstruções manuais após o encerramento.",
+      },
+      {
+        type: "technical",
+        title: "Build de produção validado",
+        description:
+          "A integração do Clan Games Intelligence, lifecycle, finalização e ajustes responsivos foi validada com sucesso no build de produção.",
+      },
+    ],
+  },
+
+  {
     version: "0.9.2",
     title: "Event Intelligence & Raid Weekend",
     date: "2026-08-26",
-    current: true,
+    current: false,
     summary:
       "Criação da primeira camada de Event Intelligence do Kings of Doom Command Center, com página global de Eventos, visão consolidada de Raid Weekend, métricas comparativas, histórico persistido e ranking completo dos participantes por clã.",
     changes: [

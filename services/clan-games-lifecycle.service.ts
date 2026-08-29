@@ -31,9 +31,100 @@ import {
   completeClanGamesEvent,
   findClanGamesEventById,
   refreshClanGamesEventTotal,
+  registerClanGamesFinalizationObservation,
 } from "@/repositories/clan-games.repository";
 
 import { collectClanGamesEvent } from "@/services/clan-games-collector.service";
+
+/**
+ * ==========================================================
+ * POLÍTICA DE FINALIZAÇÃO
+ * ==========================================================
+ *
+ * Uma edição somente poderá ser considerada estável quando
+ * houver múltiplas observações completas e suficientemente
+ * espaçadas.
+ */
+
+const FINALIZATION_MIN_STABLE_OBSERVATIONS = 3;
+
+const FINALIZATION_MIN_INTERVAL_MS = 10 * 60 * 1000;
+
+export interface ClanGamesFinalizationReadiness {
+  ready: boolean;
+
+  reason: string | null;
+
+  attempts: number;
+  stableCount: number;
+
+  lastTotal: number | null;
+  lastObservedAt: string | null;
+
+  remainingStableObservations: number;
+}
+
+export function getClanGamesFinalizationReadiness(
+  eventId: number,
+): ClanGamesFinalizationReadiness {
+  const event = findClanGamesEventById(eventId);
+
+  if (!event) {
+    throw new Error(`Evento de Clan Games ${eventId} não encontrado.`);
+  }
+
+  if (event.state === "completed") {
+    return {
+      ready: false,
+      reason: "O evento já foi finalizado.",
+
+      attempts: event.finalization_attempts,
+      stableCount: event.finalization_stable_count,
+
+      lastTotal: event.finalization_last_total,
+      lastObservedAt: event.finalization_last_observed_at,
+
+      remainingStableObservations: 0,
+    };
+  }
+
+  const remainingStableObservations = Math.max(
+    0,
+    FINALIZATION_MIN_STABLE_OBSERVATIONS - event.finalization_stable_count,
+  );
+
+  if (event.finalization_stable_count < FINALIZATION_MIN_STABLE_OBSERVATIONS) {
+    return {
+      ready: false,
+
+      reason:
+        remainingStableObservations === 1
+          ? "Aguardando mais uma observação estável."
+          : `Aguardando mais ${remainingStableObservations} observações estáveis.`,
+
+      attempts: event.finalization_attempts,
+      stableCount: event.finalization_stable_count,
+
+      lastTotal: event.finalization_last_total,
+      lastObservedAt: event.finalization_last_observed_at,
+
+      remainingStableObservations,
+    };
+  }
+
+  return {
+    ready: true,
+    reason: null,
+
+    attempts: event.finalization_attempts,
+    stableCount: event.finalization_stable_count,
+
+    lastTotal: event.finalization_last_total,
+    lastObservedAt: event.finalization_last_observed_at,
+
+    remainingStableObservations: 0,
+  };
+}
 
 /**
  * ============================================================================
@@ -78,6 +169,10 @@ export interface PrepareClanGamesFinalizationResult {
   failedMembers: number;
 
   totalPoints: number;
+  finalizationAttempts: number;
+  finalizationStableCount: number;
+  finalizationLastTotal: number;
+  finalizationStartedAt: string;
 }
 
 /**
@@ -109,10 +204,77 @@ export async function prepareClanGamesFinalization(
 
   const collectedAt = new Date().toISOString();
 
+  /**
+   * ==========================================================
+   * INTERVALO MÍNIMO ENTRE OBSERVAÇÕES
+   * ==========================================================
+   *
+   * Evita que várias chamadas feitas em poucos segundos sejam
+   * interpretadas como confirmações independentes do resultado.
+   */
+  if (event.finalization_last_observed_at) {
+    const lastObservedAt = Date.parse(event.finalization_last_observed_at);
+
+    const currentObservationAt = Date.parse(collectedAt);
+
+    if (
+      !Number.isNaN(lastObservedAt) &&
+      currentObservationAt - lastObservedAt < FINALIZATION_MIN_INTERVAL_MS
+    ) {
+      const remainingMs =
+        FINALIZATION_MIN_INTERVAL_MS - (currentObservationAt - lastObservedAt);
+
+      const remainingSeconds = Math.ceil(remainingMs / 1000);
+
+      throw new Error(
+        `Nova observação disponível em aproximadamente ${remainingSeconds} segundos.`,
+      );
+    }
+  }
+
   const collection = await collectClanGamesEvent(event, collectedAt);
 
+  /**
+   * Não registramos a observação como válida quando houve
+   * falha na coleta de algum participante.
+   *
+   * Uma coleta parcial não deve aumentar o contador de
+   * estabilidade da finalização.
+   */
+  if (collection.errors > 0) {
+    return {
+      success: false,
+
+      eventId: event.id,
+      clanTag: event.clan_tag,
+      season: event.season,
+
+      state: event.state,
+
+      collectedAt: collection.collectedAt,
+
+      totalMembers: collection.totalMembers,
+      updatedMembers: collection.updated,
+      failedMembers: collection.errors,
+
+      totalPoints: collection.totalPoints,
+
+      finalizationAttempts: event.finalization_attempts,
+      finalizationStableCount: event.finalization_stable_count,
+      finalizationLastTotal:
+        event.finalization_last_total ?? collection.totalPoints,
+      finalizationStartedAt: event.finalization_started_at ?? collectedAt,
+    };
+  }
+
+  const reconciliation = registerClanGamesFinalizationObservation(
+    event.id,
+    collection.totalPoints,
+    collectedAt,
+  );
+
   return {
-    success: collection.errors === 0,
+    success: true,
 
     eventId: event.id,
     clanTag: event.clan_tag,
@@ -127,6 +289,11 @@ export async function prepareClanGamesFinalization(
     failedMembers: collection.errors,
 
     totalPoints: collection.totalPoints,
+
+    finalizationAttempts: reconciliation.attempts,
+    finalizationStableCount: reconciliation.stableCount,
+    finalizationLastTotal: reconciliation.lastTotal,
+    finalizationStartedAt: reconciliation.startedAt,
   };
 }
 
@@ -171,6 +338,14 @@ export async function finalizeClanGamesEvent(
   if (event.state !== "active") {
     throw new Error(
       `Evento de Clan Games ${eventId} não está ativo. Estado atual: ${event.state}.`,
+    );
+  }
+
+  const readiness = getClanGamesFinalizationReadiness(eventId);
+
+  if (!readiness.ready) {
+    throw new Error(
+      readiness.reason ?? "O evento ainda não está pronto para finalização.",
     );
   }
 

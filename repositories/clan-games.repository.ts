@@ -47,6 +47,7 @@ export type ClanGamesEventRecord = {
   finalization_attempts: number;
   finalization_last_total: number | null;
   finalization_stable_count: number;
+  finalization_last_observed_at: string | null;
 
   created_at: string;
   updated_at: string;
@@ -449,4 +450,94 @@ export function findClanGamesEventById(
     .get(eventId) as ClanGamesEventRecord | undefined;
 
   return row ?? null;
+}
+
+/**
+ * ============================================================================
+ * RECONCILIAÇÃO DE FINALIZAÇÃO
+ * ============================================================================
+ */
+
+export interface ClanGamesFinalizationReconciliation {
+  eventId: number;
+
+  attempts: number;
+  lastTotal: number;
+  stableCount: number;
+
+  startedAt: string;
+  lastObservedAt: string;
+}
+
+/**
+ * Registra uma nova observação durante a reconciliação final
+ * de uma edição dos Jogos do Clã.
+ *
+ * Regras:
+ *
+ * - primeira observação:
+ *   stableCount = 1
+ *
+ * - total igual à observação anterior:
+ *   stableCount += 1
+ *
+ * - total diferente:
+ *   stableCount volta para 1
+ *
+ * Isso permite distinguir quantidade de tentativas de
+ * quantidade de resultados consecutivamente estáveis.
+ */
+export function registerClanGamesFinalizationObservation(
+  eventId: number,
+  observedTotal: number,
+  observedAt: string,
+): ClanGamesFinalizationReconciliation {
+  const event = findClanGamesEventById(eventId);
+
+  if (!event) {
+    throw new Error(`Evento de Clan Games ${eventId} não encontrado.`);
+  }
+
+  if (event.state !== "active") {
+    throw new Error(
+      `Evento de Clan Games ${eventId} não está ativo. Estado atual: ${event.state}.`,
+    );
+  }
+
+  const previousTotal = event.finalization_last_total;
+
+  const stableCount =
+    previousTotal !== null && previousTotal === observedTotal
+      ? event.finalization_stable_count + 1
+      : 1;
+
+  const attempts = event.finalization_attempts + 1;
+
+  const startedAt = event.finalization_started_at ?? observedAt;
+
+  database
+    .prepare(
+      `
+      UPDATE clan_games_events
+      SET
+        finalization_started_at = ?,
+        finalization_attempts = ?,
+        finalization_last_total = ?,
+        finalization_stable_count = ?,
+        finalization_last_observed_at = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+        AND state = 'active'
+    `,
+    )
+    .run(startedAt, attempts, observedTotal, stableCount, observedAt, eventId);
+
+  return {
+    eventId,
+    attempts,
+    lastTotal: observedTotal,
+    stableCount,
+    startedAt,
+    lastObservedAt: observedAt,
+  };
 }

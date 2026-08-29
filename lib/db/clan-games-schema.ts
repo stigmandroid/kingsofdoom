@@ -131,6 +131,8 @@ export function initializeClanGamesSchema(database: DatabaseSync): void {
 
       finalization_stable_count INTEGER NOT NULL DEFAULT 0,
 
+      finalization_last_observed_at TEXT,
+
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -207,6 +209,13 @@ export function initializeClanGamesSchema(database: DatabaseSync): void {
     "clan_games_events",
     "finalization_attempts",
     "INTEGER NOT NULL DEFAULT 0",
+  );
+
+  addColumnIfMissing(
+    database,
+    "clan_games_events",
+    "finalization_last_observed_at",
+    "TEXT",
   );
 
   addColumnIfMissing(

@@ -27,6 +27,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
+import { isClanGamesRequestAuthorized } from "@/lib/security/clan-games-auth";
 import { captureClanGamesBaseline } from "@/services/clan-games-baseline.service";
 
 /**
@@ -48,15 +49,33 @@ interface ClanGamesBaselineRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    /**
+     * ------------------------------------------------------------------------
+     * Autorização administrativa
+     * ------------------------------------------------------------------------
+     */
+
+    if (!isClanGamesRequestAuthorized(request)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Não autorizado.",
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
     const body = (await request.json()) as ClanGamesBaselineRequest;
 
     const clanTag = body.clanTag?.trim();
     const season = body.season?.trim();
 
     /**
-     * ----------------------------------------------------------
+     * ------------------------------------------------------------------------
      * Validação
-     * ----------------------------------------------------------
+     * ------------------------------------------------------------------------
      */
 
     if (!clanTag) {
@@ -108,9 +127,9 @@ export async function POST(request: NextRequest) {
     }
 
     /**
-     * ----------------------------------------------------------
+     * ------------------------------------------------------------------------
      * Captura
-     * ----------------------------------------------------------
+     * ------------------------------------------------------------------------
      */
 
     const data = await captureClanGamesBaseline(clanTag.toUpperCase(), season);

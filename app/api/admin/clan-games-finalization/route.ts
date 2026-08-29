@@ -9,6 +9,10 @@
  * Expor operações administrativas de reconciliação e
  * finalização dos Jogos do Clã.
  *
+ * Segurança:
+ * A execução é restrita às chamadas administrativas autorizadas
+ * através do segredo interno dos Jogos do Clã.
+ *
  * Autor:
  * stigmandroid
  *
@@ -25,6 +29,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
+import { isClanGamesRequestAuthorized } from "@/lib/security/clan-games-auth";
 import {
   finalizeClanGamesEvent,
   getClanGamesFinalizationReadiness,
@@ -40,6 +45,30 @@ interface FinalizationRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    /**
+     * ----------------------------------------------------------
+     * Autorização administrativa
+     * ----------------------------------------------------------
+     */
+
+    if (!isClanGamesRequestAuthorized(request)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Não autorizado.",
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
+    /**
+     * ----------------------------------------------------------
+     * Requisição
+     * ----------------------------------------------------------
+     */
+
     const body = (await request.json()) as FinalizationRequest;
 
     const eventId = Number(body.eventId);
@@ -50,9 +79,17 @@ export async function POST(request: NextRequest) {
           success: false,
           error: "eventId inválido.",
         },
-        { status: 400 },
+        {
+          status: 400,
+        },
       );
     }
+
+    /**
+     * ----------------------------------------------------------
+     * Ação
+     * ----------------------------------------------------------
+     */
 
     switch (body.action) {
       case "prepare": {
@@ -83,7 +120,9 @@ export async function POST(request: NextRequest) {
             success: false,
             error: 'Ação inválida. Use "prepare", "status" ou "finalize".',
           },
-          { status: 400 },
+          {
+            status: 400,
+          },
         );
     }
   } catch (error) {
@@ -94,7 +133,9 @@ export async function POST(request: NextRequest) {
         success: false,
         error: error instanceof Error ? error.message : "Erro desconhecido.",
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 }

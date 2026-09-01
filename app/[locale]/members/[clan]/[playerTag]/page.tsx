@@ -62,6 +62,8 @@ import { getPlayerCwlHistory } from "@/services/player-cwl-history.service";
 import { getPlayerWarHistory } from "@/services/player-war-history.service";
 import { PlayerClanGamesHistoryPanel } from "@/components/player/PlayerClanGamesHistoryPanel";
 import { getPlayerClanGamesHistory } from "@/services/player-clan-games-history.service";
+import { PlayerRaidHistoryPanel } from "@/components/player/PlayerRaidHistoryPanel";
+import { getPlayerRaidHistory } from "@/services/player-raid-history.service";
 
 import type { PlayerHero } from "@/types/player";
 
@@ -408,6 +410,26 @@ export default async function PlayerProfilePage({
     );
   }
 
+  /**
+   * ========================================================
+   * HISTÓRICO INDIVIDUAL DE RAID WEEKEND
+   * ========================================================
+   */
+
+  let playerRaidHistory = null;
+
+  try {
+    playerRaidHistory = getPlayerRaidHistory(player.tag);
+  } catch (error) {
+    console.error(
+      "[PlayerProfile] Não foi possível carregar o histórico de Raid Weekend:",
+      {
+        playerTag: player.tag,
+        error,
+      },
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       {/**
@@ -709,19 +731,25 @@ export default async function PlayerProfilePage({
           </h2>
 
           <p className="mt-3 max-w-3xl leading-7 text-slate-400">
-            Esta área será conectada ao histórico persistido de guerras e CWL
-            para apresentar evolução, consistência ofensiva, triplas, ataques
-            não utilizados e desempenho ao longo do tempo.
+            Histórico consolidado de guerras, CWL, Jogos do Clã e Raid Weekend
+            para acompanhar participação, consistência, eficiência e evolução do
+            jogador ao longo do tempo.
           </p>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          <div className="mt-6 grid gap-4 xl:grid-cols-3">
             <PlayerWarHistoryPanel history={playerWarHistory} />
 
             <PlayerCwlHistoryPanel history={playerCwlHistory} />
 
-            {playerClanGamesHistory && (
-              <PlayerClanGamesHistoryPanel history={playerClanGamesHistory} />
-            )}
+            <div className="flex min-w-0 flex-col gap-4">
+              {playerClanGamesHistory && (
+                <PlayerClanGamesHistoryPanel history={playerClanGamesHistory} />
+              )}
+
+              {playerRaidHistory && (
+                <PlayerRaidHistoryPanel history={playerRaidHistory} />
+              )}
+            </div>
           </div>
         </div>
       </section>

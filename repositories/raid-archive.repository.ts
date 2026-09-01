@@ -52,22 +52,17 @@ import { database } from "@/lib/db/database";
  */
 export type RaidWeekendArchiveInput = {
   clanTag: string;
-
   state: string;
 
   startTime: string;
   endTime: string;
 
   capitalTotalLoot: number;
-
   raidsCompleted: number;
-
   totalAttacks: number;
-
   enemyDistrictsDestroyed: number;
 
   offensiveReward: number;
-
   defensiveReward: number;
 
   rawJson?: string;
@@ -83,9 +78,7 @@ export type RaidWeekendMemberArchiveInput = {
   playerName: string;
 
   attacks: number;
-
   attackLimit: number;
-
   bonusAttackLimit: number;
 
   capitalResourcesLooted: number;
@@ -117,40 +110,40 @@ export function upsertRaidWeekend(input: RaidWeekendArchiveInput): number {
   database
     .prepare(
       `
-      INSERT INTO raid_weekends (
-        clan_tag,
-        state,
-        start_time,
-        end_time,
-        capital_total_loot,
-        raids_completed,
-        total_attacks,
-        enemy_districts_destroyed,
-        offensive_reward,
-        defensive_reward,
-        raw_json,
-        created_at,
-        updated_at
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO raid_weekends (
+          clan_tag,
+          state,
+          start_time,
+          end_time,
+          capital_total_loot,
+          raids_completed,
+          total_attacks,
+          enemy_districts_destroyed,
+          offensive_reward,
+          defensive_reward,
+          raw_json,
+          created_at,
+          updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
-      ON CONFLICT (
-        clan_tag,
-        start_time
-      )
-      DO UPDATE SET
-        state = excluded.state,
-        end_time = excluded.end_time,
-        capital_total_loot = excluded.capital_total_loot,
-        raids_completed = excluded.raids_completed,
-        total_attacks = excluded.total_attacks,
-        enemy_districts_destroyed =
-          excluded.enemy_districts_destroyed,
-        offensive_reward = excluded.offensive_reward,
-        defensive_reward = excluded.defensive_reward,
-        raw_json = excluded.raw_json,
-        updated_at = excluded.updated_at
-    `,
+        ON CONFLICT (
+          clan_tag,
+          start_time
+        )
+        DO UPDATE SET
+          state = excluded.state,
+          end_time = excluded.end_time,
+          capital_total_loot = excluded.capital_total_loot,
+          raids_completed = excluded.raids_completed,
+          total_attacks = excluded.total_attacks,
+          enemy_districts_destroyed =
+            excluded.enemy_districts_destroyed,
+          offensive_reward = excluded.offensive_reward,
+          defensive_reward = excluded.defensive_reward,
+          raw_json = excluded.raw_json,
+          updated_at = excluded.updated_at
+      `,
     )
     .run(
       input.clanTag,
@@ -174,13 +167,11 @@ export function upsertRaidWeekend(input: RaidWeekendArchiveInput): number {
   const row = database
     .prepare(
       `
-        SELECT id
-
+        SELECT
+          id
         FROM raid_weekends
-
         WHERE clan_tag = ?
           AND start_time = ?
-
         LIMIT 1
       `,
     )
@@ -204,6 +195,10 @@ export function upsertRaidWeekend(input: RaidWeekendArchiveInput): number {
  * Durante o evento, ataques e ouro saqueado podem aumentar.
  * O UPSERT permite atualizar essas informações sem criar
  * duplicações.
+ *
+ * Os valores cumulativos utilizam MAX para impedir que uma
+ * resposta posterior e incompleta da API reduza informações
+ * que já haviam sido preservadas.
  */
 export function upsertRaidWeekendMember(
   input: RaidWeekendMemberArchiveInput,
@@ -213,34 +208,50 @@ export function upsertRaidWeekendMember(
   database
     .prepare(
       `
-      INSERT INTO raid_weekend_members (
-        raid_weekend_id,
-        player_tag,
-        player_name,
-        attacks,
-        attack_limit,
-        bonus_attack_limit,
-        capital_resources_looted,
-        raw_json,
-        created_at,
-        updated_at
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO raid_weekend_members (
+          raid_weekend_id,
+          player_tag,
+          player_name,
+          attacks,
+          attack_limit,
+          bonus_attack_limit,
+          capital_resources_looted,
+          raw_json,
+          created_at,
+          updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
-      ON CONFLICT (
-        raid_weekend_id,
-        player_tag
-      )
-      DO UPDATE SET
-        player_name = excluded.player_name,
-        attacks = excluded.attacks,
-        attack_limit = excluded.attack_limit,
-        bonus_attack_limit = excluded.bonus_attack_limit,
-        capital_resources_looted =
-          excluded.capital_resources_looted,
-        raw_json = excluded.raw_json,
-        updated_at = excluded.updated_at
-    `,
+        ON CONFLICT (
+          raid_weekend_id,
+          player_tag
+        )
+        DO UPDATE SET
+          player_name = excluded.player_name,
+
+          attacks = MAX(
+            raid_weekend_members.attacks,
+            excluded.attacks
+          ),
+
+          attack_limit = MAX(
+            raid_weekend_members.attack_limit,
+            excluded.attack_limit
+          ),
+
+          bonus_attack_limit = MAX(
+            raid_weekend_members.bonus_attack_limit,
+            excluded.bonus_attack_limit
+          ),
+
+          capital_resources_looted = MAX(
+            raid_weekend_members.capital_resources_looted,
+            excluded.capital_resources_looted
+          ),
+
+          raw_json = excluded.raw_json,
+          updated_at = excluded.updated_at
+      `,
     )
     .run(
       input.raidWeekendId,

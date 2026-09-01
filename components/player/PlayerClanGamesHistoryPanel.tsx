@@ -63,7 +63,7 @@ export function PlayerClanGamesHistoryPanel({
 }: PlayerClanGamesHistoryPanelProps) {
   if (history.totalParticipations === 0) {
     return (
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
+      <section className="self-start rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-400">
             Jogos do Clã
@@ -82,7 +82,7 @@ export function PlayerClanGamesHistoryPanel({
   }
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
+    <section className="self-start overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
       {/*
        * ======================================================
        * CABEÇALHO

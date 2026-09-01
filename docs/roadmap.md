@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 29/08/2026
+# 31/08/2026
 
 #
 
 # Versão:
 
-# v0.9.3
+# v0.9.4
 
 #
 
@@ -83,15 +83,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.9.3`
+`v0.9.4`
 
 **Fase do projeto**
 
-`Event Intelligence — Clan Games & Raid Weekend`
+`Player Intelligence — Event History & Raid Reliability`
 
 **Objetivo atual**
 
-Consolidar o Event Intelligence como uma camada histórica para os principais eventos periódicos dos clãs, preservando Raid Weekends e Jogos do Clã em SQLite e preparando a evolução para contribuições da Capital, integração com o Player Intelligence e automações completas das próximas edições.
+Consolidar o histórico individual dos jogadores através de Guerras, CWL, Jogos do Clã e Raid Weekend, garantindo que a participação e o desempenho dos membros sejam preservados continuamente no SQLite e preparando a coleta automática dos próximos eventos.
 
 ---
 
@@ -1445,9 +1445,9 @@ Revisar os assets já integrados ao perfil individual e corrigir elementos que a
 
 ⬜ Índice de consistência
 
-⬜ Histórico de Raid Weekend
+✅ Histórico de Raid Weekend
 
-⬜ Jogos do Clã
+✅ Jogos do Clã
 
 ---
 
@@ -1577,17 +1577,17 @@ Transformar os dados históricos já persistidos pelo Command Center em intelig�
 
 🟨 Automatizar o Raid Collector em produção
 
-⬜ Integrar Raid Weekend ao perfil individual
+✅ Integrar Raid Weekend ao perfil individual
 
-⬜ Ranking geral de Raid Weekend
+✅ Ranking geral de Raid Weekend
 
-⬜ Histórico de Raid Weekends por jogador
+✅ Histórico de Raid Weekends por jogador
 
-⬜ Média de Capital Gold por ataque
+✅ Média de Capital Gold por ataque
 
-⬜ Jogos do Clã
+✅ Jogos do Clã
 
-⬜ Player Intelligence de Jogos do Clã
+✅ Player Intelligence de Jogos do Clã
 
 ---
 
@@ -1671,15 +1671,15 @@ Criar a primeira visão global de eventos do clã e transformar os dados persist
 
 ⬜ Tornar jogadores do ranking clicáveis
 
-⬜ Integrar Raid Weekend ao perfil individual
+✅ Integrar Raid Weekend ao perfil individual
 
-⬜ Histórico individual de Raid Weekend
+✅ Histórico individual de Raid Weekend
 
 ⬜ Capital Contributions por período
 
-⬜ Jogos do Clã
+✅ Jogos do Clã
 
-⬜ Event Intelligence de Jogos do Clã
+✅ Event Intelligence de Jogos do Clã
 
 ---
 
@@ -1794,6 +1794,122 @@ Expandir o Event Intelligence para os Jogos do Clã, criando uma estrutura persi
 ⬜ Criar histórico semanal de contribuições da Capital do Clã
 
 ⬜ Integrar as contribuições da Capital ao Player Intelligence
+
+---
+
+# 🚧 v0.9.4 — Player Event History & Raid Reliability
+
+## Objetivo
+
+Expandir o Player Intelligence através da integração dos eventos históricos ao perfil individual e fortalecer a coleta de Raid Weekend para preservar continuamente a participação e o desempenho dos jogadores.
+
+### Player Intelligence — Jogos do Clã
+
+✅ Histórico individual de Jogos do Clã
+
+✅ Participações registradas por temporada
+
+✅ Pontuação histórica individual
+
+✅ Pontuação total acumulada
+
+✅ Média de pontos por participação
+
+✅ Melhor pontuação registrada
+
+✅ Melhor posição registrada
+
+✅ Participações recentes no perfil
+
+### Player Intelligence — Raid Weekend
+
+✅ Histórico individual de Raid Weekend
+
+✅ Integração do Raid Archive ao perfil do jogador
+
+✅ Quantidade de participações
+
+✅ Capital Gold acumulado
+
+✅ Ataques utilizados
+
+✅ Ataques disponíveis
+
+✅ Ataques não utilizados
+
+✅ Taxa histórica de utilização dos ataques
+
+✅ Média de Capital Gold por Raid
+
+✅ Média de Capital Gold por ataque
+
+✅ Melhor saque individual
+
+✅ Histórico dos Raid Weekends recentes
+
+### Interface histórica
+
+✅ Guerra integrada ao Player Intelligence
+
+✅ CWL integrada ao Player Intelligence
+
+✅ Jogos do Clã integrado ao Player Intelligence
+
+✅ Raid Weekend integrado ao Player Intelligence
+
+✅ Nova organização responsiva dos painéis históricos
+
+✅ Guerra e CWL com altura visual consistente
+
+✅ Jogos do Clã e Raid Weekend organizados em coluna dedicada
+
+### Confiabilidade do Raid Archive
+
+✅ Persistência por Raid Weekend e jogador
+
+✅ UPSERT sem remoção de participantes anteriores
+
+✅ Preservação de jogadores mesmo após saída do clã
+
+✅ Proteção contra regressão de ataques através de MAX
+
+✅ Proteção contra regressão do Capital Gold através de MAX
+
+✅ Recuperação dos três Raid Weekends mais recentes
+
+✅ Runner independente do Next.js
+
+✅ Comando npm run raid:collect
+
+✅ Coleta manual validada para K.O.D.
+
+✅ Coleta manual validada para K.O.D.rec
+
+### Automação de produção
+
+🟨 Executar Raid Collector automaticamente a cada 10 minutos
+
+⬜ Validar primeira execução automática em produção
+
+⬜ Validar coleta de jogadores que entrem, ataquem e deixem o clã durante o evento
+
+⬜ Registrar monitoramento da última execução do collector
+
+⬜ Criar backup automático periódico do SQLite
+
+### Próximas evoluções
+
+⬜ Capital Contributions por período
+
+⬜ Histórico semanal de contribuições da Capital do Clã
+
+⬜ Índice de consistência do jogador
+
+⬜ Comparação histórica entre Raid Weekends
+
+⬜ Comparação histórica entre temporadas dos Jogos do Clã
+
+⬜ Indicadores consolidados de participação nos eventos
 
 ---
 

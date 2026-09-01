@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 29/08/2026
+ * 31/08/2026
  * ==========================================================
  */
 
@@ -145,10 +145,87 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.4",
+    title: "Player Event History & Raid Reliability",
+    date: "2026-08-31",
+    current: true,
+    summary:
+      "Expansão do Player Intelligence com histórico individual de Jogos do Clã e Raid Weekend, reorganização da área histórica dos jogadores e fortalecimento da persistência de Raid Weekend para preservar continuamente participação e desempenho dos membros.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Histórico individual dos Jogos do Clã",
+        description:
+          "O perfil do jogador passou a apresentar as participações históricas nos Jogos do Clã, incluindo pontuação, média, melhor resultado, posição e temporadas recentes.",
+      },
+      {
+        type: "feature",
+        title: "Histórico individual de Raid Weekend",
+        description:
+          "O Player Intelligence passou a reconstruir a participação individual nos Raid Weekends diretamente a partir dos registros persistidos no Raid Archive.",
+      },
+      {
+        type: "feature",
+        title: "Métricas individuais de Raid Weekend",
+        description:
+          "O perfil passou a apresentar Capital Gold acumulado, ataques utilizados, ataques disponíveis, taxa de utilização, melhor saque, média por Raid e média por ataque.",
+      },
+      {
+        type: "feature",
+        title: "Participações recentes em Raid Weekend",
+        description:
+          "Os Raid Weekends arquivados passaram a ser apresentados cronologicamente no perfil, permitindo acompanhar ataques e Capital Gold de cada participação.",
+      },
+      {
+        type: "improvement",
+        title: "Player Intelligence reorganizado",
+        description:
+          "A área de histórico foi reorganizada para apresentar Guerra e CWL lado a lado, mantendo Jogos do Clã e Raid Weekend agrupados em uma coluna compacta dedicada aos eventos.",
+      },
+      {
+        type: "technical",
+        title: "Player Raid History Service",
+        description:
+          "Foi criada uma camada dedicada para reconstruir o histórico individual de Raid Weekend através das tabelas raid_weekends e raid_weekend_members.",
+      },
+      {
+        type: "technical",
+        title: "Persistência cumulativa protegida",
+        description:
+          "O UPSERT dos participantes de Raid Weekend passou a preservar os maiores valores cumulativos já observados para ataques, limites e Capital Gold, evitando regressões causadas por snapshots posteriores incompletos.",
+      },
+      {
+        type: "technical",
+        title: "Preservação permanente de participantes",
+        description:
+          "Participantes já observados em um Raid Weekend permanecem no arquivo histórico mesmo que deixem posteriormente o clã ou não apareçam em snapshots seguintes.",
+      },
+      {
+        type: "technical",
+        title: "Raid Collector Runner",
+        description:
+          "Foi criado um runner independente do Next.js para permitir a execução agendada do Raid Collector diretamente pelo servidor.",
+      },
+      {
+        type: "technical",
+        title: "Comando dedicado de coleta",
+        description:
+          "O projeto passou a disponibilizar o comando npm run raid:collect para execução e futura automação do coletor de Raid Weekend.",
+      },
+      {
+        type: "technical",
+        title: "Build de produção validado",
+        description:
+          "A integração dos históricos individuais, persistência protegida e runner do Raid Collector foi validada com sucesso no build de produção do Next.js 16.2.11.",
+      },
+    ],
+  },
+  {
     version: "0.9.3",
     title: "Clan Games Intelligence",
     date: "2026-08-29",
-    current: true,
+    current: false,
     summary:
       "Expansão do Event Intelligence com a primeira estrutura persistente dos Jogos do Clã, incluindo histórico por temporada, participantes preservados, coleta baseada na conquista Games Champion, suporte multi-clã, ciclo de finalização segura e refinamentos responsivos no ranking do Raid Weekend.",
 
@@ -2132,41 +2209,41 @@ export const roadmap: RoadmapPhase[] = [
 
   {
     phase: 3,
-    title: "Perfis de jogadores",
-    status: "planned",
+    title: "Player Intelligence & Event History",
+    status: "in-development",
     description:
-      "Expansão dos dados individuais para criar páginas completas de jogadores.",
+      "Consolidar o histórico individual dos jogadores através de Guerras, CWL, Jogos do Clã, Raid Weekend e demais fontes persistidas pelo Command Center.",
 
     items: [
       {
-        title: "Página individual do jogador",
+        title: "Histórico de guerras",
         description:
-          "Criar uma rota própria para consultar detalhadamente cada membro.",
+          "Consolidar participação, ataques, estrelas, destruição e desempenho ofensivo ao longo das guerras.",
       },
       {
-        title: "Heróis",
+        title: "Histórico de CWL",
         description:
-          "Exibir níveis e progressão dos heróis disponíveis para o jogador.",
+          "Acompanhar participação e desempenho individual ao longo das temporadas da Clash War League.",
       },
       {
-        title: "Pets",
+        title: "Histórico de Jogos do Clã",
         description:
-          "Apresentar os pets desbloqueados e seus respectivos níveis.",
+          "Preservar pontuação, posição e participação individual em cada edição dos Jogos do Clã.",
       },
       {
-        title: "Equipamentos",
+        title: "Histórico de Raid Weekend",
         description:
-          "Exibir os equipamentos dos heróis e seus níveis de evolução.",
+          "Preservar ataques, Capital Gold, utilização dos ataques e evolução individual entre Raid Weekends.",
       },
       {
-        title: "Tropas e feitiços",
+        title: "Confiabilidade da coleta histórica",
         description:
-          "Apresentar o progresso das tropas, máquinas de cerco e feitiços.",
+          "Automatizar collectors e preservar participantes mesmo após mudanças na composição atual dos clãs.",
       },
       {
-        title: "Conquistas",
+        title: "Capital Contributions",
         description:
-          "Criar uma área dedicada às principais conquistas do perfil.",
+          "Construir snapshots para calcular e acompanhar contribuições individuais realizadas na Capital do Clã.",
       },
     ],
   },

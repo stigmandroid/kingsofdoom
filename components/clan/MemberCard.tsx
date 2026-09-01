@@ -21,6 +21,7 @@
 import type { ClanMember } from "@/types/clan";
 import type { ClanMemberWithPlayer } from "@/types/player";
 import Link from "next/link";
+import type { PlayerIntelligenceResult } from "@/domain/player";
 import { RoleBadge } from "./RoleBadge";
 import { TownHallBadge } from "./TownHallBadge";
 
@@ -29,8 +30,21 @@ type MemberCardProps = {
    * Dados resumidos do membro e dados detalhados do jogador.
    */
   data: ClanMemberWithPlayer<ClanMember>;
+
+  /**
+   * Idioma atual utilizado na rota do perfil.
+   */
   locale: string;
+
+  /**
+   * Identificador amigável do clã utilizado na rota.
+   */
   clanSlug: string;
+
+  /**
+   * Resultado calculado pelo Player Intelligence.
+   */
+  intelligence: PlayerIntelligenceResult;
 };
 
 /**
@@ -44,7 +58,12 @@ const numberFormatter = new Intl.NumberFormat("pt-BR");
 /**
  * Renderiza o card individual de um membro do clã.
  */
-export function MemberCard({ data, locale, clanSlug }: MemberCardProps) {
+export function MemberCard({
+  data,
+  locale,
+  clanSlug,
+  intelligence,
+}: MemberCardProps) {
   /**
    * Facilita o acesso aos dois objetos sem misturar suas
    * respectivas responsabilidades.
@@ -203,6 +222,28 @@ export function MemberCard({ data, locale, clanSlug }: MemberCardProps) {
         </div>
       </dl>
 
+      <div className="mt-4 rounded-xl border border-violet-500/20 bg-violet-500/5 px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+              Player Intelligence
+            </p>
+
+            <p className="mt-1 text-xs text-slate-400">
+              {getClassificationLabel(intelligence.classification)}
+            </p>
+          </div>
+
+          <div className="text-right">
+            <strong className="text-2xl font-bold text-white">
+              {intelligence.overallScore ?? "—"}
+            </strong>
+
+            <span className="ml-1 text-xs text-slate-500">/100</span>
+          </div>
+        </div>
+      </div>
+
       <footer className="mt-4 flex items-center justify-between gap-3 border-t border-slate-800/80 pt-4 text-xs text-slate-500">
         <span>
           Nível de experiência{" "}
@@ -227,4 +268,23 @@ export function MemberCard({ data, locale, clanSlug }: MemberCardProps) {
       </footer>
     </article>
   );
+}
+
+function getClassificationLabel(
+  classification: PlayerIntelligenceResult["classification"],
+): string {
+  switch (classification) {
+    case "elite":
+      return "Elite";
+    case "excellent":
+      return "Excelente";
+    case "good":
+      return "Bom";
+    case "developing":
+      return "Em desenvolvimento";
+    case "attention":
+      return "Atenção";
+    default:
+      return "Dados insuficientes";
+  }
 }

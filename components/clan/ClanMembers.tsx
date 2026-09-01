@@ -23,7 +23,8 @@
 
 import type { ClanMember } from "@/types/clan";
 import type { ClanMemberWithPlayer } from "@/types/player";
-
+import { buildPlayerProfile } from "@/lib/builders/player-profile-builder";
+import { calculatePlayerIntelligence } from "@/lib/intelligence/calculate-player-intelligence";
 import { MemberCard } from "./MemberCard";
 
 type ClanMembersProps = {
@@ -91,14 +92,21 @@ export function ClanMembers({
 
       {sortedMembers.length > 0 ? (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {sortedMembers.map((member) => (
-            <MemberCard
-              key={member.member.tag}
-              data={member}
-              locale={locale}
-              clanSlug={clanSlug}
-            />
-          ))}
+          {sortedMembers.map((member) => {
+            const playerProfile = buildPlayerProfile(member.member);
+
+            const intelligence = calculatePlayerIntelligence(playerProfile);
+
+            return (
+              <MemberCard
+                key={member.member.tag}
+                data={member}
+                locale={locale}
+                clanSlug={clanSlug}
+                intelligence={intelligence}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/40 px-6 py-12 text-center">

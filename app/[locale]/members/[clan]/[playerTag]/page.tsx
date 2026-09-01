@@ -59,8 +59,10 @@ import { getTrophyLeagueBattles } from "@/services/trophy-league-battle.service"
 import { PlayerWarHistoryPanel } from "@/components/player/PlayerWarHistoryPanel";
 import { PlayerCwlHistoryPanel } from "@/components/player/PlayerCwlHistoryPanel";
 import { getPlayerCwlHistory } from "@/services/player-cwl-history.service";
-
 import { getPlayerWarHistory } from "@/services/player-war-history.service";
+import { PlayerClanGamesHistoryPanel } from "@/components/player/PlayerClanGamesHistoryPanel";
+import { getPlayerClanGamesHistory } from "@/services/player-clan-games-history.service";
+
 import type { PlayerHero } from "@/types/player";
 
 type PlayerProfilePageProps = {
@@ -386,6 +388,26 @@ export default async function PlayerProfilePage({
     );
   }
 
+  /**
+   * ========================================================
+   * HISTÓRICO INDIVIDUAL DE JOGOS DO CLÃ
+   * ========================================================
+   */
+
+  let playerClanGamesHistory = null;
+
+  try {
+    playerClanGamesHistory = getPlayerClanGamesHistory(player.tag);
+  } catch (error) {
+    console.error(
+      "[PlayerProfile] Não foi possível carregar o histórico de Jogos do Clã:",
+      {
+        playerTag: player.tag,
+        error,
+      },
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       {/**
@@ -697,10 +719,9 @@ export default async function PlayerProfilePage({
 
             <PlayerCwlHistoryPanel history={playerCwlHistory} />
 
-            <FutureModule
-              title="Eventos"
-              description="Raid Weekend e Jogos do Clã futuramente."
-            />
+            {playerClanGamesHistory && (
+              <PlayerClanGamesHistoryPanel history={playerClanGamesHistory} />
+            )}
           </div>
         </div>
       </section>

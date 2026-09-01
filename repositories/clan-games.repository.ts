@@ -541,3 +541,65 @@ export function registerClanGamesFinalizationObservation(
     lastObservedAt: observedAt,
   };
 }
+
+/**
+ * ============================================================================
+ * HISTÓRICO INDIVIDUAL DE JOGOS DO CLÃ
+ * ============================================================================
+ */
+
+export type PlayerClanGamesHistoryRecord = {
+  event_id: number;
+  clan_tag: string;
+  season: string;
+  state: string;
+  total_points: number;
+  ended_at: string | null;
+
+  player_tag: string;
+  player_name: string;
+  points: number;
+  final_rank: number | null;
+};
+
+/**
+ * Lista todas as participações conhecidas de um jogador
+ * nos Jogos do Clã.
+ *
+ * O histórico é baseado nos participantes persistidos em cada
+ * evento, portanto continua existindo mesmo que o jogador deixe
+ * posteriormente o clã.
+ */
+export function listPlayerClanGamesHistory(
+  playerTag: string,
+): PlayerClanGamesHistoryRecord[] {
+  return database
+    .prepare(
+      `
+        SELECT
+          event.id AS event_id,
+          event.clan_tag,
+          event.season,
+          event.state,
+          event.total_points,
+          event.ended_at,
+
+          member.player_tag,
+          member.player_name,
+          member.current_points AS points,
+          member.final_rank
+
+        FROM clan_games_members AS member
+
+        INNER JOIN clan_games_events AS event
+          ON event.id = member.clan_games_event_id
+
+        WHERE member.player_tag = ?
+
+        ORDER BY
+          event.season DESC,
+          event.id DESC
+      `,
+    )
+    .all(playerTag) as PlayerClanGamesHistoryRecord[];
+}

@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 31/08/2026
+ * 01/09/2026
  * ==========================================================
  */
 
@@ -145,10 +145,88 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.5",
+    title: "War Archive Reliability & Event History UX",
+    date: "2026-09-01",
+    current: true,
+    summary:
+      "Fortalecimento da confiabilidade do War Archive e refinamento da experiência histórica do Player Intelligence, corrigindo duplicidades causadas por alterações de horários da Clash API e reorganizando os painéis de Jogos do Clã e Raid Weekend para desktop e dispositivos móveis.",
+
+    changes: [
+      {
+        type: "fix",
+        title: "Correção de guerras duplicadas",
+        description:
+          "O War Archive passou a reconhecer como uma única guerra snapshots de preparation, inWar e warEnded mesmo quando a Clash API altera os horários do confronto durante seu ciclo de vida.",
+      },
+      {
+        type: "technical",
+        title: "Reconciliação da identidade das guerras",
+        description:
+          "A identificação histórica passou a procurar guerras compatíveis pelo clã monitorado, adversário, tamanho da guerra e proximidade temporal antes de gerar uma nova identidade, reduzindo duplicidades provocadas por alterações de timestamps.",
+      },
+      {
+        type: "fix",
+        title: "Snapshots de preparação fora do histórico individual",
+        description:
+          "Registros ainda em preparation deixaram de ser apresentados como guerras históricas do jogador, impedindo cards provisórios com zero ataques e zero estrelas.",
+      },
+      {
+        type: "technical",
+        title: "Preservação de participações sem ataque",
+        description:
+          "O filtro do histórico permanece baseado no estado da guerra, preservando corretamente jogadores que participaram de guerras encerradas mesmo quando não utilizaram seus ataques.",
+      },
+      {
+        type: "fix",
+        title: "Limpeza de registro histórico duplicado",
+        description:
+          "Um snapshot provisório duplicado identificado após alteração dos horários de uma guerra foi auditado e removido com segurança do SQLite de produção, preservando integralmente o confronto definitivo e seus ataques.",
+      },
+      {
+        type: "improvement",
+        title: "Jogos do Clã responsivo",
+        description:
+          "O painel individual dos Jogos do Clã foi reorganizado para ocupar corretamente a largura disponível, melhorar a leitura em dispositivos móveis e manter uma composição consistente no desktop.",
+      },
+      {
+        type: "improvement",
+        title: "Indicadores históricos alinhados",
+        description:
+          "Os indicadores de Jogos do Clã e Raid Weekend passaram a reservar uma área uniforme para seus rótulos, mantendo os valores alinhados mesmo quando os títulos ocupam quantidades diferentes de linhas.",
+      },
+      {
+        type: "improvement",
+        title: "Badges de participação padronizados",
+        description:
+          "Os contadores de participação dos painéis históricos passaram a utilizar uma linguagem visual consistente entre Guerra, CWL, Jogos do Clã e Raid Weekend.",
+      },
+      {
+        type: "improvement",
+        title: "Histórico recente controlado",
+        description:
+          "Os painéis de eventos passaram a limitar a quantidade de registros recentes apresentados no perfil, preservando o histórico completo no SQLite sem permitir crescimento vertical ilimitado dos cards.",
+      },
+      {
+        type: "improvement",
+        title: "Raid Weekend refinado no desktop",
+        description:
+          "O cabeçalho do Raid Weekend foi reorganizado com o contador de participações alinhado ao título e melhor distribuição dos elementos em telas largas.",
+      },
+      {
+        type: "technical",
+        title: "Fundação para Histórico Completo",
+        description:
+          "A separação entre dados persistidos e registros recentes exibidos no perfil prepara o Player Intelligence para uma futura área completa de histórico com paginação, filtros e evolução temporal.",
+      },
+    ],
+  },
+
+  {
     version: "0.9.4",
     title: "Player Event History & Raid Reliability",
     date: "2026-08-31",
-    current: true,
+    current: false,
     summary:
       "Expansão do Player Intelligence com histórico individual de Jogos do Clã e Raid Weekend, reorganização da área histórica dos jogadores e fortalecimento da persistência de Raid Weekend para preservar continuamente participação e desempenho dos membros.",
 

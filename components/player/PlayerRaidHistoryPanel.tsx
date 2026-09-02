@@ -77,7 +77,7 @@ export function PlayerRaidHistoryPanel({
 }: PlayerRaidHistoryPanelProps) {
   if (history.totalParticipations === 0) {
     return (
-      <section className="self-start rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
+      <section className="w-full rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">
           Raid Weekend
         </p>
@@ -99,21 +99,23 @@ export function PlayerRaidHistoryPanel({
           Raid Weekend
         </p>
 
-        <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 className="text-lg font-black text-white">Capital do Clã</h2>
+        <div className="mt-1">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            <h2 className="text-lg font-black leading-tight text-white">
+              Capital do Clã
+            </h2>
 
-            <p className="mt-1 text-xs text-slate-500">
-              Desempenho individual nos finais de semana de ataque.
-            </p>
+            <span className="w-fit shrink-0 rounded-full border border-slate-700 bg-slate-950/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+              {history.totalParticipations}{" "}
+              {history.totalParticipations === 1
+                ? "participação"
+                : "participações"}
+            </span>
           </div>
 
-          <span className="rounded-full border border-slate-700 bg-slate-950/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
-            {history.totalParticipations}{" "}
-            {history.totalParticipations === 1
-              ? "participação"
-              : "participações"}
-          </span>
+          <p className="mt-1 text-xs text-slate-500">
+            Desempenho individual nos finais de semana de ataque.
+          </p>
         </div>
       </div>
 
@@ -169,12 +171,12 @@ export function PlayerRaidHistoryPanel({
           </p>
 
           <span className="text-[10px] font-medium text-slate-600">
-            Últimos {Math.min(history.participations.length, 5)}
+            Últimos {Math.min(history.participations.length, 3)}
           </span>
         </div>
 
         <div className="mt-3 space-y-2">
-          {history.participations.slice(0, 5).map((participation) => (
+          {history.participations.slice(0, 3).map((participation) => (
             <div
               key={participation.raidWeekendId}
               className="rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3"
@@ -231,15 +233,15 @@ function Metric({
   return (
     <div
       className={[
-        "border-b border-slate-800 p-3 sm:border-b-0",
+        "border-b border-slate-800 px-3 py-3 sm:border-b-0",
         last ? "" : "sm:border-r",
       ].join(" ")}
     >
-      <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+      <p className="flex min-h-8 items-end text-[10px] font-black uppercase leading-tight tracking-wider text-slate-500">
         {label}
       </p>
 
-      <p className="mt-1 text-lg font-black text-white">{value}</p>
+      <p className="mt-1 text-lg font-black leading-none text-white">{value}</p>
     </div>
   );
 }

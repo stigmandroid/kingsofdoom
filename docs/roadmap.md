@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 31/08/2026
+# 01/09/2026
 
 #
 
 # Versão:
 
-# v0.9.4
+# v0.9.5
 
 #
 
@@ -83,15 +83,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.9.4`
+`v0.9.5`
 
 **Fase do projeto**
 
-`Player Intelligence — Event History & Raid Reliability`
+`Player Intelligence — Reliability & Historical UX`
 
 **Objetivo atual**
 
-Consolidar o histórico individual dos jogadores através de Guerras, CWL, Jogos do Clã e Raid Weekend, garantindo que a participação e o desempenho dos membros sejam preservados continuamente no SQLite e preparando a coleta automática dos próximos eventos.
+Consolidar a confiabilidade dos arquivos históricos e preparar o Player Intelligence para crescimento contínuo, garantindo identidade estável das guerras, apresentação responsiva dos eventos e separação entre resumos recentes e futuras visualizações completas do histórico.
 
 ---
 
@@ -1887,9 +1887,9 @@ Expandir o Player Intelligence através da integração dos eventos históricos 
 
 ### Automação de produção
 
-🟨 Executar Raid Collector automaticamente a cada 10 minutos
+✅ Executar Raid Collector automaticamente a cada 10 minutos
 
-⬜ Validar primeira execução automática em produção
+✅ Validar primeira execução automática em produção
 
 ⬜ Validar coleta de jogadores que entrem, ataquem e deixem o clã durante o evento
 
@@ -1910,6 +1910,108 @@ Expandir o Player Intelligence através da integração dos eventos históricos 
 ⬜ Comparação histórica entre temporadas dos Jogos do Clã
 
 ⬜ Indicadores consolidados de participação nos eventos
+
+---
+
+# ✅ v0.9.5 — War Archive Reliability & Event History UX
+
+## Objetivo
+
+Fortalecer a integridade do histórico de guerras e melhorar a experiência de consulta dos eventos individuais, garantindo que o crescimento contínuo dos registros não comprometa a confiabilidade dos dados nem a organização do perfil do jogador.
+
+### War Archive Reliability
+
+✅ Investigação de guerra duplicada em produção
+
+✅ Identificação da causa relacionada à alteração dos horários retornados pela Clash API
+
+✅ Reconciliação de identidade entre snapshots de preparation, inWar e warEnded
+
+✅ Busca por guerras compatíveis antes da criação de um novo warKey
+
+✅ Validação pelo clã monitorado
+
+✅ Validação pelo adversário
+
+✅ Validação pelo tamanho da guerra
+
+✅ Validação por proximidade temporal
+
+✅ Preservação do warKey existente quando a guerra já é conhecida
+
+✅ Proteção contra duplicidades provocadas por mudanças de timestamp
+
+✅ Snapshots em preparation removidos do histórico individual do jogador
+
+✅ Preservação de guerras encerradas mesmo quando o jogador não utilizou ataques
+
+✅ Auditoria do registro duplicado em produção
+
+✅ Backup consistente do SQLite antes da correção
+
+✅ Remoção segura do snapshot histórico fantasma
+
+✅ Preservação integral da guerra definitiva
+
+✅ Validação dos ataques e estrelas após a limpeza
+
+### Event History UX
+
+✅ Jogos do Clã adaptado para ocupar corretamente a largura disponível
+
+✅ Melhorias responsivas no histórico individual dos Jogos do Clã
+
+✅ Padronização dos badges de participação
+
+✅ Alinhamento vertical dos indicadores históricos
+
+✅ Correção da linha de base dos valores no desktop
+
+✅ Refinamento do cabeçalho do Raid Weekend
+
+✅ Badge de participação do Raid Weekend reorganizado no desktop
+
+✅ Jogos do Clã e Raid Weekend com linguagem visual consistente
+
+✅ Histórico recente limitado para impedir crescimento vertical ilimitado
+
+✅ Dados históricos completos preservados no SQLite
+
+### Estratégia de crescimento histórico
+
+✅ Separação entre armazenamento completo e visualização resumida
+
+✅ Perfil preparado para apresentar somente registros recentes
+
+✅ Fundação visual para crescimento de múltiplas temporadas dos Jogos do Clã
+
+✅ Fundação visual para crescimento contínuo dos Raid Weekends
+
+### Próxima evolução — Histórico Completo
+
+⬜ Criar área dedicada ao histórico completo do jogador
+
+⬜ Histórico completo de guerras
+
+⬜ Histórico completo de CWL
+
+⬜ Histórico completo dos Jogos do Clã
+
+⬜ Histórico completo de Raid Weekend
+
+⬜ Paginação dos registros históricos
+
+⬜ Filtros por ano
+
+⬜ Filtros por período
+
+⬜ Navegação entre modalidades históricas
+
+⬜ Indicadores de evolução temporal
+
+⬜ Comparações entre períodos
+
+⬜ Preparar gráficos históricos de desempenho
 
 ---
 

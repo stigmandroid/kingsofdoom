@@ -272,6 +272,7 @@ export function getPlayerWarHistory(
 
         WHERE m.player_tag = ?
           AND m.side = 'clan'
+          AND w.state <> 'preparation'
 
         ORDER BY
           COALESCE(

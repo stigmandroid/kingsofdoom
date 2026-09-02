@@ -7,6 +7,62 @@ export type WarArchiveResultType =
   | "loss"
   | "draw";
 
+export type WarIdentityCandidate = {
+  id: number;
+  warKey: string;
+  state: string;
+  teamSize: number | null;
+  preparationStartTime: string | null;
+  startTime: string | null;
+  endTime: string | null;
+};
+
+/**
+ * ==========================================================
+ * IDENTIDADE DA GUERRA
+ * ==========================================================
+ */
+
+/**
+ * Recupera guerras recentes contra o mesmo adversário para
+ * auxiliar na identificação de uma guerra já conhecida.
+ *
+ * Não filtramos somente guerras abertas porque uma coleta
+ * posterior ao encerramento pode receber horários diferentes
+ * da Clash API. Nesse cenário, o registro warEnded também
+ * precisa continuar disponível para reconciliação.
+ *
+ * A validação final de identidade é realizada pelo service,
+ * considerando tamanho da guerra e proximidade dos horários.
+ */
+export function getWarIdentityCandidates({
+  trackedClanTag,
+  opponentTag,
+}: {
+  trackedClanTag: string;
+  opponentTag: string;
+}): WarIdentityCandidate[] {
+  return database
+    .prepare(
+      `
+        SELECT
+          id,
+          war_key AS warKey,
+          state,
+          team_size AS teamSize,
+          preparation_start_time AS preparationStartTime,
+          start_time AS startTime,
+          end_time AS endTime
+        FROM war_history
+        WHERE tracked_clan_tag = ?
+          AND opponent_tag = ?
+        ORDER BY updated_at DESC
+        LIMIT 5
+      `,
+    )
+    .all(trackedClanTag, opponentTag) as WarIdentityCandidate[];
+}
+
 export function upsertWarHistory(input: {
   warKey: string;
   trackedClanTag: string;

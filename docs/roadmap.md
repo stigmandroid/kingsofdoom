@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 01/09/2026
+# 06/09/2026
 
 #
 
 # Versão:
 
-# v0.9.5
+# v0.9.6
 
 #
 
@@ -83,15 +83,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.9.5`
+`v0.9.6`
 
 **Fase do projeto**
 
-`Player Intelligence — Reliability & Historical UX`
+`Platform Integrations — COC Bot Verification Gateway`
 
 **Objetivo atual**
 
-Consolidar a confiabilidade dos arquivos históricos e preparar o Player Intelligence para crescimento contínuo, garantindo identidade estável das guerras, apresentação responsiva dos eventos e separação entre resumos recentes e futuras visualizações completas do histórico.
+Integrar o Kings of Doom Command Center ao COC Bot através de uma camada web segura, permitindo validar a propriedade de contas do Clash of Clans iniciadas pelo WhatsApp sem misturar as responsabilidades das duas aplicações.
 
 ---
 
@@ -2015,6 +2015,112 @@ Fortalecer a integridade do histórico de guerras e melhorar a experiência de c
 
 ---
 
+# 🟨 v0.9.6 — COC Bot Verification Gateway
+
+## Objetivo
+
+Criar a primeira integração oficial entre o Kings of Doom Command Center e o COC Bot, utilizando o portal como camada web segura para fluxos iniciados pelo WhatsApp que exigem confirmação de identidade fora da conversa.
+
+### Entregas concluídas
+
+✅ Rota localizada para verificação de contas Clash
+
+✅ Página dedicada em `/[locale]/cocbot/verify/[token]`
+
+✅ Interface independente da Navbar e Footer do Command Center
+
+✅ Criação do `LocaleShell` para rotas especiais
+
+✅ Identificação visual da conta sendo verificada
+
+✅ Exibição do nome do jogador
+
+✅ Exibição da tag do jogador
+
+✅ Campo protegido para Clash API Token
+
+✅ Estado de carregamento da sessão
+
+✅ Estado de sessão inválida
+
+✅ Estado de sessão expirada
+
+✅ Estado de conta verificada
+
+✅ Sessões temporárias iniciadas pelo COC Bot
+
+✅ Links individuais de verificação
+
+✅ Validade limitada das sessões
+
+✅ Integração com Português do Brasil
+
+✅ Integração com Inglês
+
+✅ Traduções através do `next-intl`
+
+✅ Locale definido através da URL gerada pelo COC Bot
+
+✅ Gateway server-side para consulta de sessões
+
+✅ Gateway server-side para confirmação da conta
+
+✅ Comunicação autenticada com a API privada do COC Bot
+
+✅ Segredo privado mantido exclusivamente no backend
+
+✅ Clash API Token não persistido pelo Command Center
+
+✅ Arquitetura preparada para comunicação local entre site e bot na mesma VPS
+
+✅ Interface responsiva para dispositivos móveis
+
+### Validação de produção pendente
+
+🟨 Publicar as novas rotas no servidor de produção
+
+🟨 Configurar `COCBOT_PRIVATE_API_URL` no ambiente de produção
+
+🟨 Configurar `COCBOT_PRIVATE_API_SECRET` no ambiente de produção
+
+🟨 Confirmar comunicação `Command Center → COC Bot` através de `127.0.0.1:3100`
+
+🟨 Validar abertura de um link real gerado pelo `/linkplayer`
+
+🟨 Validar consulta de uma sessão real do COC Bot
+
+🟨 Validar envio de Clash API Token através do portal
+
+🟨 Confirmar encerramento da sessão após verificação bem-sucedida
+
+🟨 Confirmar vínculo definitivo `WhatsApp User ↔ Clash Player`
+
+🟨 Validar experiência completa em dispositivo móvel
+
+### Próxima evolução — COC Bot Web Integration
+
+⬜ Adicionar identidade visual oficial do COC Bot à página
+
+⬜ Refinar mensagens de erro retornadas pela API
+
+⬜ Criar experiência específica para conta já vinculada
+
+⬜ Criar experiência específica para sessão já utilizada
+
+⬜ Avaliar página pública de informações do COC Bot
+
+⬜ Integrar status operacional do COC Bot ao Command Center
+
+⬜ Preparar futuras visualizações de contas vinculadas
+
+⬜ Preparar futuras visualizações de clãs vinculados
+
+⬜ Preparar futura integração com tracking e eventos do COC Bot
+
+⬜ Preparar páginas públicas de Releases e Roadmap do COC Bot
+
+---
+
 # v0.10.0 — Community
 
 ## Objetivo
@@ -2143,19 +2249,23 @@ Planejamento
 
 ### Objetivo
 
-Transformar o sistema em uma plataforma integrada.
+Expandir o Kings of Doom Command Center como plataforma integrada a serviços, automações e canais externos.
 
 Planejamento
 
-⬜ Discord
+🟨 WhatsApp através do COC Bot
 
-⬜ WhatsApp
+⬜ Expansão da integração Command Center ↔ COC Bot
+
+⬜ Discord
 
 ⬜ APIs externas
 
 ⬜ Exportação de dados
 
 ⬜ Compartilhamento
+
+⬜ Integrações com serviços de terceiros
 
 ---
 

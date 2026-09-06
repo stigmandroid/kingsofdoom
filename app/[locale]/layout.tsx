@@ -27,6 +27,7 @@ import { notFound } from "next/navigation";
 
 import { Navbar } from "@/components/layout/Navbar";
 import { routing } from "@/i18n/routing";
+import { LocaleShell } from "@/components/layout/LocaleShell";
 
 /**
  * Propriedades recebidas pelo layout localizado.
@@ -105,22 +106,9 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <div className="flex min-h-screen flex-col bg-slate-950">
-        {/*
-         * Navegação global exibida em todas as páginas localizadas.
-         */}
-        <Navbar />
-
-        {/*
-         * Conteúdo específico da rota atual.
-         */}
-        <main className="flex-1">{children}</main>
-
-        {/*
-         * Rodapé global do portal.
-         */}
-        <Footer locale={locale} />
-      </div>
+      <LocaleShell navbar={<Navbar />} footer={<Footer locale={locale} />}>
+        {children}
+      </LocaleShell>
     </NextIntlClientProvider>
   );
 }

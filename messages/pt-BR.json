@@ -17,5 +17,31 @@
     "viewStats": "Ver estatísticas",
     "officialData": "Dados oficiais do Clash of Clans",
     "automaticUpdates": "Atualização automática"
-  }
+  },
+  "CocBotVerification": {
+  "title": "COC Bot",
+  "subtitle": "Verificação segura da conta Clash",
+  "loading": "Carregando sessão de verificação...",
+  "accountBeingVerified": "Conta sendo verificada",
+  "instructions": "Informe o API Token gerado dentro do Clash of Clans para confirmar que esta conta pertence a você.",
+  "tokenLocation": "Clash of Clans → Configurações → Mais configurações → API Token",
+  "tokenLabel": "API Token do Clash",
+  "tokenPlaceholder": "Digite seu API Token",
+  "verifyButton": "Verificar conta",
+  "verifyingButton": "Verificando...",
+  "temporaryLink": "Este link de verificação é temporário.",
+  "privacy": "Seu API Token do Clash é utilizado somente para verificar a conta e nunca é armazenado.",
+  "expiredTitle": "Link de verificação expirado",
+  "expiredDescription": "Este link de verificação não está mais ativo. Solicite um novo link ao COC Bot.",
+  "invalidTitle": "Link de verificação inválido",
+  "invalidDescription": "Esta sessão de verificação não foi encontrada ou não está mais disponível.",
+  "requestNewLink": "Volte ao WhatsApp e use /linkplayer #TAG novamente.",
+  "successTitle": "Conta verificada",
+  "successDescription": "Esta conta do Clash of Clans agora está vinculada ao seu perfil no COC Bot.",
+  "successClose": "Você pode fechar esta página e voltar ao WhatsApp.",
+  "tokenRequired": "Informe seu API Token do Clash.",
+  "verificationFailed": "Não foi possível verificar esta conta.",
+  "serviceUnavailable": "Não foi possível conectar ao serviço de verificação.",
+  "unknownPlayer": "Jogador do Clash"
+}
 }

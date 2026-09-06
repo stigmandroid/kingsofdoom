@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 01/09/2026
+ * 06/09/2026
  * ==========================================================
  */
 
@@ -145,10 +145,105 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.6",
+    title: "COC Bot Verification Gateway",
+    date: "2026-09-06",
+    current: true,
+    summary:
+      "Integração inicial entre o Kings of Doom Command Center e o COC Bot, criando uma experiência web segura para verificação de contas do Clash of Clans, comunicação privada entre as duas aplicações, sessões temporárias e suporte localizado em Português do Brasil e Inglês.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "Página segura de verificação do COC Bot",
+        description:
+          "Foi criada uma rota dedicada para permitir que jogadores confirmem a propriedade de suas contas do Clash of Clans através de uma interface web temporária integrada ao Command Center.",
+      },
+      {
+        type: "feature",
+        title: "Identificação da conta em verificação",
+        description:
+          "A página de verificação passou a apresentar nome e tag do jogador antes do envio do API Token, deixando explícita qual conta será vinculada ao perfil do usuário no COC Bot.",
+      },
+      {
+        type: "feature",
+        title: "Integração com Clash API Token",
+        description:
+          "O usuário pode informar o API Token gerado pelo Clash of Clans para confirmar a propriedade da conta através do fluxo de verificação iniciado pelo COC Bot.",
+      },
+      {
+        type: "feature",
+        title: "Sessões temporárias de verificação",
+        description:
+          "Cada processo iniciado pelo COC Bot utiliza uma sessão individual e temporária, associando o usuário do WhatsApp à conta Clash que está sendo confirmada.",
+      },
+      {
+        type: "feature",
+        title: "Estados completos da verificação",
+        description:
+          "A interface passou a tratar carregamento, sessão válida, link inválido, sessão expirada e confirmação concluída através de estados visuais próprios.",
+      },
+      {
+        type: "feature",
+        title: "Internacionalização da verificação",
+        description:
+          "A experiência do COC Bot foi integrada ao next-intl do Command Center, com suporte inicial a Português do Brasil e Inglês através das rotas localizadas do portal.",
+      },
+      {
+        type: "improvement",
+        title: "Interface independente do Command Center",
+        description:
+          "As páginas do COC Bot passaram a utilizar uma composição visual própria, sem Navbar e Footer do portal principal, preservando foco, simplicidade e legibilidade no processo de verificação.",
+      },
+      {
+        type: "technical",
+        title: "LocaleShell",
+        description:
+          "Foi criada uma camada de layout capaz de identificar rotas especiais do COC Bot e renderizá-las fora da estrutura visual padrão sem alterar o comportamento das demais páginas localizadas.",
+      },
+      {
+        type: "technical",
+        title: "Gateway privado para sessões do COC Bot",
+        description:
+          "Foi criada uma rota server-side para consultar sessões de verificação diretamente na API privada do COC Bot, mantendo credenciais e segredos exclusivamente no servidor.",
+      },
+      {
+        type: "technical",
+        title: "Gateway privado para confirmação de conta",
+        description:
+          "O envio do Clash API Token é recebido pelo backend do Command Center e encaminhado à API privada do COC Bot sem expor o segredo interno de comunicação ao navegador.",
+      },
+      {
+        type: "technical",
+        title: "Comunicação local entre aplicações",
+        description:
+          "A arquitetura foi preparada para permitir que Kings of Doom Command Center e COC Bot se comuniquem internamente na mesma VPS através de uma API privada não exposta diretamente à internet.",
+      },
+      {
+        type: "technical",
+        title: "Separação entre produto web e automação",
+        description:
+          "O COC Bot permanece como aplicação independente do Command Center, enquanto o portal atua como camada web segura para fluxos que exigem interação fora do WhatsApp.",
+      },
+      {
+        type: "technical",
+        title: "Proteção do Clash API Token",
+        description:
+          "O API Token informado pelo jogador é utilizado exclusivamente durante a tentativa de confirmação e não é persistido pelo Command Center.",
+      },
+      {
+        type: "improvement",
+        title: "Experiência mobile-first",
+        description:
+          "A página de verificação foi construída com foco em dispositivos móveis, considerando que o acesso normalmente será iniciado através de um link recebido diretamente no WhatsApp.",
+      },
+    ],
+  },
+  {
     version: "0.9.5",
     title: "War Archive Reliability & Event History UX",
     date: "2026-09-01",
-    current: true,
+    current: false,
     summary:
       "Fortalecimento da confiabilidade do War Archive e refinamento da experiência histórica do Player Intelligence, corrigindo duplicidades causadas por alterações de horários da Clash API e reorganizando os painéis de Jogos do Clã e Raid Weekend para desktop e dispositivos móveis.",
 

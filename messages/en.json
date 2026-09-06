@@ -8,6 +8,7 @@
     "homeLabel": "Go to homepage",
     "navigationLabel": "Main navigation"
   },
+
   "Hero": {
     "headlineFirst": "Data wins",
     "headlineSecond": "wars.",
@@ -17,5 +18,32 @@
     "viewStats": "View statistics",
     "officialData": "Official Clash of Clans data",
     "automaticUpdates": "Automatic updates"
+  },
+
+  "CocBotVerification": {
+    "title": "COC Bot",
+    "subtitle": "Secure Clash account verification",
+    "loading": "Loading verification session...",
+    "accountBeingVerified": "Account being verified",
+    "instructions": "Enter the API Token generated inside Clash of Clans to confirm that this account belongs to you.",
+    "tokenLocation": "Clash of Clans → Settings → More Settings → API Token",
+    "tokenLabel": "Clash API Token",
+    "tokenPlaceholder": "Enter your API Token",
+    "verifyButton": "Verify account",
+    "verifyingButton": "Verifying...",
+    "temporaryLink": "This verification link is temporary.",
+    "privacy": "Your Clash API Token is used only for account verification and is never stored.",
+    "expiredTitle": "Verification link expired",
+    "expiredDescription": "This verification link is no longer active. Request a new link from COC Bot.",
+    "invalidTitle": "Invalid verification link",
+    "invalidDescription": "This verification session could not be found or is no longer available.",
+    "requestNewLink": "Return to WhatsApp and use /linkplayer #TAG again.",
+    "successTitle": "Account verified",
+    "successDescription": "This Clash of Clans account is now linked to your COC Bot profile.",
+    "successClose": "You may close this page and return to WhatsApp.",
+    "tokenRequired": "Enter your Clash API Token.",
+    "verificationFailed": "Unable to verify this account.",
+    "serviceUnavailable": "Unable to connect to the verification service.",
+    "unknownPlayer": "Clash Player"
   }
 }

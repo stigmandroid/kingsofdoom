@@ -272,25 +272,25 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Giant Gauntlet": {
     src: "/game-assets/equipment/giant-gauntlet.png",
-    alt: "Manopla Gigante",
+    alt: "Manopla Agigantadora",
     rarity: "epic",
   },
 
   "Rocket Spear": {
     src: "/game-assets/equipment/rocket-spear-v2.png",
-    alt: "Lança-Foguetes",
+    alt: "Lança Brutal",
     rarity: "epic",
   },
 
   "Spiky Ball": {
     src: "/game-assets/equipment/spiky-ball.png",
-    alt: "Bola Espinhosa",
+    alt: "Bola de Espinhos",
     rarity: "epic",
   },
 
   "Frozen Arrow": {
     src: "/game-assets/equipment/frozen-arrow.png",
-    alt: "Flecha Congelada",
+    alt: "Flecha Congelante",
     rarity: "epic",
   },
 
@@ -304,6 +304,9 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
     src: "/game-assets/equipment/heroic-torch.png",
     alt: "Tocha Heroica",
     rarity: "epic",
+    scale: 1.2,
+    translateX: 10,
+    translateY: -6,
   },
 
   Fireball: {
@@ -314,7 +317,7 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Snake Bracelet": {
     src: "/game-assets/equipment/snake-bracelet.png",
-    alt: "Bracelete de Cobra",
+    alt: "Bracelete Ofídico",
     rarity: "epic",
   },
 
@@ -338,19 +341,19 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Lavaloon Puppet": {
     src: "/game-assets/equipment/lavaloon-puppet.png",
-    alt: "Fantoche Lavaloon",
+    alt: "Boneco de Lavalão",
     rarity: "epic",
   },
 
   "Action Figure": {
     src: "/game-assets/equipment/action-figure.png",
-    alt: "Boneco de Ação",
+    alt: "Boneco Gigante",
     rarity: "epic",
   },
 
   "Meteor Staff": {
     src: "/game-assets/equipment/meteor-staff.png",
-    alt: "Cajado Meteórico",
+    alt: "Bastão de Meteoros",
     rarity: "epic",
   },
 
@@ -358,6 +361,9 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
     src: "/game-assets/equipment/frost-flake.png",
     alt: "Floco de Gelo",
     rarity: "epic",
+    scale: 1.5,
+    translateX: 23,
+    translateY: 20,
   },
 
   "Stick Horse": {
@@ -386,7 +392,7 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Barbarian Puppet": {
     src: "/game-assets/equipment/barbarian-puppet.png",
-    alt: "Fantoche Bárbaro",
+    alt: "Boneco de Bárbaro",
     rarity: "common",
   },
 
@@ -398,7 +404,7 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Archer Puppet": {
     src: "/game-assets/equipment/archer-puppet.png",
-    alt: "Fantoche de Arqueira",
+    alt: "Boneco de Arqueira",
     rarity: "common",
   },
 
@@ -406,6 +412,8 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
     src: "/game-assets/equipment/invisibility-vial.png",
     alt: "Frasco de Invisibilidade",
     rarity: "common",
+    translateX: 0,
+    translateY: -5,
   },
 
   "Eternal Tome": {
@@ -422,8 +430,10 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Seeking Shield": {
     src: "/game-assets/equipment/seeking-shield.png",
-    alt: "Escudo Rastreador",
+    alt: "Escudo Escaldante",
     rarity: "common",
+    translateX: 0,
+    translateY: -2,
   },
 
   "Royal Gem": {
@@ -434,19 +444,19 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Earthquake Boots": {
     src: "/game-assets/equipment/earthquake-boots.png",
-    alt: "Botas de Terremoto",
+    alt: "Bota Terremoto",
     rarity: "common",
   },
 
   "Hog Rider Puppet": {
     src: "/game-assets/equipment/hog-rider-puppet.png",
-    alt: "Fantoche de Corredor",
+    alt: "Boneco de Corredor",
     rarity: "common",
   },
 
   Vampstache: {
     src: "/game-assets/equipment/vampstache.png",
-    alt: "Bigode Vampírico",
+    alt: "Bigode Vampiro",
     rarity: "common",
   },
 
@@ -464,7 +474,7 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Healer Puppet": {
     src: "/game-assets/equipment/healer-puppet.png",
-    alt: "Fantoche de Curadora",
+    alt: "Boneco de Curadora",
     rarity: "common",
   },
 
@@ -482,7 +492,7 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Henchmen Puppet": {
     src: "/game-assets/equipment/henchmen-puppet.png",
-    alt: "Fantoche de Capangas",
+    alt: "Marionete de Capanga",
     rarity: "common",
   },
 
@@ -494,7 +504,7 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Metal Pants": {
     src: "/game-assets/equipment/metal-pants.png",
-    alt: "Calças Metálicas",
+    alt: "Calça de Metal",
     rarity: "common",
   },
 
@@ -507,25 +517,25 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
 
   "Fire Heart": {
     src: "/game-assets/equipment/fire-heart.png",
-    alt: "Coração de Fogo",
+    alt: "Coração em Chamas",
     rarity: "common",
   },
 
   "Stun Blaster": {
     src: "/game-assets/equipment/stun-blaster.png",
-    alt: "Canhão Atordoante",
+    alt: "Choque Atordoante",
     rarity: "common",
   },
 
   "Flame Blower": {
     src: "/game-assets/equipment/flame-blower.png",
-    alt: "Soprador de Chamas",
+    alt: "Fole Flamejante",
     rarity: "common",
   },
 
   "Electro Fangs": {
     src: "/game-assets/equipment/electro-fangs.png",
-    alt: "Presas Elétricas",
+    alt: "Presa Elétrica",
     rarity: "common",
   },
 };
@@ -666,6 +676,9 @@ export const troopAssets: Record<string, GameAsset> = {
   "Ice Golem": {
     src: "/game-assets/troops/ice-golem.png",
     alt: "Golem de Gelo",
+    scale: 1.2,
+    translateX: 0,
+    translateY: 1,
   },
 
   "Electro Dragon": {
@@ -681,6 +694,9 @@ export const troopAssets: Record<string, GameAsset> = {
   Headhunter: {
     src: "/game-assets/troops/headhunter.png",
     alt: "Caçadora de Heróis",
+    scale: 1.5,
+    translateX: 0,
+    translateY: 0,
   },
 
   "Electro Titan": {
@@ -696,6 +712,9 @@ export const troopAssets: Record<string, GameAsset> = {
   "Root Rider": {
     src: "/game-assets/troops/root-rider.png",
     alt: "Montadora de Raiz",
+    scale: 1.2,
+    translateX: 0,
+    translateY: 1,
   },
 
   Druid: {
@@ -946,7 +965,7 @@ export const petAssets: Record<string, GameAsset> = {
 
   "Mighty Yak": {
     src: "/game-assets/pets/mighty-yak.png",
-    alt: "Iaque Poderoso",
+    alt: "Poderoso Iaque",
   },
 
   "Electro Owl": {
@@ -966,17 +985,17 @@ export const petAssets: Record<string, GameAsset> = {
 
   "Poison Lizard": {
     src: "/game-assets/pets/poison-lizard.png",
-    alt: "Lagarto Venenoso",
+    alt: "Peçonha",
   },
 
   Diggy: {
     src: "/game-assets/pets/diggy.png",
-    alt: "Diggy",
+    alt: "Pangolim Blindado",
   },
 
   Frosty: {
     src: "/game-assets/pets/frosty.png",
-    alt: "Frosty",
+    alt: "Morsa Glacial",
   },
 
   "Spirit Fox": {
@@ -986,17 +1005,20 @@ export const petAssets: Record<string, GameAsset> = {
 
   "Angry Jelly": {
     src: "/game-assets/pets/angry-jelly.png",
-    alt: "Água-viva Furiosa",
+    alt: "Raiva-Viva",
   },
 
   Sneezy: {
     src: "/game-assets/pets/sneezy.png",
-    alt: "Sneezy",
+    alt: "Meleca",
+    translateX: 0,
+    translateY: 18,
+    scale: 2,
   },
 
   "Greedy Raven": {
     src: "/game-assets/pets/greedy-raven.png",
-    alt: "Corvo Ganancioso",
+    alt: "Corvo Cobiçoso",
   },
 };
 

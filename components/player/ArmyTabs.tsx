@@ -29,14 +29,21 @@
  * • somente uma categoria é exibida por vez para reduzir o
  *   comprimento total do perfil.
  *
+ * Direção visual:
+ *
+ * • dourado representa navegação e destaque institucional;
+ * • o estado ativo usa borda e fundo dourados discretos;
+ * • estados de progresso/maximização pertencem aos tiles,
+ *   não às abas de navegação.
+ *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 23/08/2026
+ * 08/09/2026
  *
  * Versão:
- * 0.9.0
+ * 0.9.1
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -138,7 +145,7 @@ export default function ArmyTabs({
   };
 
   return (
-    <section className="border-b border-slate-800">
+    <section className="border-b border-slate-800/80">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/**
          * ====================================================
@@ -146,12 +153,12 @@ export default function ArmyTabs({
          * ====================================================
          */}
 
-        <div className="mb-5">
+        <div className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-400">
             Exército
           </p>
 
-          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-bold text-slate-50 sm:text-3xl">
             Arsenal do jogador
           </h2>
 
@@ -190,10 +197,10 @@ export default function ArmyTabs({
                 aria-selected={isActive}
                 onClick={() => setActiveTab(tab.id)}
                 className={[
-                  "flex min-h-[42px] min-w-0 items-center justify-center rounded-lg border px-2 py-2 text-center text-xs font-semibold transition md:min-h-[44px] md:min-w-[120px] md:px-5 md:text-sm",
+                  "flex min-h-[44px] min-w-0 items-center justify-center rounded-xl border px-2 py-2 text-center text-xs font-semibold transition-all duration-200 md:min-h-[46px] md:min-w-[120px] md:px-5 md:text-sm",
                   isActive
-                    ? "border-amber-400/50 bg-amber-400/10 text-amber-300"
-                    : "border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-700 hover:text-white",
+                    ? "border-amber-400/60 bg-amber-400/[0.09] text-amber-300 shadow-[0_0_0_1px_rgba(251,191,36,0.05)]"
+                    : "border-slate-800 bg-slate-950/30 text-slate-400 hover:border-slate-700 hover:bg-slate-900/50 hover:text-slate-100",
                 ].join(" ")}
               >
                 <span className="whitespace-nowrap">{tab.label}</span>
@@ -210,7 +217,7 @@ export default function ArmyTabs({
          * Somente uma categoria permanece visível por vez.
          */}
 
-        <div className="mt-6">{content[activeTab]}</div>
+        <div className="mt-7">{content[activeTab]}</div>
       </div>
     </section>
   );

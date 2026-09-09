@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 06/09/2026
+# 09/09/2026
 
 #
 
 # Versão:
 
-# v0.9.6
+# v0.9.7
 
 #
 
@@ -70,12 +70,17 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 # Legenda
 
-| Status | Significado        |
+| Status | Significado        |
+
 | ------ | ------------------ |
-| ⬜     | Planejado          |
-| 🟨     | Em desenvolvimento |
-| ✅     | Concluído          |
-| 🚫     | Cancelado          |
+
+| ⬜     | Planejado          |
+
+| 🟨     | Em desenvolvimento |
+
+| ✅     | Concluído          |
+
+| 🚫     | Cancelado          |
 
 ---
 
@@ -83,15 +88,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.9.6`
+`v0.9.7`
 
 **Fase do projeto**
 
-`Platform Integrations — COC Bot Verification Gateway`
+`Player Experience & COC Bot — Visual System and Public Experience`
 
 **Objetivo atual**
 
-Integrar o Kings of Doom Command Center ao COC Bot através de uma camada web segura, permitindo validar a propriedade de contas do Clash of Clans iniciadas pelo WhatsApp sem misturar as responsabilidades das duas aplicações.
+Consolidar a experiência visual do perfil individual dos jogadores, padronizar o Arsenal do Jogador e ampliar a presença pública do COC Bot dentro do Command Center, mantendo separadas a landing institucional e a experiência segura de verificação de contas.
 
 ---
 
@@ -2015,7 +2020,7 @@ Fortalecer a integridade do histórico de guerras e melhorar a experiência de c
 
 ---
 
-# 🟨 v0.9.6 — COC Bot Verification Gateway
+# ✅ v0.9.6 — COC Bot Verification Gateway
 
 ## Objetivo
 
@@ -2099,7 +2104,7 @@ Criar a primeira integração oficial entre o Kings of Doom Command Center e o C
 
 ### Próxima evolução — COC Bot Web Integration
 
-⬜ Adicionar identidade visual oficial do COC Bot à página
+✅ Adicionar identidade visual oficial do COC Bot à página
 
 ⬜ Refinar mensagens de erro retornadas pela API
 
@@ -2107,7 +2112,7 @@ Criar a primeira integração oficial entre o Kings of Doom Command Center e o C
 
 ⬜ Criar experiência específica para sessão já utilizada
 
-⬜ Avaliar página pública de informações do COC Bot
+✅ Criar página pública de informações do COC Bot
 
 ⬜ Integrar status operacional do COC Bot ao Command Center
 
@@ -2118,6 +2123,98 @@ Criar a primeira integração oficial entre o Kings of Doom Command Center e o C
 ⬜ Preparar futura integração com tracking e eventos do COC Bot
 
 ⬜ Preparar páginas públicas de Releases e Roadmap do COC Bot
+
+---
+
+# 🟨 v0.9.7 — Player Arsenal Visual System & COC Bot Public Experience
+
+## Objetivo
+
+Consolidar a linguagem visual do Arsenal do Jogador e transformar o COC Bot em uma superfície pública integrada ao Kings of Doom Command Center, preservando a experiência mobile-first e a separação arquitetural entre divulgação, navegação institucional e verificação segura de contas.
+
+### Entregas concluídas
+
+✅ Padronização visual dos estados maximizados no Arsenal do Jogador
+
+✅ Definição do dourado `#FACC15` como cor oficial de destaque para unidades e equipamentos no nível máximo
+
+✅ Remoção da indicação textual de MAX em favor de bordas, badges de nível e glow contextual
+
+✅ Preservação da identidade de raridade dos Equipamentos de Herói
+
+✅ Fundo azul para equipamentos comuns
+
+✅ Fundo roxo/fúcsia para equipamentos épicos
+
+✅ Estrutura visual neutra para cards e estados não maximizados
+
+✅ Glow de hover e destaque do badge de nível em itens maximizados
+
+✅ Ajustes individuais de escala e posicionamento através do catálogo central de assets
+
+✅ Correções de enquadramento em Equipamentos, Tropas e Pets
+
+✅ Revisão dos nomes em Português do Brasil dos Equipamentos de Herói
+
+✅ Revisão dos nomes em Português do Brasil dos Pets
+
+✅ Primeira landing page pública do COC Bot em `/[locale]/cocbot`
+
+✅ Desenvolvimento mobile-first da página pública do COC Bot
+
+✅ Integração do COC Bot à Navbar principal e ao menu mobile
+
+✅ Integração da landing ao Footer institucional do Command Center
+
+✅ Refinamento do `LocaleShell` para manter somente `/[locale]/cocbot/verify/[token]` fora da navegação institucional
+
+✅ Separação explícita entre landing pública e fluxo seguro de verificação
+
+✅ Criação da identidade visual oficial do COC Bot
+
+✅ Criação do logotipo oficial do COC Bot
+
+✅ Criação de versão transparente do logotipo para utilização no site
+
+✅ Integração do logotipo oficial ao Hero da landing
+
+✅ Criação de imagem oficial para o perfil do COC Bot no WhatsApp
+
+✅ Consolidação da identidade visual dark navy, slate e dourado entre Command Center e COC Bot
+
+### Pendências do Arsenal do Jogador
+
+🟨 Revisar os nomes em Português do Brasil das Tropas
+
+🟨 Revisar os nomes em Português do Brasil dos Feitiços
+
+🟨 Revisar os nomes em Português do Brasil das Máquinas de Cerco
+
+🟨 Localizar assets corretos para unidades que ainda utilizam imagens ausentes ou inadequadas
+
+🟨 Substituir os assets identificados como incorretos
+
+🟨 Finalizar ajustes pontuais de escala e posicionamento das categorias restantes
+
+🟨 Executar revisão visual final de todo o Arsenal do Jogador em desktop e mobile
+
+### Próximas evoluções — COC Bot
+
+⬜ Refinar conteúdo e composição visual da landing pública
+
+⬜ Inserir screenshots reais das automações do COC Bot
+
+⬜ Configurar CTA definitivo de contato pelo WhatsApp
+
+⬜ Criar card visual completo do estado da conta do jogador
+
+⬜ Criar acompanhamento individual da Liga de Troféus pelo COC Bot
+
+⬜ Expandir a experiência individual para Raid Weekend
+
+⬜ Expandir a experiência individual para Jogos do Clã
+
+⬜ Integrar histórico e indicadores individuais do Player Intelligence ao COC Bot
 
 ---
 
@@ -2350,4 +2447,5 @@ Se a resposta for "não", ela deve ser reavaliada.
 ---
 
 > **Toda grande plataforma começa com uma única versão. O importante é nunca parar de evoluir.**```
+
 ````

@@ -20,10 +20,13 @@
  *
  * Estratégia visual:
  *
- * O componente foi projetado para permitir a exibição de
- * vários heróis simultaneamente sem criar cards verticais
- * excessivamente grandes, principalmente em dispositivos
- * móveis.
+ * • itens não maximizados utilizam a paleta neutra;
+ * • itens maximizados são identificados exclusivamente
+ *   através de cor, contorno e brilho sutil;
+ * • não utilizamos selo ou texto "MAX";
+ * • o ciano/verde-água representa conclusão;
+ * • o dourado permanece reservado à identidade visual e
+ *   aos estados de navegação da interface.
  *
  * A resolução do asset permanece centralizada em
  * config/assets.ts. Dessa forma, este componente não precisa
@@ -33,10 +36,10 @@
  * stigmandroid
  *
  * Última atualização:
- * 17/08/2026
+ * 08/09/2026
  *
  * Versão:
- * 0.8.8
+ * 0.8.9
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -52,8 +55,11 @@ import { getHeroAsset } from "@/config/assets";
 import type { PlayerHero } from "@/types/player";
 
 /**
- * Propriedades recebidas pelo componente visual de herói.
+ * ==========================================================
+ * PROPRIEDADES
+ * ==========================================================
  */
+
 type HeroTileProps = {
   /**
    * Dados atuais do herói retornados pela Player API.
@@ -62,14 +68,11 @@ type HeroTileProps = {
 };
 
 /**
- * Renderiza um herói da Vila Principal em formato compacto.
- *
- * A API é responsável pelos dados dinâmicos, como nível
- * atual e nível máximo.
- *
- * O catálogo local de assets é responsável exclusivamente
- * pela representação visual do herói.
+ * ==========================================================
+ * COMPONENTE
+ * ==========================================================
  */
+
 export function HeroTile({ hero }: HeroTileProps) {
   /**
    * Recupera o recurso gráfico correspondente ao nome
@@ -102,16 +105,88 @@ export function HeroTile({ hero }: HeroTileProps) {
       ? Math.min(100, Math.round((hero.level / hero.maxLevel) * 100))
       : 0;
 
+  /**
+   * ========================================================
+   * ESTADOS VISUAIS
+   * ========================================================
+   *
+   * Regra oficial do Arsenal:
+   *
+   * Neutro:
+   * bordas slate.
+   *
+   * Maximizado:
+   * ciano/verde-água #2DD4BF.
+   *
+   * Nenhum texto adicional é utilizado para comunicar MAX.
+   */
+
+  const cardClassName = [
+    "group rounded-2xl border",
+    "border-slate-800",
+    "bg-slate-900/60",
+    "p-3 text-center",
+    "transition-all duration-300",
+    "hover:border-slate-700",
+    "hover:bg-slate-900/80",
+  ].join(" ");
+
+  const imageContainerClassName = isMax
+    ? [
+        "relative mx-auto flex aspect-square w-full max-w-24",
+        "items-center justify-center overflow-hidden rounded-2xl border",
+        "border-[#FACC15]/80",
+        "bg-slate-950/70",
+        "shadow-[0_0_0_1px_rgba(250,204,21,0.06),0_0_12px_rgba(250,204,21,0.05)]",
+        "transition-all duration-300",
+        "group-hover:border-[#FACC15]",
+        "group-hover:shadow-[0_0_0_1px_rgba(250,204,21,0.14),0_0_20px_rgba(250,204,21,0.20)]",
+        "sm:max-w-28",
+      ].join(" ")
+    : [
+        "relative mx-auto flex aspect-square w-full max-w-24",
+        "items-center justify-center overflow-hidden rounded-2xl border",
+        "border-slate-800",
+        "bg-slate-950/70",
+        "transition-all duration-300",
+        "group-hover:border-slate-700",
+        "sm:max-w-28",
+      ].join(" ");
+
+  const levelBadgeClassName = isMax
+    ? [
+        "absolute bottom-1 right-1 flex min-w-7",
+        "items-center justify-center rounded-lg border",
+        "border-[#FACC15]/90",
+        "bg-slate-950/95",
+        "px-1.5 py-1",
+        "text-xs font-black text-white",
+        "shadow-[0_0_8px_rgba(250,204,21,0.14)]",
+        "transition-all duration-300",
+        "group-hover:border-[#FACC15]",
+        "group-hover:shadow-[0_0_14px_rgba(250,204,21,0.30)]",
+      ].join(" ")
+    : [
+        "absolute bottom-1 right-1 flex min-w-7",
+        "items-center justify-center rounded-lg border",
+        "border-slate-700",
+        "bg-slate-950/90",
+        "px-1.5 py-1",
+        "text-xs font-black text-white",
+        "shadow-lg",
+        "transition-all duration-300",
+        "group-hover:border-slate-600",
+      ].join(" ");
+
   return (
-    <article className="group rounded-2xl border border-slate-800 bg-slate-900/60 p-3 text-center transition duration-300 hover:border-amber-400/40 hover:bg-slate-900">
-      {/*
-       * Área principal da imagem.
-       *
-       * O aspect-square mantém todos os heróis dentro de
-       * contêineres visualmente consistentes mesmo quando as
-       * imagens originais possuem proporções diferentes.
+    <article className={cardClassName}>
+      {/**
+       * ====================================================
+       * IMAGEM
+       * ====================================================
        */}
-      <div className="relative mx-auto flex aspect-square w-full max-w-24 items-center justify-center overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/70 sm:max-w-28">
+
+      <div className={imageContainerClassName}>
         {asset ? (
           <Image
             src={asset.src}
@@ -121,7 +196,7 @@ export function HeroTile({ hero }: HeroTileProps) {
             className="object-contain p-1 transition duration-300 group-hover:scale-105"
           />
         ) : (
-          /*
+          /**
            * Fallback utilizado caso o asset ainda não esteja
            * cadastrado ou o nome retornado pela API seja
            * desconhecido pelo catálogo local.
@@ -134,53 +209,56 @@ export function HeroTile({ hero }: HeroTileProps) {
           </div>
         )}
 
-        {/*
-         * Selo sobreposto com o nível atual.
+        {/**
+         * ==================================================
+         * NÍVEL
+         * ==================================================
          *
-         * Mantemos o nível diretamente sobre a imagem para
-         * facilitar a leitura rápida em grades compactas.
+         * O nível permanece sobreposto ao asset para manter
+         * leitura rápida em grids compactos.
+         *
+         * Quando maximizado, somente o contorno muda.
          */}
-        <span className="absolute bottom-1 right-1 flex min-w-7 items-center justify-center rounded-lg border border-slate-700 bg-slate-950/90 px-1.5 py-1 text-xs font-black text-white shadow-lg">
-          {hero.level}
-        </span>
+
+        <span className={levelBadgeClassName}>{hero.level}</span>
       </div>
 
-      {/*
-       * Nome localizado visualmente por meio do catálogo de
-       * assets.
-       *
-       * Quando não houver asset, utilizamos o nome original
-       * retornado pela API.
+      {/**
+       * ====================================================
+       * NOME
+       * ====================================================
        */}
+
       <p
         translate="no"
-        className="notranslate mt-3 truncate text-sm font-black text-white"
+        className="notranslate mt-3 truncate text-sm font-black text-slate-50"
       >
         {asset?.alt ?? hero.name ?? "Herói"}
       </p>
 
-      {/*
-       * Indicadores compactos de progressão.
+      {/**
+       * ====================================================
+       * PROGRESSO
+       * ====================================================
+       *
+       * O texto "MAX" foi removido.
+       *
+       * Quando o herói estiver maximizado:
+       * • mostramos somente nível atual / máximo;
+       * • o status é comunicado pelo contorno ciano.
+       *
+       * Quando ainda houver evolução:
+       * • mostramos nível atual / máximo;
+       * • mostramos também o percentual nominal.
        */}
+
       <div className="mt-1 flex items-center justify-center gap-1.5 text-xs">
-        <span className="font-bold text-slate-500">
+        <span className="font-bold text-slate-400">
           {hero.level}/{hero.maxLevel}
         </span>
 
-        {isMax ? (
-          /*
-           * Estado utilizado quando o nível máximo atual foi
-           * atingido.
-           */
-          <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-1.5 py-0.5 text-[9px] font-black text-emerald-300">
-            MAX
-          </span>
-        ) : (
-          /*
-           * Enquanto houver evolução disponível, exibimos o
-           * percentual nominal calculado anteriormente.
-           */
-          <span className="text-[10px] font-bold text-amber-300">
+        {!isMax && (
+          <span className="text-[10px] font-bold text-slate-500">
             {progress}%
           </span>
         )}

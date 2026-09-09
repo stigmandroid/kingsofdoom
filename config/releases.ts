@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 06/09/2026
+ * 09/09/2026
  * ==========================================================
  */
 
@@ -145,10 +145,118 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.7",
+    title: "Player Arsenal Visual System & COC Bot Public Experience",
+    date: "2026-09-09",
+    current: true,
+    summary:
+      "Consolidação da identidade visual do Arsenal do Jogador e expansão da presença pública do COC Bot, com padronização dos estados maximizados, ajustes individuais de assets, revisão parcial da localização em Português do Brasil, landing page mobile-first, integração à navegação institucional e criação da identidade visual oficial do COC Bot.",
+
+    changes: [
+      {
+        type: "improvement",
+        title: "Sistema visual de itens maximizados",
+        description:
+          "O Arsenal do Jogador passou a utilizar uma linguagem visual consistente para unidades e equipamentos no nível máximo, concentrando o estado em bordas, badges de nível e glow dourado em vez de indicadores textuais de MAX.",
+      },
+      {
+        type: "improvement",
+        title: "Dourado oficial para estado máximo",
+        description:
+          "O dourado #FACC15 foi consolidado como principal cor de destaque para assets maximizados, alinhando Heróis, Equipamentos, Tropas, Feitiços, Máquinas de Cerco e Pets à identidade visual do Command Center.",
+      },
+      {
+        type: "improvement",
+        title: "Raridade dos Equipamentos preservada",
+        description:
+          "A diferenciação entre equipamentos comuns e épicos permanece concentrada no fundo dos cards, utilizando azul para itens comuns e roxo/fúcsia para itens épicos, enquanto o estado maximizado é comunicado pelo contorno dourado.",
+      },
+      {
+        type: "technical",
+        title: "Ajustes individuais de assets",
+        description:
+          "O catálogo central de assets passou a ser utilizado para calibrar escala e posicionamento individual de imagens através de scale, translateX e translateY, evitando alterações globais para corrigir unidades específicas.",
+      },
+      {
+        type: "fix",
+        title: "Correções de enquadramento do Arsenal",
+        description:
+          "Foram realizados ajustes de tamanho e posicionamento em diferentes Equipamentos, Tropas e Pets que apresentavam enquadramento inconsistente dentro dos cards.",
+      },
+      {
+        type: "improvement",
+        title: "Localização de Equipamentos e Pets",
+        description:
+          "Os nomes exibidos em Português do Brasil foram revisados para Equipamentos de Herói e Pets, reduzindo divergências entre a nomenclatura interna da API e a apresentação ao jogador.",
+      },
+      {
+        type: "technical",
+        title: "Pendências de localização catalogadas",
+        description:
+          "A revisão dos nomes em Português do Brasil de Tropas, Feitiços e Máquinas de Cerco foi registrada como próxima etapa, juntamente com a substituição de assets ainda ausentes ou visualmente incorretos.",
+      },
+      {
+        type: "feature",
+        title: "Landing page pública do COC Bot",
+        description:
+          "Foi criada a primeira página pública do COC Bot em /[locale]/cocbot, apresentando proposta de valor, funcionalidades atuais, próximos recursos, benefícios para lideranças e jogadores e chamadas para contato.",
+      },
+      {
+        type: "improvement",
+        title: "Experiência mobile-first do COC Bot",
+        description:
+          "A landing pública foi construída priorizando dispositivos móveis, com hero responsivo, CTAs de grande área de toque, cards adaptativos e reorganização progressiva para telas maiores.",
+      },
+      {
+        type: "feature",
+        title: "COC Bot na navegação principal",
+        description:
+          "O COC Bot passou a integrar a Navbar e o menu mobile do Kings of Doom Command Center através de uma rota localizada própria.",
+      },
+      {
+        type: "technical",
+        title: "LocaleShell refinado",
+        description:
+          "O LocaleShell passou a excluir da estrutura institucional somente a rota de verificação /[locale]/cocbot/verify/[token], permitindo que a landing pública do COC Bot utilize normalmente Navbar e Footer.",
+      },
+      {
+        type: "feature",
+        title: "Identidade visual oficial do COC Bot",
+        description:
+          "Foi criada a primeira identidade visual oficial do produto, combinando dark navy, slate, dourado e elementos tecnológicos em uma linguagem compatível com o Command Center sem depender visualmente do logotipo do clã.",
+      },
+      {
+        type: "feature",
+        title: "Logotipo oficial do COC Bot",
+        description:
+          "O COC Bot recebeu um logotipo próprio com robô coroado, escudo e wordmark, incluindo versão transparente preparada para utilização na interface web.",
+      },
+      {
+        type: "improvement",
+        title: "Hero da landing com identidade oficial",
+        description:
+          "O mock visual temporário do Hero foi substituído pelo logotipo oficial do COC Bot, reforçando a identificação imediata do produto e a consistência da página.",
+      },
+      {
+        type: "feature",
+        title: "Imagem oficial para perfil do WhatsApp",
+        description:
+          "Foi criada uma composição quadrada específica para o perfil do COC Bot no WhatsApp, utilizando o logotipo oficial sobre fundo dark navy com elementos tecnológicos e iluminação dourada.",
+      },
+      {
+        type: "technical",
+        title: "Direção visual compartilhada",
+        description:
+          "A atualização consolidou uma base visual comum entre o Command Center e o COC Bot: dark navy e slate como estrutura, dourado como destaque principal e cores específicas preservadas apenas quando carregam significado funcional, como raridade de equipamentos.",
+      },
+    ],
+  },
+
+  {
     version: "0.9.6",
     title: "COC Bot Verification Gateway",
     date: "2026-09-06",
-    current: true,
+    current: false,
     summary:
       "Integração inicial entre o Kings of Doom Command Center e o COC Bot, criando uma experiência web segura para verificação de contas do Clash of Clans, comunicação privada entre as duas aplicações, sessões temporárias e suporte localizado em Português do Brasil e Inglês.",
 
@@ -2418,11 +2526,57 @@ export const roadmap: RoadmapPhase[] = [
         description:
           "Construir snapshots para calcular e acompanhar contribuições individuais realizadas na Capital do Clã.",
       },
+      {
+        title: "Localização completa do Arsenal",
+        description:
+          "Concluir a revisão em Português do Brasil de Tropas, Feitiços e Máquinas de Cerco, mantendo nomes consistentes em todas as categorias.",
+      },
+      {
+        title: "Auditoria final de assets",
+        description:
+          "Localizar, substituir e validar imagens ausentes ou incorretas e concluir os ajustes pontuais de escala e posicionamento do Arsenal.",
+      },
     ],
   },
 
   {
     phase: 4,
+    title: "COC Bot — experiência pública e Player Value",
+    status: "in-development",
+    description:
+      "Expandir a presença pública do COC Bot no Command Center e transformar a integração com o WhatsApp em uma experiência que gere valor direto também para cada jogador.",
+
+    items: [
+      {
+        title: "Refinamento da landing pública",
+        description:
+          "Evoluir conteúdo, screenshots e chamadas para contato na página pública do COC Bot.",
+      },
+      {
+        title: "Estado completo da conta",
+        description:
+          "Criar uma visualização compartilhável com Heróis, Equipamentos, Tropas, Feitiços, Máquinas de Cerco e Pets do jogador.",
+      },
+      {
+        title: "Liga de Troféus individual",
+        description:
+          "Levar para o COC Bot uma visão rápida do desempenho ranqueado e da evolução individual do jogador.",
+      },
+      {
+        title: "Histórico individual",
+        description:
+          "Integrar progressivamente Guerra, CWL, Raid Weekend e Jogos do Clã às respostas e cards do COC Bot.",
+      },
+      {
+        title: "Identidade visual compartilhada",
+        description:
+          "Manter cards e imagens gerados pelo COC Bot alinhados ao mesmo design system utilizado pelo Command Center.",
+      },
+    ],
+  },
+
+  {
+    phase: 5,
     title: "Community",
     status: "planned",
     description:
@@ -2453,7 +2607,7 @@ export const roadmap: RoadmapPhase[] = [
   },
 
   {
-    phase: 5,
+    phase: 6,
     title: "Analytics e inteligência competitiva",
     status: "future",
     description:

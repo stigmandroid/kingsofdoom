@@ -7,7 +7,7 @@
  *
  * Responsabilidade:
  * Controlar a estrutura visual das páginas localizadas,
- * permitindo que rotas especiais, como as páginas públicas
+ * permitindo que rotas especiais, como a verificação pública
  * do COC Bot, sejam exibidas sem a navegação e o rodapé
  * principais do Command Center.
  *
@@ -15,10 +15,10 @@
  * stigmandroid
  *
  * Última atualização:
- * 06/09/2026
+ * 08/09/2026
  *
  * Versão:
- * 0.1.0
+ * 0.2.0
  *
  * Status:
  * Desenvolvimento
@@ -28,6 +28,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+
 import { usePathname } from "next/navigation";
 
 type LocaleShellProps = {
@@ -46,21 +47,37 @@ export function LocaleShell({ children, navbar, footer }: LocaleShellProps) {
   const pathname = usePathname();
 
   /**
-   * Detecta páginas pertencentes ao COC Bot.
+   * Detecta exclusivamente as páginas públicas de
+   * verificação/vinculação do COC Bot.
    *
    * Exemplos:
-   * /pt-BR/cocbot/verify/...
-   * /en/cocbot/verify/...
+   *
+   * /pt-BR/cocbot/verify/abc123
+   * /en/cocbot/verify/abc123
+   *
+   * A landing principal:
+   *
+   * /pt-BR/cocbot
+   *
+   * deve continuar usando Navbar e Footer normalmente.
    */
-  const isCocBotRoute = /^\/[^/]+\/cocbot(?:\/|$)/.test(pathname);
+
+  const isCocBotVerificationRoute = /^\/[^/]+\/cocbot\/verify(?:\/|$)/.test(
+    pathname,
+  );
 
   /**
-   * As páginas do COC Bot possuem experiência visual
-   * própria e não devem herdar a navegação do portal K.O.D.
+   * A página de verificação possui experiência própria,
+   * sem navegação institucional do portal.
    */
-  if (isCocBotRoute) {
+
+  if (isCocBotVerificationRoute) {
     return <div className="min-h-screen bg-slate-950">{children}</div>;
   }
+
+  /**
+   * Estrutura padrão do Command Center.
+   */
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-950">

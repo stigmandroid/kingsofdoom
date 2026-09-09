@@ -114,6 +114,10 @@ export function Navbar() {
       label: "Novidades",
       href: `/${locale}/releases`,
     },
+    {
+      label: "COC Bot",
+      href: `/${locale}/cocbot`,
+    },
   ];
 
   /**

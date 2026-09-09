@@ -14,25 +14,32 @@
  * • imagem do equipamento;
  * • nível atual;
  * • raridade visual;
- * • destaque de nível máximo;
+ * • destaque visual quando o nível máximo foi atingido;
  * • fallback quando não houver asset conhecido.
  *
  * Estratégia visual:
  *
- * • equipamentos comuns utilizam identidade azul/ciano;
- * • equipamentos épicos utilizam identidade roxa;
- * • o nível máximo não utiliza texto "MAX";
- * • o próprio selo numérico recebe destaque visual quando o
- *   nível máximo é atingido.
+ * • a raridade é comunicada pelo fundo interno:
+ *   - comum = azul;
+ *   - épico = roxo;
+ *
+ * • o status de maximização é comunicado por:
+ *   - borda dourada/amarela;
+ *   - contorno do selo de nível;
+ *   - glow discreto no hover;
+ *
+ * • itens não maximizados utilizam borda neutra;
+ * • não utilizamos texto "MAX";
+ * • raridade e status permanecem visualmente independentes.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 18/08/2026
+ * 08/09/2026
  *
  * Versão:
- * 0.8.8
+ * 0.9.0
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -47,19 +54,25 @@ import { getEquipmentAsset } from "@/config/assets";
 
 import type { PlayerHeroEquipment } from "@/types/player";
 
+/**
+ * ==========================================================
+ * PROPRIEDADES
+ * ==========================================================
+ */
+
 type EquipmentTileProps = {
-  /**
-   * Equipamento retornado pela Player API.
-   */
   equipment: PlayerHeroEquipment;
 };
 
 /**
- * Renderiza um equipamento de herói em formato compacto.
+ * ==========================================================
+ * COMPONENTE
+ * ==========================================================
  */
+
 export function EquipmentTile({ equipment }: EquipmentTileProps) {
   /**
-   * Recupera o recurso visual correspondente ao equipamento.
+   * Recupera o asset correspondente ao equipamento.
    */
   const asset = getEquipmentAsset(equipment.name);
 
@@ -69,37 +82,100 @@ export function EquipmentTile({ equipment }: EquipmentTileProps) {
   const isMax = equipment.level >= equipment.maxLevel;
 
   /**
-   * Define a identidade visual com base na raridade.
+   * ========================================================
+   * RARIDADE
+   * ========================================================
    *
-   * Quando o asset ainda não estiver cadastrado, utilizamos
-   * aparência neutra.
+   * A raridade é identificada pelo fundo interno.
+   *
+   * Mantemos contraste suficiente para que comum e épico
+   * possam ser reconhecidos mesmo quando ambos estiverem
+   * maximizados.
    */
-  const rarityClasses =
+
+  const rarityBackgroundClasses =
     asset?.rarity === "epic"
-      ? "border-fuchsia-400/40 bg-gradient-to-b from-fuchsia-500/20 via-purple-950/25 to-slate-950/70"
+      ? [
+          "bg-gradient-to-b",
+          "from-fuchsia-500/38",
+          "via-purple-800/32",
+          "to-slate-950/82",
+          "shadow-[inset_0_0_24px_rgba(192,38,211,0.10)]",
+        ].join(" ")
       : asset?.rarity === "common"
-        ? "border-cyan-400/30 bg-gradient-to-b from-cyan-400/15 via-sky-950/25 to-slate-950/70"
-        : "border-slate-800 bg-slate-900/60";
+        ? [
+            "bg-gradient-to-b",
+            "from-sky-500/28",
+            "via-blue-900/34",
+            "to-slate-950/84",
+            "shadow-[inset_0_0_24px_rgba(14,165,233,0.08)]",
+          ].join(" ")
+        : [
+            "bg-slate-900/60",
+            "shadow-[inset_0_0_18px_rgba(148,163,184,0.03)]",
+          ].join(" ");
 
   /**
-   * O nível máximo é indicado pelo próprio selo numérico,
-   * evitando uma segunda legenda textual.
+   * ========================================================
+   * BORDA / STATUS
+   * ========================================================
+   *
+   * A borda comunica apenas o status de maximização.
+   *
+   * Não max:
+   * • borda neutra;
+   *
+   * Max:
+   * • borda dourada/amarela;
+   * • glow reforçado no hover.
    */
+
+  const equipmentBorderClasses = isMax
+    ? [
+        "border-[#FACC15]/80",
+        "shadow-[0_0_0_1px_rgba(250,204,21,0.05),0_0_10px_rgba(250,204,21,0.04)]",
+        "group-hover:border-[#FACC15]",
+        "group-hover:shadow-[0_0_0_1px_rgba(250,204,21,0.12),0_0_20px_rgba(250,204,21,0.18)]",
+      ].join(" ")
+    : ["border-slate-700/75", "group-hover:border-slate-600"].join(" ");
+
+  /**
+   * ========================================================
+   * SELO DE NÍVEL
+   * ========================================================
+   */
+
   const levelClasses = isMax
-    ? asset?.rarity === "epic"
-      ? "border-fuchsia-300 bg-slate-950 text-white ring-2 ring-fuchsia-400/70"
-      : "border-cyan-300 bg-slate-950 text-white ring-2 ring-cyan-400/70"
-    : "border-slate-700 bg-slate-950/90 text-white";
+    ? [
+        "border-[#FACC15]/90",
+        "bg-slate-950/95",
+        "text-white",
+        "shadow-[0_0_8px_rgba(250,204,21,0.14)]",
+        "group-hover:border-[#FACC15]",
+        "group-hover:shadow-[0_0_14px_rgba(250,204,21,0.30)]",
+      ].join(" ")
+    : [
+        "border-slate-700",
+        "bg-slate-950/90",
+        "text-white",
+        "group-hover:border-slate-600",
+      ].join(" ");
 
   return (
     <article className="group text-center">
-      {/*
-       * Área visual principal do equipamento.
+      {/**
+       * ====================================================
+       * ÁREA VISUAL PRINCIPAL
+       * ====================================================
        */}
+
       <div
         className={[
-          "relative mx-auto flex aspect-square w-full max-w-20 items-center justify-center overflow-hidden rounded-2xl border transition duration-300 sm:max-w-24",
-          rarityClasses,
+          "relative mx-auto flex aspect-square w-full max-w-20",
+          "items-center justify-center overflow-hidden rounded-2xl border",
+          "transition-all duration-300 sm:max-w-24",
+          rarityBackgroundClasses,
+          equipmentBorderClasses,
         ].join(" ")}
       >
         {asset ? (
@@ -109,15 +185,15 @@ export function EquipmentTile({ equipment }: EquipmentTileProps) {
             fill
             sizes="96px"
             className="object-contain p-1 transition duration-300 group-hover:scale-105"
+            style={{
+              transform: [
+                `translateX(${asset.translateX ?? 0}px)`,
+                `translateY(${asset.translateY ?? 0}px)`,
+                `scale(${asset.scale ?? 1})`,
+              ].join(" "),
+            }}
           />
         ) : (
-          /*
-           * Fallback utilizado para equipamentos ainda sem
-           * asset validado.
-           *
-           * Exemplo atual:
-           * Noble Iron.
-           */
           <div
             aria-hidden="true"
             className="flex h-full w-full items-center justify-center text-xl font-black text-slate-500"
@@ -126,15 +202,18 @@ export function EquipmentTile({ equipment }: EquipmentTileProps) {
           </div>
         )}
 
-        {/*
-         * Selo numérico do nível.
-         *
-         * O estado máximo é representado exclusivamente pelo
-         * contorno especial do próprio selo.
+        {/**
+         * ==================================================
+         * NÍVEL
+         * ==================================================
          */}
+
         <span
           className={[
-            "absolute bottom-1 right-1 flex min-w-7 items-center justify-center rounded-lg border px-1.5 py-1 text-xs font-black shadow-lg",
+            "absolute bottom-1 right-1 flex min-w-7",
+            "items-center justify-center rounded-lg border",
+            "px-1.5 py-1 text-xs font-black",
+            "shadow-lg transition-all duration-300",
             levelClasses,
           ].join(" ")}
         >
@@ -142,12 +221,12 @@ export function EquipmentTile({ equipment }: EquipmentTileProps) {
         </span>
       </div>
 
-      {/*
-       * Nome do equipamento.
-       *
-       * Mantemos nesta etapa para facilitar a validação dos
-       * assets e da correspondência com a Player API.
+      {/**
+       * ====================================================
+       * NOME
+       * ====================================================
        */}
+
       <p
         translate="no"
         className="notranslate mt-2 truncate text-xs font-bold text-slate-300"

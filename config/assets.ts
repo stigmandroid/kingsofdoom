@@ -180,6 +180,9 @@ export const heroAssets: Record<string, GameAsset> = {
   "Barbarian King": {
     src: "/game-assets/heroes/barbarian-king.png",
     alt: "Rei Bárbaro",
+    scale: 1.1,
+    translateX: 0,
+    translateY: 5,
   },
 
   "Archer Queen": {
@@ -190,6 +193,9 @@ export const heroAssets: Record<string, GameAsset> = {
   "Grand Warden": {
     src: "/game-assets/heroes/grand-warden.png",
     alt: "Grande Guardião",
+    scale: 1.2,
+    translateX: 0,
+    translateY: 11,
   },
 
   "Royal Champion": {
@@ -506,14 +512,15 @@ export const equipmentAssets: Record<string, EquipmentAsset> = {
     src: "/game-assets/equipment/metal-pants.png",
     alt: "Calça de Metal",
     rarity: "common",
+    translateX: 0,
+    translateY: -4,
   },
 
-  /**
-   * Noble Iron ainda não possui asset visual validado.
-   *
-   * Por esse motivo, ele não é cadastrado aqui nesta etapa.
-   * O EquipmentTile utilizará seu fallback visual.
-   */
+  "Noble Iron": {
+    src: "/game-assets/equipment/icon-noble-iron.png",
+    alt: "Ferro Nobre",
+    rarity: "common",
+  },
 
   "Fire Heart": {
     src: "/game-assets/equipment/fire-heart.png",
@@ -688,7 +695,7 @@ export const troopAssets: Record<string, GameAsset> = {
 
   "Dragon Rider": {
     src: "/game-assets/troops/dragon-rider.png",
-    alt: "Montador de Dragão",
+    alt: "Dragão Dirigível",
   },
 
   Headhunter: {
@@ -706,40 +713,43 @@ export const troopAssets: Record<string, GameAsset> = {
 
   "Apprentice Warden": {
     src: "/game-assets/troops/apprentice-warden.png",
-    alt: "Aprendiz de Guardião",
+    alt: "Guardião Aprendiz",
   },
 
   "Root Rider": {
     src: "/game-assets/troops/root-rider.png",
-    alt: "Montadora de Raiz",
+    alt: "Poderosa Hera",
     scale: 1.2,
     translateX: 0,
     translateY: 1,
   },
 
   Druid: {
-    src: "/game-assets/troops/druid.png",
+    src: "/game-assets/troops/icon-druid.png",
     alt: "Druida",
   },
 
   Thrower: {
-    src: "/game-assets/troops/thrower.png",
-    alt: "Arremessador",
+    src: "/game-assets/troops/icon-thrower.png",
+    alt: "Ciclope",
   },
 
   Furnace: {
     src: "/game-assets/troops/furnace.png",
     alt: "Fornalha",
+    scale: 1.5,
+    translateX: 0,
+    translateY: 15,
   },
 
   "Meteor Golem": {
-    src: "/game-assets/troops/meteor-golem.png",
+    src: "/game-assets/troops/icon-meteor-golem.png",
     alt: "Golem Meteoro",
   },
 
   "Ruin Witch": {
-    src: "/game-assets/troops/ruin-witch.png",
-    alt: "Bruxa da Ruína",
+    src: "/game-assets/troops/icon-ruin-witch.png",
+    alt: "Bruxa das Ruínas",
   },
 };
 
@@ -821,7 +831,7 @@ export const spellAssets: Record<string, GameAsset> = {
 
   "Bat Spell": {
     src: "/game-assets/spells/bat-spell.png",
-    alt: "Feitiço de Morcegos",
+    alt: "Feitiço Morcego",
   },
 
   "Invisibility Spell": {
@@ -836,17 +846,17 @@ export const spellAssets: Record<string, GameAsset> = {
 
   "Overgrowth Spell": {
     src: "/game-assets/spells/overgrowth-spell.png",
-    alt: "Feitiço de Supercrescimento",
+    alt: "Feitiço de Raízes",
   },
 
   "Revive Spell": {
     src: "/game-assets/spells/revive-spell.png",
-    alt: "Feitiço de Reviver",
+    alt: "Feitiço de Reanimação",
   },
 
   "Ice Block Spell": {
     src: "/game-assets/spells/ice-block-spell.png",
-    alt: "Feitiço de Bloco de Gelo",
+    alt: "Feitiço do Escudo de Gelo",
   },
 
   "Totem Spell": {
@@ -856,7 +866,7 @@ export const spellAssets: Record<string, GameAsset> = {
 
   "Angry Spell": {
     src: "/game-assets/spells/angry-spell.png",
-    alt: "Feitiço Furioso",
+    alt: "Feitiço Raiva Liquida",
   },
 };
 
@@ -888,17 +898,17 @@ export function getSpellAsset(
 export const siegeMachineAssets: Record<string, GameAsset> = {
   "Wall Wrecker": {
     src: "/game-assets/siege-machines/wall-wrecker.png",
-    alt: "Destruidor de Muros",
+    alt: "Destruidorn de Muros",
   },
 
   "Battle Blimp": {
     src: "/game-assets/siege-machines/battle-blimp.png",
-    alt: "Dirigível de Batalha",
+    alt: "Dirigível Bélico",
   },
 
   "Stone Slammer": {
-    src: "/game-assets/siege-machines/stone-slammer.png",
-    alt: "Lançador de Pedras",
+    src: "/game-assets/siege-machines/icon-stone-slammer.png",
+    alt: "Quebradora de Pedras",
   },
 
   "Siege Barracks": {
@@ -913,22 +923,22 @@ export const siegeMachineAssets: Record<string, GameAsset> = {
 
   "Flame Flinger": {
     src: "/game-assets/siege-machines/flame-flinger.png",
-    alt: "Lançador de Chamas",
+    alt: "Trabuco Flamejante",
   },
 
   "Battle Drill": {
     src: "/game-assets/siege-machines/battle-drill.png",
-    alt: "Broca de Batalha",
+    alt: "Escavadeira Bélica",
   },
 
   "Troop Launcher": {
     src: "/game-assets/siege-machines/troop-launcher.png",
-    alt: "Lançador de Tropas",
+    alt: "Lança-Tropas",
   },
 
   "Sky Wagon": {
-    src: "/game-assets/siege-machines/sky-wagon.png",
-    alt: "Táxi Aéreo",
+    src: "/game-assets/siege-machines/icon-sky-wagon.png",
+    alt: "Aerotáxi",
   },
 };
 
@@ -1004,8 +1014,11 @@ export const petAssets: Record<string, GameAsset> = {
   },
 
   "Angry Jelly": {
-    src: "/game-assets/pets/angry-jelly.png",
+    src: "/game-assets/pets/icon-angry-jelly.png",
     alt: "Raiva-Viva",
+    translateX: 0,
+    translateY: -3,
+    scale: 1.1,
   },
 
   Sneezy: {
@@ -1017,7 +1030,7 @@ export const petAssets: Record<string, GameAsset> = {
   },
 
   "Greedy Raven": {
-    src: "/game-assets/pets/greedy-raven.png",
+    src: "/game-assets/pets/icon-greedy-raven.png",
     alt: "Corvo Cobiçoso",
   },
 };

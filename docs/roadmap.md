@@ -2182,21 +2182,19 @@ Consolidar a linguagem visual do Arsenal do Jogador e transformar o COC Bot em u
 
 ✅ Consolidação da identidade visual dark navy, slate e dourado entre Command Center e COC Bot
 
-### Pendências do Arsenal do Jogador
+✅ Revisão dos nomes em Português do Brasil das Tropas
 
-🟨 Revisar os nomes em Português do Brasil das Tropas
+✅ Revisão dos nomes em Português do Brasil dos Feitiços
 
-🟨 Revisar os nomes em Português do Brasil dos Feitiços
+✅ Revisão dos nomes em Português do Brasil das Máquinas de Cerco
 
-🟨 Revisar os nomes em Português do Brasil das Máquinas de Cerco
+✅ Localização dos assets corretos para unidades que utilizavam imagens ausentes ou inadequadas
 
-🟨 Localizar assets corretos para unidades que ainda utilizam imagens ausentes ou inadequadas
+✅ Substituição dos assets identificados como incorretos
 
-🟨 Substituir os assets identificados como incorretos
+✅ Ajustes finais de escala e posicionamento das categorias do Arsenal
 
-🟨 Finalizar ajustes pontuais de escala e posicionamento das categorias restantes
-
-🟨 Executar revisão visual final de todo o Arsenal do Jogador em desktop e mobile
+✅ Revisão visual final do Arsenal do Jogador em desktop e mobile
 
 ### Próximas evoluções — COC Bot
 

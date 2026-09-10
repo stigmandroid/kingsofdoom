@@ -150,7 +150,7 @@ export const releases: Release[] = [
     date: "2026-09-09",
     current: true,
     summary:
-      "Consolidação da identidade visual do Arsenal do Jogador e expansão da presença pública do COC Bot, com padronização dos estados maximizados, ajustes individuais de assets, revisão parcial da localização em Português do Brasil, landing page mobile-first, integração à navegação institucional e criação da identidade visual oficial do COC Bot.",
+      "Consolidação da identidade visual do Arsenal do Jogador e expansão da presença pública do COC Bot, com padronização dos estados maximizados, correção e enquadramento dos assets, localização completa em Português do Brasil, validação responsiva, landing page mobile-first, integração à navegação institucional e criação da identidade visual oficial do COC Bot.",
 
     changes: [
       {
@@ -181,19 +181,37 @@ export const releases: Release[] = [
         type: "fix",
         title: "Correções de enquadramento do Arsenal",
         description:
-          "Foram realizados ajustes de tamanho e posicionamento em diferentes Equipamentos, Tropas e Pets que apresentavam enquadramento inconsistente dentro dos cards.",
+          "Foram realizados ajustes individuais de tamanho e posicionamento em Heróis, Equipamentos, Tropas, Máquinas de Cerco e Pets que apresentavam enquadramento inconsistente dentro dos cards.",
+      },
+      {
+        type: "fix",
+        title: "Correção final dos assets do Arsenal",
+        description:
+          "Foram substituídos assets incorretos de Tropas, Máquinas de Cerco, Pets e Equipamentos utilizando os recursos disponíveis no Fan Kit, eliminando imagens provisórias, ausentes ou incompatíveis com as unidades exibidas.",
       },
       {
         type: "improvement",
-        title: "Localização de Equipamentos e Pets",
+        title: "Localização completa do Arsenal",
         description:
-          "Os nomes exibidos em Português do Brasil foram revisados para Equipamentos de Herói e Pets, reduzindo divergências entre a nomenclatura interna da API e a apresentação ao jogador.",
+          "Os nomes exibidos em Português do Brasil foram revisados e padronizados em Equipamentos, Tropas, Feitiços, Máquinas de Cerco e Pets, reduzindo divergências entre a nomenclatura interna da API e a apresentação ao jogador.",
+      },
+      {
+        type: "improvement",
+        title: "Enquadramento final do Arsenal",
+        description:
+          "Os assets foram revisados e calibrados individualmente para manter proporção, centralização e peso visual consistentes entre Heróis, Equipamentos, Tropas, Feitiços, Máquinas de Cerco e Pets.",
       },
       {
         type: "technical",
-        title: "Pendências de localização catalogadas",
+        title: "Componentes integrados aos ajustes individuais",
         description:
-          "A revisão dos nomes em Português do Brasil de Tropas, Feitiços e Máquinas de Cerco foi registrada como próxima etapa, juntamente com a substituição de assets ainda ausentes ou visualmente incorretos.",
+          "Os componentes visuais do Arsenal foram atualizados para aplicar corretamente scale, translateX e translateY definidos em config/assets.ts, separando o posicionamento individual dos efeitos de hover e mantendo o catálogo como fonte única de configuração visual.",
+      },
+      {
+        type: "improvement",
+        title: "Validação responsiva final do Arsenal",
+        description:
+          "O Arsenal do Jogador foi revisado e validado em desktop e dispositivos móveis, confirmando consistência de enquadramento, legibilidade, navegação entre categorias e comportamento responsivo dos cards.",
       },
       {
         type: "feature",

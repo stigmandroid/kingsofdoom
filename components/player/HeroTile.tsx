@@ -16,30 +16,28 @@
  * • nível máximo disponível;
  * • percentual nominal de evolução;
  * • indicação visual quando o nível máximo foi atingido;
+ * • ajustes individuais de escala e posicionamento;
  * • fallback quando a imagem não estiver cadastrada.
  *
  * Estratégia visual:
  *
  * • itens não maximizados utilizam a paleta neutra;
  * • itens maximizados são identificados exclusivamente
- *   através de cor, contorno e brilho sutil;
+ *   através de contorno dourado e brilho sutil;
  * • não utilizamos selo ou texto "MAX";
- * • o ciano/verde-água representa conclusão;
- * • o dourado permanece reservado à identidade visual e
- *   aos estados de navegação da interface.
- *
- * A resolução do asset permanece centralizada em
- * config/assets.ts. Dessa forma, este componente não precisa
- * conhecer diretamente caminhos de arquivos.
+ * • o dourado #FACC15 representa o estado maximizado;
+ * • a estrutura externa do card permanece neutra;
+ * • ajustes individuais permanecem centralizados
+ *   em config/assets.ts.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 08/09/2026
+ * 09/09/2026
  *
  * Versão:
- * 0.8.9
+ * 0.9.0
  *
  * Status:
  * 🚧 Em desenvolvimento
@@ -77,9 +75,6 @@ export function HeroTile({ hero }: HeroTileProps) {
   /**
    * Recupera o recurso gráfico correspondente ao nome
    * retornado pela API.
-   *
-   * Caso ainda não exista uma imagem cadastrada para o
-   * herói, o componente utilizará um fallback visual.
    */
   const asset = getHeroAsset(hero.name);
 
@@ -90,15 +85,7 @@ export function HeroTile({ hero }: HeroTileProps) {
   const isMax = hero.level >= hero.maxLevel;
 
   /**
-   * Calcula o percentual nominal de evolução.
-   *
-   * Esse valor representa exclusivamente a relação entre
-   * nível atual e nível máximo:
-   *
-   * nível atual / nível máximo × 100
-   *
-   * Portanto, não representa tempo, custo ou esforço real
-   * necessário para concluir a evolução.
+   * Percentual nominal de evolução.
    */
   const progress =
     hero.maxLevel > 0
@@ -109,16 +96,6 @@ export function HeroTile({ hero }: HeroTileProps) {
    * ========================================================
    * ESTADOS VISUAIS
    * ========================================================
-   *
-   * Regra oficial do Arsenal:
-   *
-   * Neutro:
-   * bordas slate.
-   *
-   * Maximizado:
-   * ciano/verde-água #2DD4BF.
-   *
-   * Nenhum texto adicional é utilizado para comunicar MAX.
    */
 
   const cardClassName = [
@@ -155,7 +132,7 @@ export function HeroTile({ hero }: HeroTileProps) {
 
   const levelBadgeClassName = isMax
     ? [
-        "absolute bottom-1 right-1 flex min-w-7",
+        "absolute bottom-1 right-1 z-10 flex min-w-7",
         "items-center justify-center rounded-lg border",
         "border-[#FACC15]/90",
         "bg-slate-950/95",
@@ -167,7 +144,7 @@ export function HeroTile({ hero }: HeroTileProps) {
         "group-hover:shadow-[0_0_14px_rgba(250,204,21,0.30)]",
       ].join(" ")
     : [
-        "absolute bottom-1 right-1 flex min-w-7",
+        "absolute bottom-1 right-1 z-10 flex min-w-7",
         "items-center justify-center rounded-lg border",
         "border-slate-700",
         "bg-slate-950/90",
@@ -184,23 +161,43 @@ export function HeroTile({ hero }: HeroTileProps) {
        * ====================================================
        * IMAGEM
        * ====================================================
+       *
+       * A primeira camada controla o efeito de hover.
+       *
+       * A segunda camada aplica os ajustes individuais
+       * definidos no catálogo central:
+       *
+       * • scale;
+       * • translateX;
+       * • translateY.
+       *
+       * As duas transformações ficam separadas para evitar
+       * conflito entre o hover e o posicionamento do asset.
        */}
 
       <div className={imageContainerClassName}>
         {asset ? (
-          <Image
-            src={asset.src}
-            alt={asset.alt}
-            fill
-            sizes="112px"
-            className="object-contain p-1 transition duration-300 group-hover:scale-105"
-          />
+          <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-105">
+            <div
+              className="absolute inset-0"
+              style={{
+                transform: [
+                  `translateX(${asset.translateX ?? 0}px)`,
+                  `translateY(${asset.translateY ?? 0}px)`,
+                  `scale(${asset.scale ?? 1})`,
+                ].join(" "),
+              }}
+            >
+              <Image
+                src={asset.src}
+                alt={asset.alt}
+                fill
+                sizes="112px"
+                className="object-contain p-1"
+              />
+            </div>
+          </div>
         ) : (
-          /**
-           * Fallback utilizado caso o asset ainda não esteja
-           * cadastrado ou o nome retornado pela API seja
-           * desconhecido pelo catálogo local.
-           */
           <div
             aria-hidden="true"
             className="flex h-full w-full items-center justify-center text-2xl"
@@ -213,11 +210,6 @@ export function HeroTile({ hero }: HeroTileProps) {
          * ==================================================
          * NÍVEL
          * ==================================================
-         *
-         * O nível permanece sobreposto ao asset para manter
-         * leitura rápida em grids compactos.
-         *
-         * Quando maximizado, somente o contorno muda.
          */}
 
         <span className={levelBadgeClassName}>{hero.level}</span>
@@ -240,16 +232,6 @@ export function HeroTile({ hero }: HeroTileProps) {
        * ====================================================
        * PROGRESSO
        * ====================================================
-       *
-       * O texto "MAX" foi removido.
-       *
-       * Quando o herói estiver maximizado:
-       * • mostramos somente nível atual / máximo;
-       * • o status é comunicado pelo contorno ciano.
-       *
-       * Quando ainda houver evolução:
-       * • mostramos nível atual / máximo;
-       * • mostramos também o percentual nominal.
        */}
 
       <div className="mt-1 flex items-center justify-center gap-1.5 text-xs">

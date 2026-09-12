@@ -47,6 +47,7 @@ import {
   findCwlArchiveWarSnapshots,
   findLatestCwlArchiveSeason,
   getCwlArchiveSummary,
+  reconcileCwlWarMembers,
   upsertCwlAttack,
   upsertCwlRound,
   upsertCwlSeason,
@@ -195,6 +196,23 @@ export function archiveCurrentCwl({
       return;
     }
 
+    const teamSize = war.teamSize;
+
+    const clanMembers = clan.members ?? [];
+    const opponentMembers = opponent.members ?? [];
+
+    const hasCompleteLineups =
+      typeof teamSize === "number" &&
+      teamSize > 0 &&
+      clanMembers.length === teamSize &&
+      opponentMembers.length === teamSize;
+
+    if (!hasCompleteLineups) {
+      console.warn(
+        `[Kings of Doom] Snapshot CWL ignorado para sincronização de escalação porque está incompleto. Guerra=${warTag}, teamSize=${teamSize ?? "indefinido"}, clanMembers=${clanMembers.length}, opponentMembers=${opponentMembers.length}.`,
+      );
+    }
+
     const roundId = roundIdByIndex.get(roundIndex);
 
     if (!roundId) {
@@ -267,10 +285,19 @@ export function archiveCurrentCwl({
 
       clanTag: clan.tag,
 
-      members: clan.members ?? [],
+      members: clanMembers,
 
-      allMembers: [...(clan.members ?? []), ...(opponent.members ?? [])],
+      allMembers: [...clanMembers, ...opponentMembers],
     });
+
+    if (hasCompleteLineups) {
+      reconcileCwlWarMembers({
+        warId,
+        side: "clan",
+        clanTag: clan.tag,
+        currentPlayerTags: clanMembers.map((member) => member.tag),
+      });
+    }
 
     /**
      * ====================================================
@@ -284,10 +311,19 @@ export function archiveCurrentCwl({
 
       clanTag: opponent.tag,
 
-      members: opponent.members ?? [],
+      members: opponentMembers,
 
-      allMembers: [...(clan.members ?? []), ...(opponent.members ?? [])],
+      allMembers: [...clanMembers, ...opponentMembers],
     });
+
+    if (hasCompleteLineups) {
+      reconcileCwlWarMembers({
+        warId,
+        side: "opponent",
+        clanTag: opponent.tag,
+        currentPlayerTags: opponentMembers.map((member) => member.tag),
+      });
+    }
   });
 
   /**

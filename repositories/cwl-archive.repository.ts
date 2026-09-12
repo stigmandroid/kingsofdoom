@@ -608,6 +608,65 @@ export function upsertCwlWarMember(input: CwlArchiveWarMemberInput): number {
   return row.id;
 }
 
+
+/**
+ * Sincroniza a escalação persistida de um lado da guerra
+ * com o snapshot completo mais recente recebido da Clash API.
+ *
+ * Esta função deve ser chamada somente depois que todos os
+ * membros atuais já tiverem sido persistidos com sucesso.
+ *
+ * Assim:
+ *
+ * - membros atuais permanecem;
+ * - membros novos já foram inseridos pelo UPSERT;
+ * - membros antigos que desapareceram da escalação são removidos;
+ * - ataques não são alterados.
+ */
+export function reconcileCwlWarMembers({
+  warId,
+  side,
+  clanTag,
+  currentPlayerTags,
+}: {
+  warId: number;
+  side: "clan" | "opponent";
+  clanTag: string;
+  currentPlayerTags: string[];
+}): number {
+  /**
+   * Uma lista vazia nunca deve ser interpretada como
+   * autorização para apagar uma escalação inteira.
+   *
+   * A validação principal também existe no service,
+   * mas mantemos esta segunda barreira defensiva no repository.
+   */
+  if (currentPlayerTags.length === 0) {
+    throw new Error(
+      `[Kings of Doom] Reconciliação de escalação recusada porque a lista de jogadores está vazia. Guerra=${warId}, clã=${clanTag}.`,
+    );
+  }
+
+  const placeholders = currentPlayerTags.map(() => "?").join(", ");
+
+  const statement = database.prepare(`
+    DELETE FROM cwl_war_members
+    WHERE war_id = ?
+      AND side = ?
+      AND clan_tag = ?
+      AND player_tag NOT IN (${placeholders})
+  `);
+
+  const result = statement.run(
+    warId,
+    side,
+    clanTag,
+    ...currentPlayerTags,
+  );
+
+  return Number(result.changes);
+}
+
 /**
  * ==========================================================
  * ATAQUES

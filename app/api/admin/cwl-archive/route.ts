@@ -18,6 +18,16 @@
  * POST /api/admin/cwl-archive?clan=kod-rec
  * - mantém execução individual apenas para diagnóstico.
  *
+ * Integração com Passe de Temporada:
+ *
+ * - somente cria/congela o Passe quando a CWL estiver
+ *   definitivamente encerrada;
+ * - exige todas as guerras disponíveis carregadas;
+ * - exige todas as guerras em warEnded;
+ * - utiliza season + clanTag como identidade do evento;
+ * - não sobrescreve eventos históricos já sorteados;
+ * - pode ser executado repetidamente com segurança.
+ *
  * Segurança operacional:
  *
  * - cada clã é consultado e persistido de forma independente;
@@ -29,13 +39,13 @@
  * stigmandroid
  *
  * Última atualização:
- * 15/08/2026
+ * 12/09/2026
  *
  * Versão:
- * 0.8.7
+ * 0.9.0
  *
  * Status:
- * ✅ Arquivamento multi-clã
+ * ✅ Arquivamento multi-clã + integração Season Pass
  * ==========================================================
  */
 
@@ -47,6 +57,8 @@ import {
   archiveCurrentCwl,
   type CwlArchiveResult,
 } from "@/services/cwl-archive.service";
+
+import { ensureSeasonPassEventForEndedCwl } from "@/services/season-pass.service";
 
 import { getCurrentCwlGroup, getCwlWar } from "@/services/cwl.service";
 
@@ -73,6 +85,17 @@ const supportedClans = {
 
 type SupportedClanSlug = keyof typeof supportedClans;
 
+/**
+ * Diagnóstico público da integração com o Passe.
+ */
+type SeasonPassArchiveResult = {
+  processed: boolean;
+  created: boolean;
+  season: string;
+  eligiblePlayers: number;
+  reason?: string;
+};
+
 type ClanArchiveSuccess = {
   slug: SupportedClanSlug;
   name: string;
@@ -80,6 +103,7 @@ type ClanArchiveSuccess = {
   success: true;
   available: true;
   archive: CwlArchiveResult;
+  seasonPass: SeasonPassArchiveResult;
 };
 
 type ClanArchiveUnavailable = {
@@ -109,12 +133,20 @@ function isSupportedClanSlug(value: string): value is SupportedClanSlug {
   return value in supportedClans;
 }
 
+/**
+ * ==========================================================
+ * ARQUIVAMENTO INDIVIDUAL
+ * ==========================================================
+ */
 async function archiveClan(
   clanSlug: SupportedClanSlug,
 ): Promise<ClanArchiveExecutionResult> {
   const selectedClan = supportedClans[clanSlug];
 
   try {
+    /**
+     * Recupera o grupo atual da CWL.
+     */
     const result = await getCurrentCwlGroup(selectedClan.tag);
 
     if (!result.available) {
@@ -128,6 +160,10 @@ async function archiveClan(
       };
     }
 
+    /**
+     * Lista todas as war tags que deveriam estar disponíveis
+     * nesta fotografia da temporada.
+     */
     const availableWars = result.group.rounds.flatMap((round, roundIndex) =>
       round.warTags.filter(isAvailableCwlWarTag).map((warTag) => ({
         warTag,
@@ -135,6 +171,9 @@ async function archiveClan(
       })),
     );
 
+    /**
+     * Consulta cada guerra individualmente.
+     */
     const warResults = await Promise.all(
       availableWars.map(async ({ warTag, roundIndex }) => ({
         warTag,
@@ -143,6 +182,9 @@ async function archiveClan(
       })),
     );
 
+    /**
+     * Mantém apenas guerras efetivamente recuperadas.
+     */
     const wars: CwlRoundWar[] = warResults.flatMap(
       ({ warTag, roundIndex, result: warResult }) =>
         warResult.available
@@ -156,11 +198,84 @@ async function archiveClan(
           : [],
     );
 
+    /**
+     * ========================================================
+     * SNAPSHOT HISTÓRICO
+     * ========================================================
+     *
+     * O archive continua sendo realizado mesmo durante
+     * a temporada, preservando sua função original.
+     */
     const archive = archiveCurrentCwl({
       group: result.group,
       wars,
       trackedClanTag: selectedClan.tag,
     });
+
+    /**
+     * ========================================================
+     * PASSE DE TEMPORADA
+     * ========================================================
+     *
+     * Para congelar oficialmente o evento, exigimos:
+     *
+     * 1. grupo CWL marcado como ended;
+     * 2. existência de guerras;
+     * 3. TODAS as war tags disponíveis recuperadas;
+     * 4. TODAS as guerras efetivamente encerradas.
+     *
+     * Isso impede congelar elegibilidade a partir
+     * de um snapshot parcial.
+     */
+    const allAvailableWarsLoaded =
+      availableWars.length > 0 && wars.length === availableWars.length;
+
+    const allWarsEnded =
+      wars.length > 0 && wars.every(({ war }) => war.state === "warEnded");
+
+    const seasonDefinitelyEnded =
+      result.group.state === "ended" && allAvailableWarsLoaded && allWarsEnded;
+
+    let seasonPass: SeasonPassArchiveResult;
+
+    if (seasonDefinitelyEnded) {
+      const ensured = ensureSeasonPassEventForEndedCwl({
+        season: result.group.season,
+        clanTag: selectedClan.tag,
+        wars,
+      });
+
+      if (ensured) {
+        seasonPass = {
+          processed: true,
+          created: ensured.created,
+          season: result.group.season,
+          eligiblePlayers: ensured.eligiblePlayers,
+        };
+      } else {
+        seasonPass = {
+          processed: false,
+          created: false,
+          season: result.group.season,
+          eligiblePlayers: 0,
+          reason:
+            "A temporada parece encerrada, mas o Passe não pôde ser garantido.",
+        };
+      }
+    } else {
+      seasonPass = {
+        processed: false,
+        created: false,
+        season: result.group.season,
+        eligiblePlayers: 0,
+        reason: buildSeasonPassPendingReason({
+          groupEnded: result.group.state === "ended",
+          expectedWars: availableWars.length,
+          loadedWars: wars.length,
+          allWarsEnded,
+        }),
+      };
+    }
 
     return {
       slug: clanSlug,
@@ -169,6 +284,7 @@ async function archiveClan(
       success: true,
       available: true,
       archive,
+      seasonPass,
     };
   } catch (error) {
     console.error(
@@ -190,6 +306,44 @@ async function archiveClan(
   }
 }
 
+/**
+ * Explica por que o Passe ainda não foi congelado.
+ */
+function buildSeasonPassPendingReason({
+  groupEnded,
+  expectedWars,
+  loadedWars,
+  allWarsEnded,
+}: {
+  groupEnded: boolean;
+  expectedWars: number;
+  loadedWars: number;
+  allWarsEnded: boolean;
+}): string {
+  if (!groupEnded) {
+    return "A temporada CWL ainda não está marcada como encerrada.";
+  }
+
+  if (expectedWars === 0) {
+    return "Nenhuma guerra disponível foi encontrada para a temporada.";
+  }
+
+  if (loadedWars !== expectedWars) {
+    return `Snapshot incompleto: ${loadedWars}/${expectedWars} guerras foram carregadas.`;
+  }
+
+  if (!allWarsEnded) {
+    return "Ainda existe pelo menos uma guerra que não está em warEnded.";
+  }
+
+  return "A temporada ainda não atende aos critérios para congelamento do Passe.";
+}
+
+/**
+ * ==========================================================
+ * ENDPOINT
+ * ==========================================================
+ */
 export async function POST(request: Request) {
   try {
     if (!isCwlArchiveRequestAuthorized(request)) {
@@ -224,6 +378,11 @@ export async function POST(request: Request) {
 
   const requestedClan = url.searchParams.get("clan");
 
+  /**
+   * ========================================================
+   * EXECUÇÃO INDIVIDUAL
+   * ========================================================
+   */
   if (requestedClan) {
     if (!isSupportedClanSlug(requestedClan)) {
       return NextResponse.json(
@@ -251,6 +410,11 @@ export async function POST(request: Request) {
     );
   }
 
+  /**
+   * ========================================================
+   * EXECUÇÃO MULTI-CLÃ
+   * ========================================================
+   */
   const clanSlugs = Object.keys(supportedClans) as SupportedClanSlug[];
 
   const results = await Promise.all(
@@ -258,6 +422,7 @@ export async function POST(request: Request) {
   );
 
   const successful = results.filter((result) => result.success);
+
   const failed = results.filter((result) => !result.success);
 
   const complete = successful.length === clanSlugs.length;

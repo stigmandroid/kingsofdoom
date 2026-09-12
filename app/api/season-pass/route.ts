@@ -35,9 +35,11 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentCwlGroup, getCwlWar } from "@/services/cwl.service";
+import { getLatestCwlPostSeasonSummary } from "@/services/cwl-archive.service";
 import {
   getPersistedSeasonPassEventState,
   getSeasonPassEventState,
+  ensureSeasonPassEventForEndedCwl,
 } from "@/services/season-pass.service";
 
 import { isAvailableCwlWarTag } from "@/types/cwl";
@@ -74,20 +76,46 @@ export async function GET(request: Request) {
     const selectedClan = supportedClans[clanSlug];
     const result = await getCurrentCwlGroup(selectedClan.tag);
 
-    /**
-     * Depois que a Clash API deixa de expor a CWL encerrada,
-     * continuamos o evento a partir do SQLite.
-     */
     if (!result.available) {
-      const persistedEvent = getPersistedSeasonPassEventState({
-        clanTag: selectedClan.tag,
-      });
+      /**
+       * A Clash API já não possui mais a CWL encerrada.
+       *
+       * Nesse cenário, usamos a última temporada arquivada
+       * como fonte oficial da season atual do portal.
+       */
+      const archivedSeason = getLatestCwlPostSeasonSummary(selectedClan.tag);
 
-      if (persistedEvent) {
-        return NextResponse.json({
-          available: true,
-          event: persistedEvent,
+      if (archivedSeason) {
+        /**
+         * Garante que a temporada arquivada possua seu próprio
+         * evento de Passe.
+         *
+         * Isso também corrige temporadas encerradas que foram
+         * arquivadas antes da criação do evento do Passe.
+         */
+        ensureSeasonPassEventForEndedCwl({
+          season: archivedSeason.season,
+          clanTag: selectedClan.tag,
+          wars: archivedSeason.wars,
         });
+
+        /**
+         * Busca exclusivamente o Passe da mesma temporada
+         * arquivada.
+         *
+         * Nunca reutiliza vencedor de uma season anterior.
+         */
+        const persistedEvent = getPersistedSeasonPassEventState({
+          clanTag: selectedClan.tag,
+          season: archivedSeason.season,
+        });
+
+        if (persistedEvent) {
+          return NextResponse.json({
+            available: true,
+            event: persistedEvent,
+          });
+        }
       }
 
       return NextResponse.json({
@@ -124,9 +152,14 @@ export async function GET(request: Request) {
           : [],
     );
 
+    const allAvailableWarsLoaded =
+      availableWars.length > 0 && wars.length === availableWars.length;
+
+    const allWarsEnded =
+      wars.length > 0 && wars.every(({ war }) => war.state === "warEnded");
+
     const seasonEnded =
-      result.group.state === "ended" &&
-      wars.every(({ war }) => war.state === "warEnded");
+      result.group.state === "ended" && allAvailableWarsLoaded && allWarsEnded;
 
     const eventState = getSeasonPassEventState({
       season: result.group.season,

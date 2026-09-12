@@ -120,6 +120,147 @@ export type SeasonPassEventState = {
 };
 
 /**
+ * Resultado da garantia de criação do evento do Passe
+ * para uma CWL definitivamente encerrada.
+ */
+export type EnsureSeasonPassEventResult = {
+  event: SeasonPassEventRecord;
+  created: boolean;
+  eligiblePlayers: number;
+};
+
+/**
+ * Garante que uma CWL encerrada possua exatamente um
+ * evento de Passe de Temporada para season + clanTag.
+ *
+ * Características:
+ *
+ * - usa o horário real de encerramento da CWL;
+ * - não sobrescreve vencedores antigos;
+ * - não cria evento duplicado;
+ * - recalcula/congela elegíveis somente enquanto
+ *   o evento ainda estiver em "scheduled";
+ * - pode ser executada várias vezes com segurança.
+ */
+export function ensureSeasonPassEventForEndedCwl({
+  season,
+  clanTag,
+  wars,
+}: {
+  season: string;
+  clanTag: string;
+  wars: CwlRoundWar[];
+}): EnsureSeasonPassEventResult | null {
+  /**
+   * Uma temporada sem guerras não pode ser congelada.
+   */
+  if (wars.length === 0) {
+    return null;
+  }
+
+  /**
+   * Só criamos o evento quando todas as guerras
+   * disponíveis estiverem realmente encerradas.
+   */
+  const allWarsEnded = wars.every(({ war }) => war.state === "warEnded");
+
+  if (!allWarsEnded) {
+    return null;
+  }
+
+  /**
+   * Descobre o encerramento real da temporada a partir
+   * do maior endTime das guerras arquivadas.
+   */
+  const endTimestamps = wars
+    .map(({ war }) => parseClashTimestamp(war.endTime))
+    .filter((timestamp): timestamp is number => timestamp !== null);
+
+  if (endTimestamps.length === 0) {
+    throw new Error(
+      `[Kings of Doom] Não foi possível determinar o encerramento da CWL ${season} do clã ${clanTag}.`,
+    );
+  }
+
+  const seasonEndedAt = new Date(Math.max(...endTimestamps));
+
+  /**
+   * A elegibilidade é sempre calculada com a fotografia
+   * definitiva da temporada encerrada.
+   */
+  const eligiblePlayers = calculateSeasonPassEligibility(wars, clanTag);
+
+  /**
+   * Primeiro procura exatamente pela combinação
+   * temporada + clã.
+   *
+   * Nunca utilizamos "último vencedor do clã"
+   * para decidir o evento desta temporada.
+   */
+  let event = findSeasonPassEvent({
+    season,
+    clanTag,
+  });
+
+  let created = false;
+
+  /**
+   * Cria o evento somente quando ele ainda não existe.
+   */
+  if (!event) {
+    const schedule = calculateNextBrasiliaNoon(seasonEndedAt);
+
+    try {
+      event = createScheduledSeasonPassEvent({
+        season,
+        clanTag,
+        scheduledAt: schedule.scheduledAt,
+        revealAt: schedule.revealAt,
+      });
+
+      created = true;
+    } catch (error) {
+      /**
+       * Proteção para duas execuções simultâneas.
+       *
+       * O banco possui UNIQUE(season, clan_tag), então
+       * outra execução pode ter criado o evento primeiro.
+       */
+      const existingEvent = findSeasonPassEvent({
+        season,
+        clanTag,
+      });
+
+      if (!existingEvent) {
+        throw error;
+      }
+
+      event = existingEvent;
+    }
+  }
+
+  /**
+   * Enquanto o sorteio ainda não aconteceu, podemos
+   * garantir que a fotografia congelada esteja completa.
+   *
+   * Depois de drawn/revealed jamais alteramos os
+   * participantes daquele sorteio histórico.
+   */
+  if (event.status === "scheduled") {
+    replaceSeasonPassEligiblePlayers({
+      eventId: event.id,
+      players: eligiblePlayers,
+    });
+  }
+
+  return {
+    event,
+    created,
+    eligiblePlayers: eligiblePlayers.length,
+  };
+}
+
+/**
  * Entrada principal do serviço.
  *
  * Esta função analisa o estado atual da temporada
@@ -173,29 +314,16 @@ export function getSeasonPassEventState({
    * TEMPORADA ENCERRADA
    * ==========================================================
    *
-   * Se ainda não existe evento:
-   *
-   * - calcula a lista definitiva;
-   * - cria o evento;
-   * - congela os jogadores elegíveis.
    */
+
   if (seasonEnded && !event) {
-    const eligiblePlayers = calculateSeasonPassEligibility(wars, clanTag);
-
-    const schedule = calculateNextBrasiliaNoon(now);
-
-    event = createScheduledSeasonPassEvent({
+    const ensuredEvent = ensureSeasonPassEventForEndedCwl({
       season,
       clanTag,
-
-      scheduledAt: schedule.scheduledAt,
-      revealAt: schedule.revealAt,
+      wars,
     });
 
-    replaceSeasonPassEligiblePlayers({
-      eventId: event.id,
-      players: eligiblePlayers,
-    });
+    event = ensuredEvent?.event ?? null;
   }
 
   /**
@@ -286,12 +414,19 @@ export function getSeasonPassEventState({
  */
 export function getPersistedSeasonPassEventState({
   clanTag,
+  season,
   now = new Date(),
 }: {
   clanTag: string;
+  season?: string;
   now?: Date;
 }): SeasonPassEventState | null {
-  let event = findLatestSeasonPassEventByClan(clanTag);
+  let event = season
+    ? findSeasonPassEvent({
+        season,
+        clanTag,
+      })
+    : findLatestSeasonPassEventByClan(clanTag);
 
   if (!event) {
     return null;
@@ -479,6 +614,39 @@ function mapFrozenPlayers(
     stars: player.stars,
     destruction: player.destruction,
   }));
+}
+
+/**
+ * Converte timestamps retornados pela Clash API.
+ *
+ * Formato esperado:
+ *
+ * YYYYMMDDTHHmmss.SSSZ
+ */
+function parseClashTimestamp(value: string | null | undefined): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const match = value.match(
+    /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(?:\.(\d{3}))?Z$/,
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const [, year, month, day, hour, minute, second, millisecond = "000"] = match;
+
+  return Date.UTC(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute),
+    Number(second),
+    Number(millisecond),
+  );
 }
 
 /**

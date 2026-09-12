@@ -40,7 +40,7 @@
  */
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CwlSeasonPassCeremony from "@/components/cwl/CwlSeasonPassCeremony";
 
 /**
@@ -134,15 +134,6 @@ type Countdown = {
 const API_REFRESH_INTERVAL_MS = 5_000;
 
 /**
- * Janela curta em que a cerimônia oficial pode ser exibida
- * após revealAt.
- *
- * Cada navegador vê a cerimônia no máximo uma vez.
- * Após essa janela, somente o resultado final permanece.
- */
-const CEREMONY_LIVE_WINDOW_MS = 90_000;
-
-/**
  * Exibe o evento do Passe de Temporada.
  */
 export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
@@ -153,6 +144,24 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
   const [error, setError] = useState<string | null>(null);
 
   const [playOfficialCeremony, setPlayOfficialCeremony] = useState(false);
+
+  /**
+   * Indica se a área visual do evento está realmente
+   * dentro da viewport do usuário.
+   */
+  const [ceremonyInView, setCeremonyInView] = useState(false);
+
+  /**
+   * Elemento observado para saber quando o usuário
+   * chegou visualmente ao evento.
+   */
+  const ceremonyTriggerRef = useRef<HTMLDivElement | null>(null);
+
+  /**
+   * Mantém a cerimônia ativa mesmo que o polling da API
+   * atualize o objeto event durante a animação.
+   */
+  const ceremonyStartedKeyRef = useRef<string | null>(null);
 
   /**
    * Consulta o estado público do evento.
@@ -198,6 +207,38 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
   }
 
   /**
+   * Observa continuamente se o conteúdo principal do evento
+   * está visível para o usuário.
+   *
+   * A cerimônia só poderá começar quando uma parte relevante
+   * do componente estiver realmente dentro da viewport.
+   */
+  useEffect(() => {
+    const element = ceremonyTriggerRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setCeremonyInView(
+          entry.isIntersecting && entry.intersectionRatio >= 0.35,
+        );
+      },
+      {
+        threshold: [0, 0.35, 0.6],
+      },
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [clanSlug]);
+
+  /**
    * Carrega o evento inicialmente.
    */
   useEffect(() => {
@@ -205,51 +246,74 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
   }, [clanSlug]);
 
   /**
-   * A cerimônia é um acontecimento único.
+   * A cerimônia é exibida automaticamente uma única vez
+   * por navegador para cada combinação de clã + temporada.
    *
-   * Ela só pode iniciar:
+   * Regras:
    *
-   * - depois que o servidor libera o vencedor;
-   * - dentro da janela oficial de revelação;
-   * - uma única vez por navegador/sessão.
+   * - o vencedor precisa estar oficialmente revelado;
+   * - o usuário precisa estar visualizando a área do evento;
+   * - aquela temporada ainda não pode ter sido assistida
+   *   naquele navegador;
+   * - atualizações periódicas da API não interrompem uma
+   *   cerimônia que já começou.
    *
-   * Fora dessa janela, o usuário vê somente o resultado final.
+   * O frontend nunca decide o vencedor.
+   * Ele apenas apresenta o resultado persistido no servidor.
    */
   useEffect(() => {
-    if (
-      !event ||
-      event.status !== "revealed" ||
-      !event.winner ||
-      !event.revealAt
-    ) {
+    if (!event || event.status !== "revealed" || !event.winner) {
       setPlayOfficialCeremony(false);
       return;
     }
 
-    const revealTime = new Date(event.revealAt).getTime();
-    const currentTime = Date.now();
-
-    const insideLiveWindow =
-      currentTime >= revealTime &&
-      currentTime <= revealTime + CEREMONY_LIVE_WINDOW_MS;
-
     const storageKey = [
       "kings-of-doom",
-      "season-pass-ceremony",
+      "season-pass-ceremony-seen",
       event.clanTag,
       event.season,
     ].join(":");
 
-    const alreadySeen = window.sessionStorage.getItem(storageKey) === "1";
-
-    if (insideLiveWindow && !alreadySeen) {
-      window.sessionStorage.setItem(storageKey, "1");
+    /**
+     * Se esta própria página já iniciou essa cerimônia,
+     * mantemos o componente ativo.
+     *
+     * Isso é importante porque o polling atualiza event
+     * periodicamente e faria o effect executar novamente.
+     */
+    if (ceremonyStartedKeyRef.current === storageKey) {
       setPlayOfficialCeremony(true);
       return;
     }
 
-    setPlayOfficialCeremony(false);
-  }, [event]);
+    /**
+     * Ainda não chegou visualmente à área do evento.
+     *
+     * Não marcamos como visto e não iniciamos nada.
+     */
+    if (!ceremonyInView) {
+      setPlayOfficialCeremony(false);
+      return;
+    }
+
+    const alreadySeen = window.localStorage.getItem(storageKey) === "1";
+
+    if (alreadySeen) {
+      setPlayOfficialCeremony(false);
+      return;
+    }
+
+    /**
+     * A partir daqui o usuário realmente chegou ao evento.
+     *
+     * Registramos a visualização e iniciamos a experiência.
+     */
+    window.localStorage.setItem(storageKey, "1");
+
+    ceremonyStartedKeyRef.current = storageKey;
+
+    setPlayOfficialCeremony(true);
+  }, [event, ceremonyInView]);
 
   /**
    * Enquanto a página estiver aberta, consulta
@@ -327,7 +391,7 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
           </p>
         </div>
 
-        <div className="mt-10">
+        <div ref={ceremonyTriggerRef} className="mt-10">
           {event.status === "tracking" && (
             <TrackingState players={event.eligiblePlayers} />
           )}

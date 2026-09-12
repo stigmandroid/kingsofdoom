@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 09/09/2026
+# 12/09/2026
 
 #
 
 # Versão:
 
-# v0.9.7
+# v0.9.8
 
 #
 
@@ -88,15 +88,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.9.7`
+`v0.9.8`
 
 **Fase do projeto**
 
-`Player Experience & COC Bot — Visual System and Public Experience`
+`CWL Season Pass — Reliability & Ceremony Experience`
 
 **Objetivo atual**
 
-Consolidar a experiência visual do perfil individual dos jogadores, padronizar o Arsenal do Jogador e ampliar a presença pública do COC Bot dentro do Command Center, mantendo separadas a landing institucional e a experiência segura de verificação de contas.
+Fortalecer o ciclo completo do Passe de Temporada da CWL, garantindo persistência correta por clã e temporada, integração com o arquivo histórico, proteção contra snapshots incompletos e uma cerimônia de revelação que cada usuário realmente consiga acompanhar.
 
 ---
 
@@ -2213,6 +2213,88 @@ Consolidar a linguagem visual do Arsenal do Jogador e transformar o COC Bot em u
 ⬜ Expandir a experiência individual para Jogos do Clã
 
 ⬜ Integrar histórico e indicadores individuais do Player Intelligence ao COC Bot
+
+---
+
+# ✅ v0.9.8 — CWL Season Pass Reliability & Ceremony Experience
+
+## Objetivo
+
+Fortalecer o Passe de Temporada da CWL desde o encerramento da liga até a apresentação pública do vencedor, garantindo consistência histórica, criação automática do evento, recuperação segura após indisponibilidade da Clash API e uma experiência de cerimônia individual para cada visitante.
+
+### Entregas concluídas
+
+✅ Correção da exibição de vencedor pertencente a temporada anterior
+
+✅ Associação determinística de cada evento através de `season + clanTag`
+
+✅ Preservação permanente dos sorteios e vencedores históricos
+
+✅ Manutenção independente do histórico de K.O.D. e K.O.D.rec
+
+✅ Integração da criação do Passe ao encerramento definitivo da CWL
+
+✅ Utilização do CWL Archive como fonte pós-temporada
+
+✅ Recuperação da season correta quando a Clash API não disponibiliza mais a CWL encerrada
+
+✅ Criação idempotente do evento do Passe
+
+✅ Proteção contra duplicação através de `UNIQUE (season, clan_tag)`
+
+✅ Congelamento da lista definitiva de jogadores elegíveis
+
+✅ Preservação da lista congelada após o sorteio
+
+✅ Cálculo do agendamento a partir do `endTime` real da temporada
+
+✅ Sorteio mantido para 12:00 do dia seguinte ao encerramento da CWL
+
+✅ Utilização do fuso `America/Sao_Paulo`
+
+✅ Validação de carregamento completo das guerras antes do encerramento definitivo
+
+✅ Proteção contra snapshots parciais da temporada
+
+✅ Exigência de todas as guerras carregadas em `warEnded`
+
+✅ Fallback seguro através do histórico persistido em SQLite
+
+✅ Cerimônia desacoplada do instante exato do sorteio
+
+✅ Cerimônia disponível para primeira visualização mesmo após o horário oficial
+
+✅ Controle individual da cerimônia por navegador, clã e temporada
+
+✅ Persistência da visualização utilizando `localStorage`
+
+✅ Início automático somente quando o usuário chega à seção do Passe
+
+✅ Utilização de `IntersectionObserver` para detectar visibilidade real da cerimônia
+
+✅ Prevenção de execução da animação fora da viewport
+
+✅ Proteção contra interrupção causada pelo polling periódico da API
+
+✅ Vencedor permanece exclusivamente definido e persistido pelo backend
+
+✅ Frontend permanece sem autoridade para refazer ou alterar o sorteio
+
+### Validações pendentes em produção
+
+⬜ Confirmar criação automática do evento após o encerramento completo da CWL
+
+⬜ Confirmar comportamento independente de K.O.D. e K.O.D.rec
+
+⬜ Confirmar que vencedores históricos permanecem intactos
+
+⬜ Confirmar cerimônia automática na primeira visualização de cada navegador
+
+⬜ Confirmar que a cerimônia não inicia antes de entrar na viewport
+
+⬜ Confirmar acesso posterior direto ao resultado oficial
+
+⬜ Registrar evidências do primeiro ciclo completo após a atualização
 
 ---
 

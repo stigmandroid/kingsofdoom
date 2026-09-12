@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 09/09/2026
+ * 12/09/2026
  * ==========================================================
  */
 
@@ -145,10 +145,88 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.8",
+    title: "CWL Season Pass Reliability & Ceremony Experience",
+    date: "2026-09-12",
+    current: true,
+    summary:
+      "Fortalecimento do ciclo completo do Passe de Temporada da CWL, corrigindo a associação entre temporada e clã, integrando a criação do evento ao arquivamento definitivo da liga, protegendo o congelamento contra snapshots incompletos e transformando a cerimônia em uma experiência individual exibida quando cada usuário realmente chega à seção do sorteio.",
+
+    changes: [
+      {
+        type: "fix",
+        title: "Correção do vencedor de temporada anterior",
+        description:
+          "O Passe deixou de utilizar simplesmente o último evento persistido do clã como referência, impedindo que o vencedor de uma CWL anterior seja apresentado como resultado da temporada atual.",
+      },
+      {
+        type: "technical",
+        title: "Identidade por temporada e clã",
+        description:
+          "O ciclo do Passe passou a utilizar de forma determinística a combinação season + clanTag, preservando eventos históricos independentes e garantindo que cada clã possua no máximo um sorteio por temporada.",
+      },
+      {
+        type: "technical",
+        title: "Integração com o CWL Archive",
+        description:
+          "O encerramento definitivo da CWL passou a garantir automaticamente a criação do evento do Passe a partir do snapshot histórico completo, reduzindo a dependência da disponibilidade posterior da Clash API.",
+      },
+      {
+        type: "fix",
+        title: "Fallback pós-CWL por temporada correta",
+        description:
+          "Quando a Clash API deixa de disponibilizar a temporada encerrada, a rota do Passe passa a utilizar a última CWL arquivada como fonte oficial da season e consulta exclusivamente o evento correspondente.",
+      },
+      {
+        type: "technical",
+        title: "Agendamento baseado no encerramento real",
+        description:
+          "O horário do Passe passou a ser calculado a partir do endTime real da última guerra da temporada, mantendo o sorteio oficial às 12:00 do dia seguinte no fuso America/Sao_Paulo.",
+      },
+      {
+        type: "fix",
+        title: "Proteção contra snapshot parcial",
+        description:
+          "O encerramento da temporada somente é considerado definitivo quando todas as warTags disponíveis foram recuperadas e todas as guerras carregadas estão em warEnded, evitando congelar elegíveis com dados incompletos.",
+      },
+      {
+        type: "technical",
+        title: "Criação idempotente do evento",
+        description:
+          "A criação do Passe pode ser executada repetidamente com segurança, reutilizando o evento existente da mesma season + clanTag e preservando vencedores já sorteados ou revelados.",
+      },
+      {
+        type: "improvement",
+        title: "Cerimônia disponível após o horário oficial",
+        description:
+          "A animação deixou de ficar limitada a uma curta janela após revealAt e passou a permanecer disponível para cada navegador até sua primeira visualização daquela combinação de clã e temporada.",
+      },
+      {
+        type: "improvement",
+        title: "Cerimônia iniciada somente quando visível",
+        description:
+          "A animação oficial agora começa apenas quando o usuário realmente chega à área do Passe na página, utilizando IntersectionObserver para evitar que a cerimônia aconteça fora da viewport.",
+      },
+      {
+        type: "improvement",
+        title: "Uma cerimônia por navegador e temporada",
+        description:
+          "A visualização é registrada em localStorage por clanTag + season, fazendo com que cada navegador veja automaticamente a cerimônia uma única vez e, nas visitas seguintes, acesse diretamente o resultado oficial.",
+      },
+      {
+        type: "technical",
+        title: "Resultado permanece exclusivamente server-side",
+        description:
+          "A mudança visual não altera o sorteio real: o vencedor continua sendo escolhido e persistido exclusivamente no servidor, enquanto o frontend atua somente como camada de apresentação.",
+      },
+    ],
+  },
+
+  {
     version: "0.9.7",
     title: "Player Arsenal Visual System & COC Bot Public Experience",
     date: "2026-09-09",
-    current: true,
+    current: false,
     summary:
       "Consolidação da identidade visual do Arsenal do Jogador e expansão da presença pública do COC Bot, com padronização dos estados maximizados, correção e enquadramento dos assets, localização completa em Português do Brasil, validação responsiva, landing page mobile-first, integração à navegação institucional e criação da identidade visual oficial do COC Bot.",
 

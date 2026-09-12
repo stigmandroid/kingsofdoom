@@ -236,7 +236,7 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
     return () => {
       observer.disconnect();
     };
-  }, [clanSlug]);
+  }, [clanSlug, event?.season]);
 
   /**
    * Carrega o evento inicialmente.
@@ -308,9 +308,6 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
      *
      * Registramos a visualização e iniciamos a experiência.
      */
-    window.localStorage.setItem(storageKey, "1");
-
-    ceremonyStartedKeyRef.current = storageKey;
 
     setPlayOfficialCeremony(true);
   }, [event, ceremonyInView]);
@@ -401,7 +398,21 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
           {event.status === "revealing" && <RevealingState event={event} />}
 
           {event.status === "revealed" && (
-            <RevealedState event={event} playCeremony={playOfficialCeremony} />
+            <RevealedState
+              event={event}
+              playCeremony={playOfficialCeremony}
+              onCeremonyStarted={() => {
+                const storageKey = [
+                  "kings-of-doom",
+                  "season-pass-ceremony-seen",
+                  event.clanTag,
+                  event.season,
+                ].join(":");
+
+                window.localStorage.setItem(storageKey, "1");
+                ceremonyStartedKeyRef.current = storageKey;
+              }}
+            />
           )}
         </div>
       </div>
@@ -586,9 +597,11 @@ function RevealingState({ event }: { event: SeasonPassEventState }) {
 function RevealedState({
   event,
   playCeremony,
+  onCeremonyStarted,
 }: {
   event: SeasonPassEventState;
   playCeremony: boolean;
+  onCeremonyStarted: () => void;
 }) {
   const winner = event.winner;
 
@@ -631,6 +644,7 @@ function RevealedState({
         winner={winnerPlayer}
         autoStart
         allowReplay={false}
+        onStarted={onCeremonyStarted}
       />
     );
   }

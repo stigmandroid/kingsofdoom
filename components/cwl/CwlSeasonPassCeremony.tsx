@@ -92,6 +92,8 @@ type CwlSeasonPassCeremonyProps = {
    * de teste/simulação. No evento oficial fica desativado.
    */
   allowReplay?: boolean;
+
+  onStarted?: () => void;
 };
 
 /**
@@ -186,6 +188,7 @@ export default function CwlSeasonPassCeremony({
   winner,
   autoStart = false,
   allowReplay = true,
+  onStarted,
 }: CwlSeasonPassCeremonyProps) {
   const [simulationState, setSimulationState] =
     useState<SimulationState>("idle");
@@ -304,6 +307,8 @@ export default function CwlSeasonPassCeremony({
     }
 
     winnerIndexRef.current = officialWinnerIndex;
+
+    onStarted?.();
 
     setSimulationState("countdown");
 

@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+  async rewrites() {
+    return [
+      {
+        source: "/cocbot/config/:path*",
+        destination: "http://127.0.0.1:3100/config/:path*",
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

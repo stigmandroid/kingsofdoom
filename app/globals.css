@@ -39,3 +39,71 @@ html {
     transform: translateY(-10px) scale(1.02);
   }
 }
+
+@keyframes kodaFloat {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-8px) translateX(4px);
+  }
+  50% {
+    transform: translateY(-16px) translateX(0px);
+  }
+  75% {
+    transform: translateY(-8px) translateX(-4px);
+  }
+}
+
+@keyframes kodaPulse {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes kodaRing {
+  0% {
+    opacity: 0.18;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0.18;
+    transform: scale(0.98);
+  }
+}
+
+.koda-float {
+  animation: kodaFloat 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.koda-glow {
+  background:
+    radial-gradient(circle, rgba(255, 179, 0, 0.22) 0%, rgba(255, 102, 0, 0.12) 28%, rgba(10, 10, 35, 0) 68%);
+  filter: blur(16px);
+  animation: kodaPulse 5.5s ease-in-out infinite;
+}
+
+.koda-ring,
+.koda-ring-delay-1,
+.koda-ring-delay-2 {
+  border: 1px solid rgba(255, 196, 0, 0.12);
+  animation: kodaRing 5.5s ease-in-out infinite;
+}
+
+.koda-ring-delay-1 {
+  animation-delay: 0.8s;
+}
+
+.koda-ring-delay-2 {
+  animation-delay: 1.6s;
+}

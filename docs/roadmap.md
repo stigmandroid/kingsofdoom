@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 12/09/2026
+# 18/09/2026
 
 #
 
 # Versão:
 
-# v0.9.8
+# v0.9.9
 
 #
 
@@ -88,15 +88,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.9.8`
+`v0.9.9`
 
 **Fase do projeto**
 
-`CWL Season Pass — Reliability & Ceremony Experience`
+`KODA — Public Experience & Assistant Identity`
 
 **Objetivo atual**
 
-Fortalecer o ciclo completo do Passe de Temporada da CWL, garantindo persistência correta por clã e temporada, integração com o arquivo histórico, proteção contra snapshots incompletos e uma cerimônia de revelação que cada usuário realmente consiga acompanhar.
+Consolidar a KODA como assistente oficial do ecossistema Kings of Doom, unificando identidade visual, experiência pública, integração com WhatsApp e evolução futura das funcionalidades voltadas a jogadores e lideranças.
 
 ---
 
@@ -2295,6 +2295,52 @@ Fortalecer o Passe de Temporada da CWL desde o encerramento da liga até a apres
 ⬜ Confirmar acesso posterior direto ao resultado oficial
 
 ⬜ Registrar evidências do primeiro ciclo completo após a atualização
+
+---
+
+# ✅ v0.9.9 — KODA Public Experience & Assistant Identity
+
+## Objetivo
+
+Consolidar a transição pública do COC Bot para KODA — Kings of Doom Assistant — criando uma identidade própria, uma landing mais madura e uma apresentação clara das funcionalidades que conectam WhatsApp e Command Center.
+
+### Entregas concluídas
+
+✅ Definição pública da marca KODA — Kings of Doom Assistant
+
+✅ Redesign completo da landing pública
+
+✅ Integração da personagem visual oficial da KODA
+
+✅ Hero redesenhado com animações, glow e movimento
+
+✅ Integração de screenshots reais das automações no WhatsApp
+
+✅ Organização das funcionalidades atuais em uma narrativa mais clara
+
+✅ Reforço da proposta de valor para líderes e jogadores
+
+✅ Comunicação explícita de que a KODA informa e organiza, sem automatizar jogabilidade
+
+✅ Substituição de “COC Bot” por “KODA” na navegação principal
+
+✅ Preservação da rota /[locale]/cocbot para compatibilidade
+
+✅ Manutenção da experiência responsiva em desktop e mobile
+
+### Próximas evoluções — KODA
+
+⬜ Card visual completo do estado da conta do jogador
+
+⬜ Expansão do acompanhamento da Liga Ranqueada
+
+⬜ Histórico individual de Guerra e CWL
+
+⬜ Integração progressiva de Raid Weekend e Jogos do Clã
+
+⬜ Evolução das configurações administrativas via web
+
+⬜ Ampliação da inteligência operacional para líderes e co-líderes
 
 ---
 

@@ -145,10 +145,70 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "0.9.9",
+    title: "KODA Public Experience & Assistant Identity",
+    date: "2026-09-18",
+    current: true,
+    summary:
+      "Evolução da presença pública do assistente oficial Kings of Doom, consolidando a transição de COC Bot para KODA — Kings of Doom Assistant — com nova identidade visual, landing page redesenhada, personagem oficial, animações, exemplos reais de uso no WhatsApp e integração refinada à navegação do Command Center.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "KODA — Kings of Doom Assistant",
+        description:
+          "A experiência pública passou a utilizar oficialmente a identidade KODA, consolidando o assistente como produto próprio do ecossistema Kings of Doom.",
+      },
+      {
+        type: "improvement",
+        title: "Landing pública completamente redesenhada",
+        description:
+          "A página /[locale]/cocbot recebeu uma nova composição visual, reorganização de conteúdo, maior destaque para funcionalidades atuais e uma apresentação mais clara da proposta de valor da KODA.",
+      },
+      {
+        type: "feature",
+        title: "Personagem visual oficial da KODA",
+        description:
+          "A página passou a utilizar a personagem oficial da KODA como elemento central da identidade, criando uma presença visual própria e reconhecível para o assistente.",
+      },
+      {
+        type: "improvement",
+        title: "Hero animado da KODA",
+        description:
+          "O Hero recebeu efeitos de iluminação, anéis e movimento suave, aproximando sua linguagem visual dos elementos animados utilizados na página principal do Command Center.",
+      },
+      {
+        type: "feature",
+        title: "Exemplos reais do WhatsApp",
+        description:
+          "A landing passou a exibir screenshots reais de alertas, eventos e interações da KODA no WhatsApp, permitindo visualizar diretamente como o assistente atua dentro dos grupos.",
+      },
+      {
+        type: "improvement",
+        title: "Comunicação focada em inteligência e informação",
+        description:
+          "O conteúdo foi refinado para deixar explícito que a KODA organiza informações, acompanha eventos e mantém o reino informado, sem automatizar a jogabilidade do usuário.",
+      },
+      {
+        type: "improvement",
+        title: "KODA na navegação principal",
+        description:
+          "O item anteriormente identificado como COC Bot na Navbar e no menu mobile passou a utilizar a marca KODA, mantendo a rota pública já existente.",
+      },
+      {
+        type: "technical",
+        title: "Compatibilidade preservada da rota pública",
+        description:
+          "A mudança de identidade foi realizada sem alterar a rota /[locale]/cocbot, preservando links existentes, integrações e compatibilidade com os fluxos já publicados.",
+      },
+    ],
+  },
+
+  {
     version: "0.9.8",
     title: "CWL Season Pass Reliability & Ceremony Experience",
     date: "2026-09-12",
-    current: true,
+    current: false,
     summary:
       "Fortalecimento do ciclo completo do Passe de Temporada da CWL, corrigindo a associação entre temporada e clã, integrando a criação do evento ao arquivamento definitivo da liga, protegendo o congelamento contra snapshots incompletos e transformando a cerimônia em uma experiência individual exibida quando cada usuário realmente chega à seção do sorteio.",
 
@@ -2637,10 +2697,10 @@ export const roadmap: RoadmapPhase[] = [
 
   {
     phase: 4,
-    title: "COC Bot — experiência pública e Player Value",
+    title: "KODA — experiência pública e Player Value",
     status: "in-development",
     description:
-      "Expandir a presença pública do COC Bot no Command Center e transformar a integração com o WhatsApp em uma experiência que gere valor direto também para cada jogador.",
+      "Expandir a KODA como assistente oficial do ecossistema Kings of Doom, conectando WhatsApp, Command Center e Player Intelligence em experiências úteis para jogadores, líderes e co-líderes.",
 
     items: [
       {

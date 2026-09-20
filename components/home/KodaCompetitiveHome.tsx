@@ -8,17 +8,19 @@
  * components/home/KodaCompetitiveHome.tsx
  *
  * Responsabilidade:
- * Renderizar a interface principal da inteligência competitiva
- * da KODA na Home do Kings of Doom Command Center.
+ * Renderizar a Home estratégica do Kings of Doom Command
+ * Center, integrando identidade visual e inteligência
+ * competitiva da KODA.
  *
  * Funcionalidades:
- *
+ * - apresenta o Hero principal do ecossistema Kings of Doom;
+ * - integra KODA, King e a identidade visual K.O.D.;
  * - apresenta o panorama do pool competitivo;
  * - alterna entre as formações de K.O.D. e K.O.D.rec;
- * - exibe titulares e reservas sugeridos;
- * - apresenta vagas competitivas abertas;
- * - resume elegibilidade do pool;
- * - mantém a decisão final sob responsabilidade da liderança.
+ * - exibe titulares e reservas sugeridos pela KODA;
+ * - apresenta vagas competitivas e necessidades de recrutamento;
+ * - resume os critérios de elegibilidade competitiva;
+ * - mantém a decisão final das escalações com a liderança.
  *
  * Autor:
  * stigmandroid
@@ -27,12 +29,14 @@
  * 20/09/2026
  *
  * Versão:
- * 1.0.0
+ * 1.1.0
  *
  * Status:
  * Em desenvolvimento
  * ==========================================================
  */
+
+import Image from "next/image";
 
 import { useState } from "react";
 
@@ -49,6 +53,7 @@ type ClanSelection = "kod" | "kod-rec";
 
 type PlayerEvaluation = {
   evidence: CwlCompetitiveEvidence;
+
   eligibility: CwlEligibilityEvaluation;
 };
 
@@ -61,15 +66,20 @@ type KodaCompetitiveHomeProps = {
 
   summary: {
     totalPlayers: number;
+
     eligiblePlayers: number;
+
     provisionalPlayers: number;
+
     ineligiblePlayers: number;
   };
 };
 
 export function KodaCompetitiveHome({
   allocation,
+
   evaluations,
+
   summary,
 }: KodaCompetitiveHomeProps) {
   const [selectedClan, setSelectedClan] = useState<ClanSelection>("kod");
@@ -83,6 +93,7 @@ export function KodaCompetitiveHome({
   const reserves = isKod ? allocation.kodReserves : allocation.kodRecReserves;
 
   const startersFilled = countFilled(starters);
+
   const reservesFilled = countFilled(reserves);
 
   const starterOpen = starters.length - startersFilled;
@@ -91,37 +102,96 @@ export function KodaCompetitiveHome({
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <section className="border-b border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-          <div className="max-w-4xl">
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-amber-400">
-              Kings of Doom
-            </p>
+      <section className="relative isolate overflow-hidden border-b border-slate-800 bg-slate-950">
+        {/* Atmosfera geral */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(245,158,11,0.12),transparent_28%),radial-gradient(circle_at_16%_45%,rgba(127,29,29,0.12),transparent_30%),radial-gradient(circle_at_84%_45%,rgba(30,41,59,0.55),transparent_32%)]" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.035]">
+          <div className="h-full w-full bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:64px_64px]" />
+        </div>
 
-            <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-              KODA
-            </h1>
+        <div className="relative mx-auto min-h-[680px] max-w-[1600px] overflow-hidden px-4 sm:min-h-[760px] sm:px-6 lg:min-h-[820px] lg:px-8">
+          <div className="pointer-events-none absolute bottom-[-12px] left-[-112px] z-10 w-[330px] sm:bottom-[-18px] sm:left-[-70px] sm:w-[430px] lg:bottom-[-26px] lg:left-[-45px] lg:w-[560px] xl:left-0 xl:w-[620px]">
+            <Image
+              src="/koda-home.png"
+              alt="KODA"
+              width={900}
+              height={1400}
+              priority
+              className="h-auto w-full object-contain drop-shadow-[0_0_32px_rgba(185,28,28,0.18)]"
+            />
+          </div>
 
-            <p className="mt-2 text-lg font-black uppercase tracking-[0.22em] text-slate-400 sm:text-xl">
-              Competitive Intelligence
-            </p>
+          <div className="pointer-events-none absolute bottom-0 right-[-112px] z-10 w-[330px] sm:right-[-70px] sm:w-[430px] lg:bottom-[-2px] lg:right-[-45px] lg:w-[560px] xl:right-0 xl:w-[620px]">
+            <Image
+              src="/king-home.png"
+              alt="King"
+              width={900}
+              height={1400}
+              priority
+              className="h-auto w-full object-contain drop-shadow-[0_0_32px_rgba(245,158,11,0.12)]"
+            />
+          </div>
 
-            <p className="mt-6 max-w-3xl text-base leading-7 text-slate-400">
-              Inteligência competitiva construída a partir dos dados reais de
-              K.O.D. e K.O.D.rec para apoiar decisões de formação, performance e
-              recrutamento.
-            </p>
+          <div className="relative z-20 mx-auto flex min-h-[680px] max-w-3xl flex-col items-center justify-center py-16 text-center sm:min-h-[760px] lg:min-h-[820px]">
+            <div className="relative z-20 flex flex-col items-center -translate-y-8 sm:translate-y-0">
+              <div className="-translate-y-8 rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-2 backdrop-blur-md sm:translate-y-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-300 sm:text-xs">
+                  Kings of Doom · Command Center
+                </p>
+              </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.15em]">
-              <FlowStep>Dados</FlowStep>
-              <FlowArrow />
-              <FlowStep>Inteligência</FlowStep>
-              <FlowArrow />
-              <FlowStep>Decisão</FlowStep>
-              <FlowArrow />
-              <FlowStep>Performance</FlowStep>
+              <div className="relative mt-[-4px] flex h-[170px] w-[170px] -translate-y-8 items-center justify-center sm:mt-7 sm:h-[220px] sm:w-[220px] sm:translate-y-0 lg:h-[250px] lg:w-[250px]">
+                <div className="absolute inset-0 animate-pulse rounded-full bg-amber-400/20 blur-[70px]" />
+                <div className="absolute inset-2 rounded-full border border-amber-400/20 shadow-[0_0_70px_rgba(245,158,11,0.20)]" />
+                <div className="absolute inset-6 rounded-full border border-slate-700/50" />
+                <div className="absolute inset-10 rounded-full border border-slate-800/80" />
+                <Image
+                  src="/kod-logo.png"
+                  alt="Kings of Doom"
+                  width={260}
+                  height={260}
+                  priority
+                  unoptimized
+                  className="relative z-10 h-auto w-[145px] animate-[kodFloat_4s_ease-in-out_infinite] object-contain drop-shadow-[0_0_24px_rgba(245,158,11,0.35)] sm:w-[185px] lg:w-[205px]"
+                />
+              </div>
+            </div>
+
+            <div className="relative z-20 translate-y-12 sm:translate-y-0">
+              <p
+                className="mt-7 text-[10px] font-black uppercase tracking-[0.38em] text-white sm:text-xs"
+                style={{
+                  WebkitTextStroke: "0.35px rgba(0,0,0,0.9)",
+                  textShadow:
+                    "0 1px 2px rgba(0,0,0,1), 0 2px 8px rgba(0,0,0,0.85)",
+                }}
+              >
+                Força · Inteligência · Performance
+              </p>
+
+              <h1
+                className="mt-4 max-w-3xl text-4xl font-black uppercase leading-[0.92] tracking-[-0.045em] text-white sm:text-6xl lg:text-7xl"
+                style={{
+                  WebkitTextStroke: "0.5px rgba(0,0,0,0.9)",
+                  textShadow:
+                    "0 2px 3px rgba(0,0,0,0.95), 0 4px 14px rgba(0,0,0,0.65)",
+                }}
+              >
+                Dados vencem
+                <span className="block text-amber-400">guerras.</span>
+              </h1>
+
+              <p
+                className="mt-6 max-w-xl rounded-2xl border border-white/5 bg-slate-950/55 px-4 py-3 text-sm font-medium leading-6 text-white shadow-2xl backdrop-blur-md sm:px-5 sm:text-base sm:leading-7"
+                style={{ textShadow: "0 1px 3px rgba(0,0,0,0.95)" }}
+              >
+                A força dos Kings of Doom encontra a inteligência da KODA para
+                transformar dados competitivos em decisões de guerra.
+              </p>
             </div>
           </div>
+
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-40 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent" />
         </div>
       </section>
 
@@ -355,9 +425,11 @@ export function KodaCompetitiveHome({
 
 function PlayerSlot({
   slot,
+
   reserve = false,
 }: {
   slot: CwlRosterSlot;
+
   reserve?: boolean;
 }) {
   const player = slot.player;
@@ -409,11 +481,15 @@ function PlayerSlot({
 
 function MetricCard({
   label,
+
   value,
+
   description,
 }: {
   label: string;
+
   value: number;
+
   description: string;
 }) {
   return (
@@ -431,9 +507,11 @@ function MetricCard({
 
 function SmallMetric({
   label,
+
   value,
 }: {
   label: string;
+
   value: string | number;
 }) {
   return (
@@ -449,11 +527,15 @@ function SmallMetric({
 
 function SectionHeading({
   eyebrow,
+
   title,
+
   counter,
 }: {
   eyebrow: string;
+
   title: string;
+
   counter: string;
 }) {
   return (

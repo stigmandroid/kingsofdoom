@@ -70,6 +70,8 @@ import {
   type PlayerWarHistoryEntry,
 } from "../../../services/player-war-history.service";
 
+import { findRecentWarHistory } from "../../../repositories/war-history.repository";
+
 import type { CurrentWar } from "../../../types/war";
 
 const COMPETITIVE_WINDOW_DAYS = 30;
@@ -418,6 +420,58 @@ function addRegularWarEntry({
   }
 }
 
+function addRegularWarPlayers({
+  players,
+  evaluationDate,
+  windowStart,
+}: {
+  players: Map<string, MutableCompetitiveEvidence>;
+  evaluationDate: Date;
+  windowStart: Date;
+}): void {
+  for (const clan of CWL_INTELLIGENCE_CLANS) {
+    const wars = findRecentWarHistory({
+      trackedClanTag: clan.tag,
+      limit: 100,
+    });
+
+    for (const archivedWar of wars) {
+      const occurredAt =
+        archivedWar.endTime ??
+        archivedWar.startTime ??
+        archivedWar.preparationStartTime;
+
+      if (
+        !isInsideWindow({
+          occurredAt,
+          windowStart,
+          evaluationDate,
+        })
+      ) {
+        continue;
+      }
+
+      let war: CurrentWar;
+
+      try {
+        war = JSON.parse(archivedWar.rawJson) as CurrentWar;
+      } catch {
+        continue;
+      }
+
+      const { trackedSide } = getTrackedSide(war, clan.tag);
+
+      if (!trackedSide) {
+        continue;
+      }
+
+      for (const member of trackedSide.members ?? []) {
+        getOrCreatePlayer(players, member.tag, member.name ?? null);
+      }
+    }
+  }
+}
+
 function addRegularWarEvidence({
   players,
   evaluationDate,
@@ -473,6 +527,12 @@ export function buildCwlCompetitiveEvidence(
   const windowStart = getWindowStart(evaluationDate);
 
   addCwlEvidence({
+    players,
+    evaluationDate,
+    windowStart,
+  });
+
+  addRegularWarPlayers({
     players,
     evaluationDate,
     windowStart,

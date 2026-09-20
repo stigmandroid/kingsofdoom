@@ -6,59 +6,83 @@
  * app/[locale]/page.tsx
  *
  * Responsabilidade:
- * Redirecionar a página inicial localizada para o painel
- * completo do clã principal.
+ * Renderizar a Home do Kings of Doom Command Center,
+ * utilizando a KODA como camada central de inteligência
+ * competitiva do ecossistema.
  *
- * Exemplos:
+ * Funcionalidades:
  *
- * /pt-BR → /pt-BR/clans/kod
- * /en → /en/clans/kod
- * /es → /es/clans/kod
+ * - consolida o pool competitivo de K.O.D. e K.O.D.rec;
+ * - analisa evidências competitivas dos últimos 30 dias;
+ * - aplica os critérios de elegibilidade da KODA;
+ * - classifica os jogadores elegíveis;
+ * - sugere titulares e reservas para os dois clãs;
+ * - identifica vagas competitivas e necessidade de recrutamento.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 01/08/2026
+ * 20/09/2026
+ *
+ * Versão:
+ * 1.0.0
+ *
+ * Status:
+ * Em desenvolvimento
  * ==========================================================
  */
 
-import { redirect } from "next/navigation";
+import { KodaCompetitiveHome } from "@/components/home/KodaCompetitiveHome";
 
-import { clans } from "@/config/clans";
+import { allocateCwlRoster } from "@/lib/intelligence/cwl/allocate-cwl-roster";
+import { buildCwlCompetitiveEvidence } from "@/lib/intelligence/cwl/build-cwl-competitive-evidence";
+import { evaluateCwlEligibility } from "@/lib/intelligence/cwl/evaluate-cwl-eligibility";
+import { rankCwlPlayers } from "@/lib/intelligence/cwl/rank-cwl-players";
 
-/**
- * Parâmetros dinâmicos da rota localizada.
- */
 type HomeProps = {
   params: Promise<{
     locale: string;
   }>;
 };
 
-/**
- * Redireciona a página inicial para o painel completo
- * do clã principal.
- *
- * Dessa forma, evitamos manter duas implementações
- * diferentes do Dashboard.
- */
 export default async function Home({ params }: HomeProps) {
-  /**
-   * Recupera o idioma atual da URL.
-   */
   const { locale } = await params;
 
-  /**
-   * Recupera o clã considerado padrão na aplicação.
-   */
-  const defaultClan = clans.kod;
+  const competitiveEvidence = buildCwlCompetitiveEvidence();
 
-  /**
-   * Encaminha o usuário para a rota dinâmica do clã.
-   *
-   * Exemplo:
-   * /pt-BR → /pt-BR/clans/kod
-   */
-  redirect(`/${locale}/clans/${defaultClan.slug}`);
+  const evaluations = competitiveEvidence.map((evidence) => ({
+    evidence,
+    eligibility: evaluateCwlEligibility(evidence),
+  }));
+
+  const rankedPlayers = rankCwlPlayers(competitiveEvidence);
+
+  const allocation = allocateCwlRoster(rankedPlayers);
+
+  const eligiblePlayers = evaluations.filter(
+    ({ eligibility }) => eligibility.status === "eligible",
+  ).length;
+
+  const provisionalPlayers = evaluations.filter(
+    ({ eligibility }) => eligibility.status === "provisional",
+  ).length;
+
+  const ineligiblePlayers = evaluations.filter(
+    ({ eligibility }) => eligibility.status === "ineligible",
+  ).length;
+
+  return (
+    <KodaCompetitiveHome
+      locale={locale}
+      allocation={allocation}
+      evaluations={evaluations}
+      summary={{
+        totalPlayers: competitiveEvidence.length,
+        eligiblePlayers,
+        provisionalPlayers,
+        ineligiblePlayers,
+      }}
+    />
+  );
 }

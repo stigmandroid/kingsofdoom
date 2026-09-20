@@ -44,6 +44,11 @@ import type { CwlRoundWar } from "@/components/cwl/CwlRounds";
 
 import {
   findCwlArchivePlayerPerformance,
+
+  findCwlArchiveSeason,
+
+  findCwlArchiveSeasons,
+
   findCwlArchiveWarSnapshots,
   findLatestCwlArchiveSeason,
   getCwlArchiveSummary,
@@ -670,6 +675,20 @@ export type CwlPostSeasonPlayer = {
 };
 
 /**
+ * Temporada disponível no histórico da CWL.
+ *
+ * O contrato é propositalmente enxuto: os dados pesados
+ * só são carregados quando a temporada for aberta.
+ */
+export type CwlArchiveSeasonListItem = {
+  id: number;
+  season: string;
+  trackedClanTag: string;
+  state: string;
+  totalRounds: number;
+};
+
+/**
  * Contrato pronto para a interface pós-CWL.
  *
  * Importante:
@@ -687,25 +706,37 @@ export type CwlPostSeasonSummary = {
 };
 
 /**
- * Recupera a última temporada arquivada e transforma
- * o histórico em um modelo pronto para a interface.
+ * Lista todas as temporadas históricas disponíveis
+ * para determinado clã.
  *
- * Nenhuma consulta à Clash API é necessária.
+ * A temporada mais recente aparece primeiro.
  */
-export function getLatestCwlPostSeasonSummary(
+export function getCwlArchiveSeasons(
   trackedClanTag: string,
-): CwlPostSeasonSummary | null {
-  const season = findLatestCwlArchiveSeason(trackedClanTag);
+): CwlArchiveSeasonListItem[] {
+  return findCwlArchiveSeasons(trackedClanTag).map((season) => ({
+    id: season.id,
+    season: season.season,
+    trackedClanTag: season.trackedClanTag,
+    state: season.state,
+    totalRounds: season.totalRounds,
+  }));
+}
 
-  if (!season) {
-    return null;
-  }
-
-  /**
-   * Reconstrói as guerras exatamente no contrato utilizado
-   * pelos componentes da temporada ativa.
-   */
-  const wars = findCwlArchiveWarSnapshots(season.id).flatMap((snapshot) => {
+/**
+ * Transforma uma temporada arquivada em um modelo
+ * completo pronto para os componentes da interface.
+ */
+function buildCwlPostSeasonSummary({
+  seasonId,
+  season,
+  trackedClanTag,
+}: {
+  seasonId: number;
+  season: string;
+  trackedClanTag: string;
+}): CwlPostSeasonSummary {
+  const wars = findCwlArchiveWarSnapshots(seasonId).flatMap((snapshot) => {
     try {
       return [
         {
@@ -725,12 +756,12 @@ export function getLatestCwlPostSeasonSummary(
   });
 
   const players = findCwlArchivePlayerPerformance({
-    seasonId: season.id,
+    seasonId,
     clanTag: trackedClanTag,
   });
 
   return {
-    season: season.season,
+    season,
     trackedClanTag,
 
     wars,
@@ -748,10 +779,64 @@ export function getLatestCwlPostSeasonSummary(
 
       attacksUsed: player.attacksUsed,
       attacksAvailable: player.attacksAvailable,
-      unusedAttacks: Math.max(0, player.attacksAvailable - player.attacksUsed),
+      unusedAttacks: Math.max(
+        0,
+        player.attacksAvailable - player.attacksUsed,
+      ),
 
       stars: player.stars,
       destruction: player.destruction,
     })),
   };
+}
+
+/**
+ * Recupera a última temporada arquivada e transforma
+ * o histórico em um modelo pronto para a interface.
+ *
+ * Nenhuma consulta à Clash API é necessária.
+ */
+export function getLatestCwlPostSeasonSummary(
+  trackedClanTag: string,
+): CwlPostSeasonSummary | null {
+  const season = findLatestCwlArchiveSeason(trackedClanTag);
+
+  if (!season) {
+    return null;
+  }
+
+  return buildCwlPostSeasonSummary({
+    seasonId: season.id,
+    season: season.season,
+    trackedClanTag,
+  });
+}
+
+/**
+ * Recupera uma temporada histórica específica.
+ *
+ * Retorna null quando a temporada solicitada não
+ * estiver preservada no arquivo histórico.
+ */
+export function getCwlPostSeasonSummary({
+  trackedClanTag,
+  season,
+}: {
+  trackedClanTag: string;
+  season: string;
+}): CwlPostSeasonSummary | null {
+  const archivedSeason = findCwlArchiveSeason({
+    trackedClanTag,
+    season,
+  });
+
+  if (!archivedSeason) {
+    return null;
+  }
+
+  return buildCwlPostSeasonSummary({
+    seasonId: archivedSeason.id,
+    season: archivedSeason.season,
+    trackedClanTag,
+  });
 }

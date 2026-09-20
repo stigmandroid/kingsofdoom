@@ -1011,6 +1011,103 @@ export function findLatestCwlArchiveSeason(
 }
 
 /**
+ * Recupera todas as temporadas arquivadas de um clã acompanhado.
+ *
+ * A temporada mais recente aparece primeiro.
+ *
+ * Esta consulta é a base do histórico navegável da CWL e também
+ * permite que camadas superiores trabalhem com múltiplas temporadas
+ * sem depender apenas do snapshot mais recente.
+ */
+export function findCwlArchiveSeasons(
+  trackedClanTag: string,
+): LatestCwlArchiveSeasonRecord[] {
+  const rows = database
+    .prepare(
+      `
+        SELECT
+          id,
+          season,
+          tracked_clan_tag,
+          state,
+          total_rounds
+        FROM cwl_seasons
+        WHERE tracked_clan_tag = ?
+        ORDER BY season DESC, id DESC
+      `,
+    )
+    .all(trackedClanTag) as Array<{
+    id: number;
+    season: string;
+    tracked_clan_tag: string;
+    state: string;
+    total_rounds: number;
+  }>;
+
+  return rows.map((row) => ({
+    id: row.id,
+    season: row.season,
+    trackedClanTag: row.tracked_clan_tag,
+    state: row.state,
+    totalRounds: row.total_rounds,
+  }));
+}
+
+/**
+ * Recupera uma temporada arquivada específica de um clã.
+ *
+ * Retorna null quando a combinação temporada + clã não existir.
+ *
+ * Isso permite abrir diretamente uma temporada histórica sem
+ * depender de qual temporada é atualmente a mais recente.
+ */
+export function findCwlArchiveSeason({
+  trackedClanTag,
+  season,
+}: {
+  trackedClanTag: string;
+  season: string;
+}): LatestCwlArchiveSeasonRecord | null {
+  const row = database
+    .prepare(
+      `
+        SELECT
+          id,
+          season,
+          tracked_clan_tag,
+          state,
+          total_rounds
+        FROM cwl_seasons
+        WHERE tracked_clan_tag = ?
+          AND season = ?
+        ORDER BY id DESC
+        LIMIT 1
+      `,
+    )
+    .get(trackedClanTag, season) as
+    | {
+        id: number;
+        season: string;
+        tracked_clan_tag: string;
+        state: string;
+        total_rounds: number;
+      }
+    | undefined;
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    season: row.season,
+    trackedClanTag: row.tracked_clan_tag,
+    state: row.state,
+    totalRounds: row.total_rounds,
+  };
+}
+
+/**
  * Calcula a classificação final usando as guerras arquivadas.
  *
  * Cada guerra do grupo aparece uma única vez em cwl_wars.

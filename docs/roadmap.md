@@ -36,13 +36,13 @@
 
 # Última atualização:
 
-# 18/09/2026
+# 21/09/2026
 
 #
 
 # Versão:
 
-# v0.9.9
+# v1.0.0
 
 #
 
@@ -88,15 +88,15 @@ As funcionalidades descritas podem sofrer alterações conforme novas necessidad
 
 **Versão atual**
 
-`v0.9.9`
+`v1.0.0`
 
 **Fase do projeto**
 
-`KODA — Public Experience & Assistant Identity`
+`KODA — Competitive Command Center`
 
 **Objetivo atual**
 
-Consolidar a KODA como assistente oficial do ecossistema Kings of Doom, unificando identidade visual, experiência pública, integração com WhatsApp e evolução futura das funcionalidades voltadas a jogadores e lideranças.
+Consolidar a Home como centro de inteligência competitiva do ecossistema Kings of Doom, utilizando dados históricos de K.O.D. e K.O.D.rec para avaliar elegibilidade, classificar jogadores, sugerir formações competitivas e identificar objetivamente necessidades de recrutamento.
 
 ---
 
@@ -2341,6 +2341,174 @@ Consolidar a transição pública do COC Bot para KODA — Kings of Doom Assista
 ⬜ Evolução das configurações administrativas via web
 
 ⬜ Ampliação da inteligência operacional para líderes e co-líderes
+
+---
+
+# ✅ v1.0.0 — KODA Competitive Command Center
+
+## Objetivo
+
+Transformar a página inicial do Kings of Doom Command Center em um centro real de inteligência competitiva, conectando os dados históricos de K.O.D. e K.O.D.rec à KODA para apoiar decisões de escalação, elegibilidade e recrutamento.
+
+### Home & Command Center
+
+✅ Nova Home oficial do Kings of Doom Command Center
+
+✅ Rotas contextuais para K.O.D. e K.O.D.rec
+
+✅ Navbar como fonte única do contexto do clã
+
+✅ Troca completa das informações da Home ao alternar o clã selecionado
+
+✅ Novo Hero oficial do Command Center
+
+✅ Integração visual entre KODA, King e identidade Kings of Doom
+
+✅ Conceito visual "Dados vencem guerras"
+
+✅ Card compacto de Guerra Agora
+
+✅ Card compacto de Informações do Clã
+
+✅ Experiência responsiva para desktop e dispositivos móveis
+
+✅ Identidade visual oficial compartilhada entre Hero e Navbar
+
+### KODA Competitive Intelligence
+
+✅ Pool competitivo unificado entre K.O.D. e K.O.D.rec
+
+✅ Independência entre clã cotidiano e formação competitiva da CWL
+
+✅ Identificação permanente dos jogadores através da playerTag
+
+✅ Janela móvel de análise competitiva de 30 dias
+
+✅ Consolidação de evidências históricas da CWL
+
+✅ Consolidação de evidências de guerras normais
+
+✅ Preservação da origem das evidências competitivas
+
+### Elegibilidade
+
+✅ Elegibilidade aplicada antes da classificação
+
+✅ Amostra mínima de 12 ataques competitivos válidos
+
+✅ Participação mínima de 90% dos ataques disponíveis
+
+✅ Média mínima de 2,60 estrelas
+
+✅ Média mínima de 90% de destruição
+
+✅ Taxa mínima de 80% de triplas
+
+✅ Estados eligible, provisional e ineligible
+
+✅ Separação entre insuficiência de evidências e desempenho abaixo dos critérios
+
+✅ Centro de Vila tratado como restrição de composição e não como pontuação
+
+### Classificação competitiva
+
+✅ Classificação exclusiva dos jogadores elegíveis
+
+✅ Taxa de triplas como primeiro critério competitivo
+
+✅ Média de estrelas como segundo critério
+
+✅ Média de destruição como terceiro critério
+
+✅ Confiabilidade como critério adicional
+
+✅ Volume de ataques como critério adicional
+
+✅ Critério determinístico de desempate
+
+### Formação competitiva
+
+✅ Formação automática sugerida pela KODA
+
+✅ Até 15 titulares para K.O.D.
+
+✅ Até 15 titulares para K.O.D.rec
+
+✅ Até 3 reservas para K.O.D.
+
+✅ Até 3 reservas para K.O.D.rec
+
+✅ Distribuição baseada na classificação competitiva global
+
+✅ Ausência de preenchimento artificial da escalação
+
+✅ Preservação de vagas quando não existem jogadores elegíveis suficientes
+
+✅ Identificação automática das vagas de titulares
+
+✅ Identificação automática das vagas de reservas
+
+✅ Identificação objetiva da necessidade de recrutamento
+
+✅ Decisão final preservada para líderes e colíderes
+
+### Arquitetura
+
+✅ Pipeline separado entre evidência, elegibilidade, classificação e alocação
+
+✅ Motor competitivo independente da camada visual
+
+✅ Integração com o arquivo histórico persistente
+
+✅ Home dinâmica utilizando os dados reais do ambiente de produção
+
+✅ Validação do motor competitivo em produção
+
+---
+
+# 🟨 v1.0.1 — Competitive Ranking & Explainability
+
+## Objetivo
+
+Transformar a classificação interna utilizada pela KODA em uma experiência transparente e auditável, permitindo compreender não apenas quem foi selecionado, mas por que cada jogador ocupa determinada posição competitiva.
+
+### Próximas entregas
+
+⬜ Classificação competitiva global visível na Home
+
+⬜ Posição individual de cada jogador no ranking KODA
+
+⬜ Métricas competitivas exibidas junto à classificação
+
+⬜ Taxa de triplas
+
+⬜ Média de estrelas
+
+⬜ Média de destruição
+
+⬜ Confiabilidade
+
+⬜ Quantidade de ataques válidos
+
+⬜ Explicação dos critérios responsáveis pela posição do jogador
+
+⬜ Explicação de elegibilidade, estado provisório ou inelegibilidade
+
+⬜ Diferenciação visual entre classificação e escalação
+
+⬜ Justificativa da KODA para titulares
+
+⬜ Justificativa da KODA para reservas
+
+⬜ Identificação dos jogadores imediatamente abaixo da linha de corte
+
+⬜ Visualização da distância competitiva entre jogadores
+
+⬜ Auditoria da classificação com dados históricos
+
+⬜ Refinamento da composição por Centro de Vila sem transformar CV em pontuação
+
+⬜ Preparação da classificação para futuras recomendações estratégicas
 
 ---
 

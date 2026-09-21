@@ -17,7 +17,7 @@
  * stigmandroid
  *
  * Última atualização:
- * 12/09/2026
+ * 21/09/2026
  * ==========================================================
  */
 
@@ -145,10 +145,136 @@ export type RoadmapPhase = {
  */
 export const releases: Release[] = [
   {
+    version: "1.0.0",
+    title: "KODA Competitive Command Center",
+    date: "2026-09-21",
+    current: true,
+    summary:
+      "Transformação da página inicial no centro de inteligência competitiva do ecossistema Kings of Doom, conectando dados históricos de K.O.D. e K.O.D.rec à KODA para avaliar elegibilidade, classificar jogadores, sugerir escalações e identificar necessidades reais de recrutamento.",
+
+    changes: [
+      {
+        type: "feature",
+        title: "KODA Competitive Command Center",
+        description:
+          "A página inicial foi transformada em um Command Center competitivo, reunindo contexto do clã, guerra atual e inteligência KODA em uma única experiência.",
+      },
+      {
+        type: "feature",
+        title: "Home contextual por clã",
+        description:
+          "As rotas /[locale]/clans/kod e /[locale]/clans/kod-rec passaram a representar a Home oficial de cada clã, utilizando o contexto selecionado na Navbar como fonte única das informações exibidas.",
+      },
+      {
+        type: "improvement",
+        title: "Contexto unificado pela Navbar",
+        description:
+          "O seletor de clãs da navegação passou a controlar todo o contexto da Home, incluindo guerra atual, informações do clã e formação competitiva apresentada pela KODA.",
+      },
+      {
+        type: "feature",
+        title: "Nova identidade visual da Home",
+        description:
+          "A Home recebeu um novo Hero oficial com KODA, King e identidade Kings of Doom, consolidando a mensagem Dados vencem guerras como conceito central do Command Center.",
+      },
+      {
+        type: "feature",
+        title: "Guerra Agora",
+        description:
+          "A Home passou a apresentar um resumo compacto da guerra atual do clã selecionado, incluindo placar, estrelas, destruição, ataques realizados e tamanho da guerra.",
+      },
+      {
+        type: "feature",
+        title: "Informações do Clã",
+        description:
+          "A página inicial passou a reunir identidade, nível, membros, liga e pontos do clã selecionado em um card compacto integrado ao Command Center.",
+      },
+      {
+        type: "feature",
+        title: "Pool competitivo unificado",
+        description:
+          "K.O.D. e K.O.D.rec passaram a formar um único pool competitivo para análise da KODA, permitindo que desempenho determine a formação da CWL independentemente do clã cotidiano do jogador.",
+      },
+      {
+        type: "feature",
+        title: "Janela competitiva móvel de 30 dias",
+        description:
+          "A inteligência competitiva passou a utilizar evidências recentes dentro de uma janela móvel de 30 dias, evitando que desempenho histórico antigo tenha peso permanente sobre as decisões atuais.",
+      },
+      {
+        type: "feature",
+        title: "Motor de elegibilidade KODA",
+        description:
+          "A KODA passou a avaliar elegibilidade antes da classificação, exigindo amostra competitiva mínima e padrões objetivos de participação, estrelas, destruição e taxa de triplas.",
+      },
+      {
+        type: "feature",
+        title: "Estados de elegibilidade",
+        description:
+          "Os jogadores passaram a ser classificados como elegíveis, provisórios ou inelegíveis, separando insuficiência de evidências de desempenho efetivamente abaixo dos critérios competitivos.",
+      },
+      {
+        type: "feature",
+        title: "Classificação competitiva",
+        description:
+          "Os jogadores elegíveis passaram a ser ordenados por critérios competitivos objetivos, considerando taxa de triplas, média de estrelas, destruição, confiabilidade e volume de ataques.",
+      },
+      {
+        type: "feature",
+        title: "Formação sugerida pela KODA",
+        description:
+          "A KODA passou a distribuir automaticamente os jogadores elegíveis entre as formações competitivas de K.O.D. e K.O.D.rec, respeitando a ordem de classificação.",
+      },
+      {
+        type: "feature",
+        title: "Titulares e reservas",
+        description:
+          "A arquitetura competitiva passou a suportar até 15 titulares e 3 reservas por clã, utilizando exclusivamente jogadores que atendem aos critérios definidos.",
+      },
+      {
+        type: "feature",
+        title: "Vagas competitivas reais",
+        description:
+          "A KODA não completa escalações artificialmente quando não existem jogadores elegíveis suficientes, preservando vagas abertas e evidenciando a necessidade real de recrutamento.",
+      },
+      {
+        type: "feature",
+        title: "Necessidade de recrutamento",
+        description:
+          "O Command Center passou a calcular automaticamente quantas vagas competitivas permanecem abertas para titulares e reservas.",
+      },
+      {
+        type: "technical",
+        title: "Integração com os arquivos históricos",
+        description:
+          "A inteligência competitiva utiliza os dados históricos persistidos de CWL e guerras normais como evidência para avaliação dos jogadores.",
+      },
+      {
+        type: "technical",
+        title: "Separação entre elegibilidade, ranking e alocação",
+        description:
+          "O motor competitivo foi dividido em etapas independentes de evidência, elegibilidade, classificação e alocação, permitindo evolução futura sem acoplamento das regras.",
+      },
+      {
+        type: "improvement",
+        title: "Identidade visual unificada",
+        description:
+          "Hero e Navbar passaram a utilizar o mesmo logotipo oficial do K.O.D. como fonte visual canônica da aplicação.",
+      },
+      {
+        type: "technical",
+        title: "Validação em produção",
+        description:
+          "A nova Home e o motor competitivo foram validados utilizando a base histórica real do ambiente de produção.",
+      },
+    ],
+  },
+
+  {
     version: "0.9.9",
     title: "KODA Public Experience & Assistant Identity",
     date: "2026-09-18",
-    current: true,
+    current: false,
     summary:
       "Evolução da presença pública do assistente oficial Kings of Doom, consolidando a transição de COC Bot para KODA — Kings of Doom Assistant — com nova identidade visual, landing page redesenhada, personagem oficial, animações, exemplos reais de uso no WhatsApp e integração refinada à navegação do Command Center.",
 

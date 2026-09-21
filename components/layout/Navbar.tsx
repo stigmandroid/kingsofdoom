@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ==========================================================
  * Kings of Doom Command Center
  * ----------------------------------------------------------
@@ -6,14 +6,14 @@
  * components/layout/Navbar.tsx
  *
  * Responsabilidade:
- * Renderizar a barra principal de navegaÃ§Ã£o do portal,
+ * Renderizar a barra principal de navegação do portal,
  * incluindo identidade visual, links principais, seletor
- * de clÃ£s, acesso Ã  sala de guerra e menu lateral mobile.
+ * de clãs, acesso Ã  sala de guerra e menu lateral mobile.
  *
  * Autor:
  * stigmandroid
  *
- * Ãšltima atualizaÃ§Ã£o:
+ * Última atualização:
  * 26/07/2026
  * ==========================================================
  */
@@ -30,7 +30,7 @@ import { clans } from "@/config/clans";
 import { ClanSelector } from "./ClanSelector";
 
 /**
- * Representa um item disponÃ­vel na navegaÃ§Ã£o principal.
+ * Representa um item disponível na navegação principal.
  */
 type NavigationItem = {
   /**
@@ -39,23 +39,23 @@ type NavigationItem = {
   label: string;
 
   /**
-   * EndereÃ§o localizado da pÃ¡gina.
+   * Endereço localizado da página.
    */
   href: string;
 };
 
 /**
- * Renderiza a barra principal de navegaÃ§Ã£o do portal.
+ * Renderiza a barra principal de navegação do portal.
  */
 export function Navbar() {
   /**
    * Controla a abertura do painel lateral em dispositivos
-   * mÃ³veis e tablets.
+   * móveis e tablets.
    */
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   /**
-   * Recupera os parÃ¢metros dinÃ¢micos presentes na URL.
+   * Recupera os parâmetros dinâmicos presentes na URL.
    */
   const params = useParams();
 
@@ -67,16 +67,16 @@ export function Navbar() {
   /**
    * Preserva o idioma atual em todos os links da Navbar.
    *
-   * Caso o locale nÃ£o esteja disponÃ­vel, pt-BR serÃ¡
-   * utilizado como idioma padrÃ£o.
+   * Caso o locale não esteja disponível, pt-BR será
+   * utilizado como idioma padrão.
    */
   const locale = typeof params.locale === "string" ? params.locale : "pt-BR";
 
   /**
-   * Recupera o clÃ£ atualmente selecionado.
+   * Recupera o clã atualmente selecionado.
    *
-   * Em pÃ¡ginas que nÃ£o possuem um slug de clÃ£, como
-   * Releases, o K.O.D. serÃ¡ considerado o clÃ£ padrÃ£o.
+   * Em páginas que não possuem um slug de clã, como
+   * Releases, o K.O.D. será considerado o clã padrão.
    */
   const currentClanSlug =
     typeof params.slug === "string"
@@ -86,7 +86,7 @@ export function Navbar() {
         : clans.kod.slug;
 
   /**
-   * Links compartilhados entre a navegaÃ§Ã£o desktop
+   * Links compartilhados entre a navegação desktop
    * e o menu lateral mobile.
    */
   const navigationItems: NavigationItem[] = [
@@ -121,8 +121,8 @@ export function Navbar() {
   ];
 
   /**
-   * Fecha o menu mobile sempre que o usuÃ¡rio navega
-   * para uma nova pÃ¡gina.
+   * Fecha o menu mobile sempre que o usuário navega
+   * para uma nova página.
    */
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -146,7 +146,7 @@ export function Navbar() {
   }, []);
 
   /**
-   * Impede que o conteÃºdo da pÃ¡gina seja movimentado
+   * Impede que o conteúdo da página seja movimentado
    * enquanto o menu lateral estiver aberto.
    */
   useEffect(() => {
@@ -160,8 +160,8 @@ export function Navbar() {
   /**
    * Verifica se determinado item representa a rota atual.
    *
-   * A pÃ¡gina Ã© considerada ativa tanto na rota principal
-   * quanto em possÃ­veis subpÃ¡ginas.
+   * A página é considerada ativa tanto na rota principal
+   * quanto em possíveis subpáginas.
    */
   function isNavigationItemActive(href: string) {
     return pathname === href || pathname.startsWith(`${href}/`);
@@ -174,17 +174,17 @@ export function Navbar() {
           {/*
            * Identidade visual do portal.
            *
-           * Em dispositivos mÃ³veis apenas o logotipo fica
-           * visÃ­vel, economizando espaÃ§o horizontal.
+           * Em dispositivos móveis apenas o logotipo fica
+           * visível, economizando espaço horizontal.
            */}
           <Link
             href={`/${locale}`}
             className="flex shrink-0 items-center gap-3"
-            aria-label="Ir para a pÃ¡gina inicial"
+            aria-label="Ir para a página inicial"
           >
             <Image
               src="/kod-logo.png"
-              alt="Logotipo do clÃ£ K.O.D."
+              alt="Logotipo do clã K.O.D."
               width={64}
               height={64}
               priority
@@ -203,12 +203,12 @@ export function Navbar() {
           </Link>
 
           {/*
-           * NavegaÃ§Ã£o horizontal utilizada apenas em telas
-           * grandes, onde hÃ¡ espaÃ§o suficiente para todos
+           * navegação horizontal utilizada apenas em telas
+           * grandes, onde há espaço suficiente para todos
            * os itens.
            */}
           <nav
-            aria-label="NavegaÃ§Ã£o principal"
+            aria-label="navegação principal"
             className="hidden items-center gap-5 text-sm font-medium text-slate-300 lg:flex xl:gap-8"
           >
             {navigationItems.map((item) => {
@@ -232,19 +232,19 @@ export function Navbar() {
           </nav>
 
           {/*
-           * Ãrea de aÃ§Ãµes.
+           * Ãrea de ações.
            *
-           * No mobile sÃ£o exibidos apenas o seletor de clÃ£s
-           * e o botÃ£o que abre o menu lateral.
+           * No mobile são exibidos apenas o seletor de clãs
+           * e o botão que abre o menu lateral.
            */}
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <ClanSelector />
 
             {/*
-             * Acesso rÃ¡pido Ã  sala de guerra exibido somente
+             * Acesso rápido Ã  sala de guerra exibido somente
              * em telas grandes.
              *
-             * No celular esse link estarÃ¡ dentro do menu.
+             * No celular esse link estará dentro do menu.
              */}
             <Link
               href={`/${locale}/war/${currentClanSlug}`}
@@ -254,7 +254,7 @@ export function Navbar() {
             </Link>
 
             {/*
-             * BotÃ£o do menu mobile.
+             * Botão do menu mobile.
              */}
             <button
               type="button"
@@ -263,8 +263,8 @@ export function Navbar() {
               }}
               aria-label={
                 isMobileMenuOpen
-                  ? "Fechar menu de navegaÃ§Ã£o"
-                  : "Abrir menu de navegaÃ§Ã£o"
+                  ? "Fechar menu de navegação"
+                  : "Abrir menu de navegação"
               }
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-navigation"
@@ -289,7 +289,7 @@ export function Navbar() {
                 </svg>
               ) : (
                 /*
-                 * Ãcone de menu hambÃºrguer.
+                 * Ãcone de menu hambúrguer.
                  */
                 <svg
                   aria-hidden="true"
@@ -311,13 +311,13 @@ export function Navbar() {
       </header>
 
       {/*
-       * Camada escura exibida atrÃ¡s do painel mobile.
+       * Camada escura exibida atrás do painel mobile.
        *
-       * TambÃ©m permite fechar o menu ao tocar fora dele.
+       * Também permite fechar o menu ao tocar fora dele.
        */}
       <button
         type="button"
-        aria-label="Fechar menu de navegaÃ§Ã£o"
+        aria-label="Fechar menu de navegação"
         onClick={() => {
           setIsMobileMenuOpen(false);
         }}
@@ -329,18 +329,18 @@ export function Navbar() {
       />
 
       {/*
-       * Painel lateral da navegaÃ§Ã£o mobile.
+       * Painel lateral da navegação mobile.
        */}
       <aside
         id="mobile-navigation"
-        aria-label="Menu de navegaÃ§Ã£o mobile"
+        aria-label="Menu de navegação mobile"
         aria-hidden={!isMobileMenuOpen}
         className={`fixed right-0 top-0 z-[70] flex h-dvh w-[85%] max-w-sm flex-col border-l border-slate-800 bg-slate-950 shadow-2xl transition-transform duration-300 ease-out lg:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/*
-         * CabeÃ§alho do painel lateral.
+         * Cabeçalho do painel lateral.
          */}
         <div className="flex min-h-24 items-center justify-between border-b border-slate-800 px-5">
           <div>
@@ -348,7 +348,7 @@ export function Navbar() {
               Command Center
             </p>
 
-            <p className="mt-1 text-lg font-bold text-white">NavegaÃ§Ã£o</p>
+            <p className="mt-1 text-lg font-bold text-white">Navegação</p>
           </div>
 
           <button
@@ -356,7 +356,7 @@ export function Navbar() {
             onClick={() => {
               setIsMobileMenuOpen(false);
             }}
-            aria-label="Fechar menu de navegaÃ§Ã£o"
+            aria-label="Fechar menu de navegação"
             className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-700 text-slate-300 transition hover:border-amber-400/50 hover:text-amber-400"
           >
             <svg
@@ -378,7 +378,7 @@ export function Navbar() {
          * Links principais do menu mobile.
          */}
         <nav
-          aria-label="NavegaÃ§Ã£o mobile"
+          aria-label="navegação mobile"
           className="flex flex-1 flex-col gap-2 overflow-y-auto p-5"
         >
           {navigationItems.map((item) => {
@@ -405,4 +405,3 @@ export function Navbar() {
     </>
   );
 }
-

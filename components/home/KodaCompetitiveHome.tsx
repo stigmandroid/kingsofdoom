@@ -38,7 +38,8 @@
 
 import Image from "next/image";
 
-import { useState } from "react";
+import type { Clan } from "@/types/clan";
+import type { CurrentWarResult } from "@/types/war";
 
 import type {
   CwlRosterAllocation,
@@ -49,8 +50,6 @@ import type { CwlCompetitiveEvidence } from "@/lib/intelligence/cwl/build-cwl-co
 
 import type { CwlEligibilityEvaluation } from "@/lib/intelligence/cwl/evaluate-cwl-eligibility";
 
-type ClanSelection = "kod" | "kod-rec";
-
 type PlayerEvaluation = {
   evidence: CwlCompetitiveEvidence;
 
@@ -59,6 +58,12 @@ type PlayerEvaluation = {
 
 type KodaCompetitiveHomeProps = {
   locale: string;
+
+  clanSlug: "kod" | "kod-rec";
+
+  clan: Clan;
+
+  currentWar: CurrentWarResult;
 
   allocation: CwlRosterAllocation;
 
@@ -76,17 +81,33 @@ type KodaCompetitiveHomeProps = {
 };
 
 export function KodaCompetitiveHome({
+  locale,
+  clanSlug,
+  clan,
+  currentWar,
   allocation,
-
   evaluations,
-
   summary,
 }: KodaCompetitiveHomeProps) {
-  const [selectedClan, setSelectedClan] = useState<ClanSelection>("kod");
-
-  const isKod = selectedClan === "kod";
+  const isKod = clanSlug === "kod";
 
   const clanName = isKod ? "K.O.D." : "K.O.D.rec";
+
+  const clanPresentation = isKod
+    ? {
+        title: "👑 Kings of Doom 👑",
+        description:
+          "Clã competitivo focado em guerras, CWL, push e evolução constante.",
+        values: "★ Organização • Respeito • Compromisso ★",
+        motto: "★ Veni • Vidi • Vici ★",
+      }
+    : {
+        title: "👑 Kings of Doom Recruta 👑",
+        description:
+          "Clã competitivo focado em guerras, CWL, push e evolução constante.",
+        values: "★ Organização • Respeito • Compromisso ★",
+        motto: "★ Veni • Vidi • Vici ★",
+      };
 
   const starters = isKod ? allocation.kod : allocation.kodRec;
 
@@ -99,6 +120,13 @@ export function KodaCompetitiveHome({
   const starterOpen = starters.length - startersFilled;
 
   const reserveOpen = reserves.length - reservesFilled;
+
+  const warClan = currentWar.available ? currentWar.war.clan : undefined;
+  const warOpponent = currentWar.available
+    ? currentWar.war.opponent
+    : undefined;
+
+  const hasCurrentWar = Boolean(warClan && warOpponent);
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -133,8 +161,8 @@ export function KodaCompetitiveHome({
           </div>
 
           <div className="relative z-20 mx-auto flex min-h-[680px] max-w-3xl flex-col items-center justify-center py-16 text-center sm:min-h-[760px] lg:min-h-[820px]">
-            <div className="relative z-20 flex flex-col items-center -translate-y-8 sm:translate-y-0">
-              <div className="-translate-y-8 rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-2 backdrop-blur-md sm:translate-y-0">
+            <div className="relative z-20 flex flex-col items-center -translate-y-8 sm:translate-y-0 lg:-translate-y-10">
+              <div className="-translate-y-20 rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-2 backdrop-blur-md sm:translate-y-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-300 sm:text-xs">
                   Kings of Doom · Command Center
                 </p>
@@ -157,7 +185,7 @@ export function KodaCompetitiveHome({
               </div>
             </div>
 
-            <div className="relative z-20 translate-y-12 sm:translate-y-0">
+            <div className="relative z-20 translate-y-12 sm:translate-y-0 lg:-translate-y-10">
               <p
                 className="mt-7 text-[10px] font-black uppercase tracking-[0.38em] text-white sm:text-xs"
                 style={{
@@ -195,32 +223,189 @@ export function KodaCompetitiveHome({
         </div>
       </section>
 
-      <section className="border-b border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <MetricCard
-              label="Jogadores analisados"
-              value={summary.totalPlayers}
-              description="Pool competitivo"
-            />
+      <section className="border-b border-slate-800 bg-slate-950">
+        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+          <div className="grid items-stretch gap-4 lg:grid-cols-2">
+            {/* Guerra agora */}
+            <div className="flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">
+                Guerra agora
+              </p>
 
-            <MetricCard
-              label="Elegíveis"
-              value={summary.eligiblePlayers}
-              description="Aptos pelos critérios atuais"
-            />
+              {hasCurrentWar && warClan && warOpponent ? (
+                <>
+                  <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                    <div className="min-w-0 text-center">
+                      <img
+                        src={warClan.badgeUrls.small}
+                        alt=""
+                        className="mx-auto mb-1.5 h-9 w-9 object-contain"
+                      />
 
-            <MetricCard
-              label="Provisórios"
-              value={summary.provisionalPlayers}
-              description="Amostra ainda insuficiente"
-            />
+                      <p className="truncate text-base font-black text-white sm:text-lg">
+                        {warClan.name}
+                      </p>
 
-            <MetricCard
-              label="Inelegíveis"
-              value={summary.ineligiblePlayers}
-              description="Falha em um ou mais critérios"
-            />
+                      <p className="mt-1 text-2xl font-black text-amber-400">
+                        {warClan.stars} ★
+                      </p>
+                    </div>
+
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-800 bg-slate-950 text-[10px] font-black uppercase text-slate-500">
+                      VS
+                    </div>
+
+                    <div className="min-w-0 text-center">
+                      <img
+                        src={warOpponent.badgeUrls.small}
+                        alt=""
+                        className="mx-auto mb-1.5 h-9 w-9 object-contain"
+                      />
+
+                      <p className="truncate text-base font-black text-white sm:text-lg">
+                        {warOpponent.name}
+                      </p>
+
+                      <p className="mt-1 text-2xl font-black text-amber-400">
+                        {warOpponent.stars} ★
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-auto grid grid-cols-3 divide-x divide-slate-800 border-t border-slate-800 pt-3 text-center">
+                    <div className="px-2">
+                      <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+                        Destruição
+                      </p>
+
+                      <p className="mt-1 text-xs font-black text-slate-300">
+                        {warClan.destructionPercentage.toLocaleString("pt-BR", {
+                          maximumFractionDigits: 2,
+                        })}
+                        %
+                      </p>
+                    </div>
+
+                    <div className="px-2">
+                      <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+                        Ataques
+                      </p>
+
+                      <p className="mt-1 text-xs font-black text-slate-300">
+                        {warClan.attacks}
+                      </p>
+                    </div>
+
+                    <div className="px-2">
+                      <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+                        Guerra
+                      </p>
+
+                      <p className="mt-1 text-xs font-black text-slate-300">
+                        {currentWar.available
+                          ? `${currentWar.war.teamSize ?? "—"} x ${
+                              currentWar.war.teamSize ?? "—"
+                            }`
+                          : "—"}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="mt-4 flex min-h-24 items-center justify-center rounded-xl border border-slate-800 bg-slate-950/40 px-4">
+                  <p className="text-sm font-bold text-slate-500">
+                    Nenhuma guerra disponível no momento.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Informações do clã */}
+            <div className="flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
+              <div>
+                <div className="flex items-start justify-between gap-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">
+                    Informações do clã
+                  </p>
+
+                  <div className="shrink-0 rounded-lg border border-amber-400/20 bg-amber-400/5 px-3 py-1.5 text-xs font-black text-amber-400">
+                    Nível {clan.clanLevel}
+                  </div>
+                </div>
+
+                <div className="mt-2 grid flex-1 items-center gap-5 sm:grid-cols-[180px_minmax(0,1fr)]">
+                  {/* Identidade do clã */}
+                  <div className="flex min-w-0 flex-col items-center justify-center text-center sm:border-r sm:border-slate-800 sm:pr-5">
+                    {clan.badgeUrls?.small && (
+                      <img
+                        src={clan.badgeUrls.small}
+                        alt=""
+                        className="mb-1 h-12 w-12 object-contain"
+                      />
+                    )}
+
+                    <p className="whitespace-nowrap text-base font-black text-white sm:text-lg">
+                      {clan.name}
+                    </p>
+
+                    <p className="mt-0.5 text-[11px] font-bold text-slate-500">
+                      {clan.tag}
+                    </p>
+                  </div>
+
+                  {/* Apresentação editorial */}
+                  <div className="min-w-0">
+                    <p className="text-xs font-black text-slate-100">
+                      {clanPresentation.title}
+                    </p>
+
+                    <p className="mt-1 text-xs font-medium leading-5 text-slate-400">
+                      {clanPresentation.description}
+                    </p>
+
+                    <p className="mt-1 text-xs font-bold text-slate-400">
+                      {clanPresentation.values}
+                    </p>
+
+                    <p className="mt-1 text-xs font-black text-amber-400">
+                      {clanPresentation.motto}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 grid grid-cols-3 divide-x divide-slate-800 border-t border-slate-800 pt-3 text-center">
+                <div className="px-2">
+                  <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+                    Membros
+                  </p>
+
+                  <p className="mt-1 text-xs font-black text-slate-300">
+                    {clan.members}/50
+                  </p>
+                </div>
+
+                <div className="px-2">
+                  <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+                    Liga
+                  </p>
+
+                  <p className="mt-1 truncate text-xs font-black text-slate-300">
+                    {clan.warLeague?.name ?? "Indisponível"}
+                  </p>
+                </div>
+
+                <div className="px-2">
+                  <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+                    Pontos
+                  </p>
+
+                  <p className="mt-1 text-xs font-black text-slate-300">
+                    {clan.clanPoints.toLocaleString("pt-BR")}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -243,24 +428,6 @@ export function KodaCompetitiveHome({
                 formação sugerida.
               </p>
             </div>
-
-            <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-slate-500">
-                Visualizar formação
-              </span>
-
-              <select
-                value={selectedClan}
-                onChange={(event) =>
-                  setSelectedClan(event.target.value as ClanSelection)
-                }
-                className="min-w-56 rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 font-black text-white outline-none transition focus:border-amber-400"
-              >
-                <option value="kod">K.O.D.</option>
-
-                <option value="kod-rec">K.O.D.rec</option>
-              </select>
-            </label>
           </div>
 
           <div className="mt-8 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-7">

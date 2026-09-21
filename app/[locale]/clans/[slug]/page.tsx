@@ -6,37 +6,44 @@
  * app/[locale]/clans/[slug]/page.tsx
  *
  * Responsabilidade:
- * Renderizar o painel principal de um clã com base no slug
- * informado na URL.
+ * Renderizar a Home contextual do Kings of Doom Command Center
+ * para o clã selecionado na Navbar.
  *
- * A página consulta:
+ * Funcionalidades:
  *
- * • dados gerais do clã;
- * • guerra atual.
- *
- * A listagem completa de membros passa a pertencer ao módulo
- * dedicado de Membros.
+ * - utiliza o slug da URL como contexto único do clã;
+ * - carrega dados gerais e guerra atual do clã selecionado;
+ * - consolida o pool competitivo de K.O.D. e K.O.D.rec;
+ * - aplica os critérios de elegibilidade da KODA;
+ * - classifica os jogadores elegíveis;
+ * - sugere titulares e reservas;
+ * - identifica vagas competitivas e necessidade de recrutamento.
  *
  * Autor:
  * stigmandroid
  *
  * Última atualização:
- * 16/08/2026
+ * 20/09/2026
  *
  * Versão:
- * 0.8.7
+ * 1.0.0
  *
  * Status:
- * 🚧 Em desenvolvimento
+ * Em desenvolvimento
  * ==========================================================
  */
 
 import { notFound } from "next/navigation";
 
-import { Dashboard } from "@/components/dashboard/Dashboard";
+import { KodaCompetitiveHome } from "@/components/home/KodaCompetitiveHome";
 import { clans, getClanBySlug } from "@/config/clans";
 import { getClan } from "@/services/clan.service";
 import { getCurrentWar } from "@/services/war.service";
+
+import { allocateCwlRoster } from "@/lib/intelligence/cwl/allocate-cwl-roster";
+import { buildCwlCompetitiveEvidence } from "@/lib/intelligence/cwl/build-cwl-competitive-evidence";
+import { evaluateCwlEligibility } from "@/lib/intelligence/cwl/evaluate-cwl-eligibility";
+import { rankCwlPlayers } from "@/lib/intelligence/cwl/rank-cwl-players";
 
 type ClanPageProps = {
   params: Promise<{
@@ -45,10 +52,6 @@ type ClanPageProps = {
   }>;
 };
 
-/**
- * Gera antecipadamente as combinações conhecidas de idioma
- * e clã durante o processo de build.
- */
 export function generateStaticParams() {
   const locales = ["pt-BR", "en", "es"];
 
@@ -60,37 +63,63 @@ export function generateStaticParams() {
   );
 }
 
-/**
- * Renderiza o painel do clã correspondente ao slug da URL.
- */
 export default async function ClanPage({ params }: ClanPageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
 
-  /**
-   * Localiza as configurações oficiais do clã.
-   */
-  const clanConfig = getClanBySlug(slug);
+  if (slug !== "kod" && slug !== "kod-rec") {
+    notFound();
+  }
+
+  const clanSlug: "kod" | "kod-rec" = slug;
+
+  const clanConfig = getClanBySlug(clanSlug);
 
   if (!clanConfig) {
     notFound();
   }
 
-  /**
-   * Dados gerais do clã e guerra atual são carregados
-   * simultaneamente.
-   *
-   * A página principal não consulta mais individualmente
-   * todos os jogadores, reduzindo chamadas desnecessárias
-   * à Player API.
-   */
   const [clan, currentWar] = await Promise.all([
     getClan(clanConfig.tag),
     getCurrentWar(clanConfig.tag),
   ]);
 
+  const competitiveEvidence = buildCwlCompetitiveEvidence();
+
+  const evaluations = competitiveEvidence.map((evidence) => ({
+    evidence,
+    eligibility: evaluateCwlEligibility(evidence),
+  }));
+
+  const rankedPlayers = rankCwlPlayers(competitiveEvidence);
+
+  const allocation = allocateCwlRoster(rankedPlayers);
+
+  const eligiblePlayers = evaluations.filter(
+    ({ eligibility }) => eligibility.status === "eligible",
+  ).length;
+
+  const provisionalPlayers = evaluations.filter(
+    ({ eligibility }) => eligibility.status === "provisional",
+  ).length;
+
+  const ineligiblePlayers = evaluations.filter(
+    ({ eligibility }) => eligibility.status === "ineligible",
+  ).length;
+
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <Dashboard clan={clan} currentWar={currentWar} />
-    </main>
+    <KodaCompetitiveHome
+      locale={locale}
+      clanSlug={clanSlug}
+      clan={clan}
+      currentWar={currentWar}
+      allocation={allocation}
+      evaluations={evaluations}
+      summary={{
+        totalPlayers: competitiveEvidence.length,
+        eligiblePlayers,
+        provisionalPlayers,
+        ineligiblePlayers,
+      }}
+    />
   );
 }

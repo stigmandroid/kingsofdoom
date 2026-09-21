@@ -6,18 +6,8 @@
  * app/[locale]/page.tsx
  *
  * Responsabilidade:
- * Renderizar a Home do Kings of Doom Command Center,
- * utilizando a KODA como camada central de inteligência
- * competitiva do ecossistema.
- *
- * Funcionalidades:
- *
- * - consolida o pool competitivo de K.O.D. e K.O.D.rec;
- * - analisa evidências competitivas dos últimos 30 dias;
- * - aplica os critérios de elegibilidade da KODA;
- * - classifica os jogadores elegíveis;
- * - sugere titulares e reservas para os dois clãs;
- * - identifica vagas competitivas e necessidade de recrutamento.
+ * Direcionar a raiz localizada para a Home principal
+ * do Kings of Doom Command Center.
  *
  * Autor:
  * stigmandroid
@@ -29,16 +19,11 @@
  * 1.0.0
  *
  * Status:
- * Em desenvolvimento
+ * Estável
  * ==========================================================
  */
 
-import { KodaCompetitiveHome } from "@/components/home/KodaCompetitiveHome";
-
-import { allocateCwlRoster } from "@/lib/intelligence/cwl/allocate-cwl-roster";
-import { buildCwlCompetitiveEvidence } from "@/lib/intelligence/cwl/build-cwl-competitive-evidence";
-import { evaluateCwlEligibility } from "@/lib/intelligence/cwl/evaluate-cwl-eligibility";
-import { rankCwlPlayers } from "@/lib/intelligence/cwl/rank-cwl-players";
+import { redirect } from "next/navigation";
 
 type HomeProps = {
   params: Promise<{
@@ -49,40 +34,5 @@ type HomeProps = {
 export default async function Home({ params }: HomeProps) {
   const { locale } = await params;
 
-  const competitiveEvidence = buildCwlCompetitiveEvidence();
-
-  const evaluations = competitiveEvidence.map((evidence) => ({
-    evidence,
-    eligibility: evaluateCwlEligibility(evidence),
-  }));
-
-  const rankedPlayers = rankCwlPlayers(competitiveEvidence);
-
-  const allocation = allocateCwlRoster(rankedPlayers);
-
-  const eligiblePlayers = evaluations.filter(
-    ({ eligibility }) => eligibility.status === "eligible",
-  ).length;
-
-  const provisionalPlayers = evaluations.filter(
-    ({ eligibility }) => eligibility.status === "provisional",
-  ).length;
-
-  const ineligiblePlayers = evaluations.filter(
-    ({ eligibility }) => eligibility.status === "ineligible",
-  ).length;
-
-  return (
-    <KodaCompetitiveHome
-      locale={locale}
-      allocation={allocation}
-      evaluations={evaluations}
-      summary={{
-        totalPlayers: competitiveEvidence.length,
-        eligiblePlayers,
-        provisionalPlayers,
-        ineligiblePlayers,
-      }}
-    />
-  );
+  redirect(`/${locale}/clans/kod`);
 }

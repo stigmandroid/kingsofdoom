@@ -21,6 +21,9 @@
  * - contabilizar tentativas anteriores no mesmo alvo;
  * - preservar o melhor resultado anterior naquele alvo;
  * - medir quantas opções de alvo ainda estavam abertas;
+ * - medir quantas opções abertas eram equivalentes, superiores
+ *   ou inferiores ao CV do atacante;
+ * - preservar a dificuldade relativa do alvo escolhido;
  * - identificar se o ataque atual fechou a vila;
  * - distinguir CWL de guerra normal sem atribuir mérito
  *   automaticamente à ordem do ataque.
@@ -41,10 +44,10 @@
  * stigmandroid
  *
  * Última atualização:
- * 20/09/2026
+ * 21/09/2026
  *
  * Versão:
- * 0.2.0
+ * 0.3.0
  *
  * Status:
  * Em desenvolvimento
@@ -158,6 +161,14 @@ export type CwlAttackContext = {
     closedTargets: number;
 
     openTargetTags: string[];
+
+    compatibleTargets: number;
+    harderTargets: number;
+    easierTargets: number;
+
+    selectedTargetWasCompatible: boolean;
+
+    selectedTargetDifficulty: "harder" | "equivalent" | "easier";
   };
 };
 
@@ -373,6 +384,28 @@ export function buildCwlAttackContext({
 
     const closedTargets = battlefield.length - openTargets.length;
 
+    const compatibleTargets = openTargets.filter(
+      (target) => target.defenderTownHall === attacker.townhallLevel,
+    );
+
+    const harderTargets = openTargets.filter(
+      (target) => target.defenderTownHall > attacker.townhallLevel,
+    );
+
+    const easierTargets = openTargets.filter(
+      (target) => target.defenderTownHall < attacker.townhallLevel,
+    );
+
+    const selectedTargetWasCompatible =
+      defender.townhallLevel === attacker.townhallLevel;
+
+    const selectedTargetDifficulty: "harder" | "equivalent" | "easier" =
+      defender.townhallLevel > attacker.townhallLevel
+        ? "harder"
+        : defender.townhallLevel < attacker.townhallLevel
+          ? "easier"
+          : "equivalent";
+
     const isTriple = attack.stars === 3;
 
     const closedByCurrentAttack =
@@ -438,6 +471,16 @@ export function buildCwlAttackContext({
           closedTargets,
 
           openTargetTags: openTargets.map((target) => target.defenderTag),
+
+          compatibleTargets: compatibleTargets.length,
+
+          harderTargets: harderTargets.length,
+
+          easierTargets: easierTargets.length,
+
+          selectedTargetWasCompatible,
+
+          selectedTargetDifficulty,
         },
       },
     ];

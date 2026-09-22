@@ -133,47 +133,41 @@ export function allocateCwlRoster(
 ): CwlRosterAllocation {
   /**
    * ========================================================
-   * TITULARES
+   * PRIORIDADE DE FORMAÇÃO
    * ========================================================
    *
-   * Titulares sempre têm prioridade.
+   * O K.O.D. principal deve estar completamente protegido
+   * antes da abertura da formação de K.O.D.rec.
    *
-   * 1–15  → K.O.D.
-   * 16–30 → K.O.D.rec
-   */
-  const starterCandidates = rankedPlayers.slice(0, TOTAL_STARTER_SLOTS);
-
-  const kodPlayers = starterCandidates.slice(0, STARTERS_PER_CLAN);
-
-  const kodRecPlayers = starterCandidates.slice(
-    STARTERS_PER_CLAN,
-    TOTAL_STARTER_SLOTS,
-  );
-
-  /**
-   * ========================================================
-   * RESERVAS
-   * ========================================================
-   *
-   * Somente jogadores elegíveis que sobraram depois do
-   * preenchimento das 30 vagas titulares podem ser reservas.
-   *
-   * 31–33 → reservas K.O.D.
+   * 1–15  → titulares K.O.D.
+   * 16–18 → reservas K.O.D.
+   * 19–33 → titulares K.O.D.rec
    * 34–36 → reservas K.O.D.rec
    *
-   * Essa distribuição não retira jogadores das formações
-   * titulares para fabricar artificialmente reservas.
+   * Essa ordem evita dividir um pool reduzido entre duas
+   * formações incompletas e garante profundidade competitiva
+   * ao clã principal antes da segunda equipe.
    */
-  const reserveCandidates = rankedPlayers.slice(
-    TOTAL_STARTER_SLOTS,
-    TOTAL_STARTER_SLOTS + TOTAL_RESERVE_SLOTS,
+
+  const kodPlayers = rankedPlayers.slice(0, STARTERS_PER_CLAN);
+
+  const kodReservePlayers = rankedPlayers.slice(
+    STARTERS_PER_CLAN,
+    STARTERS_PER_CLAN + RESERVES_PER_CLAN,
   );
 
-  const kodReservePlayers = reserveCandidates.slice(0, RESERVES_PER_CLAN);
+  const kodRecStartIndex = STARTERS_PER_CLAN + RESERVES_PER_CLAN;
 
-  const kodRecReservePlayers = reserveCandidates.slice(
-    RESERVES_PER_CLAN,
-    TOTAL_RESERVE_SLOTS,
+  const kodRecPlayers = rankedPlayers.slice(
+    kodRecStartIndex,
+    kodRecStartIndex + STARTERS_PER_CLAN,
+  );
+
+  const kodRecReserveStartIndex = kodRecStartIndex + STARTERS_PER_CLAN;
+
+  const kodRecReservePlayers = rankedPlayers.slice(
+    kodRecReserveStartIndex,
+    kodRecReserveStartIndex + RESERVES_PER_CLAN,
   );
 
   const kod = buildSlots({
@@ -184,20 +178,20 @@ export function allocateCwlRoster(
     globalStartIndex: 0,
   });
 
-  const kodRec = buildSlots({
-    clan: "kod_rec",
-    role: "starter",
-    players: kodRecPlayers,
-    amount: STARTERS_PER_CLAN,
-    globalStartIndex: STARTERS_PER_CLAN,
-  });
-
   const kodReserves = buildSlots({
     clan: "kod",
     role: "reserve",
     players: kodReservePlayers,
     amount: RESERVES_PER_CLAN,
-    globalStartIndex: TOTAL_STARTER_SLOTS,
+    globalStartIndex: STARTERS_PER_CLAN,
+  });
+
+  const kodRec = buildSlots({
+    clan: "kod_rec",
+    role: "starter",
+    players: kodRecPlayers,
+    amount: STARTERS_PER_CLAN,
+    globalStartIndex: kodRecStartIndex,
   });
 
   const kodRecReserves = buildSlots({
@@ -205,10 +199,11 @@ export function allocateCwlRoster(
     role: "reserve",
     players: kodRecReservePlayers,
     amount: RESERVES_PER_CLAN,
-    globalStartIndex: TOTAL_STARTER_SLOTS + RESERVES_PER_CLAN,
+    globalStartIndex: kodRecReserveStartIndex,
   });
 
   const kodFilled = countFilled(kod);
+
   const kodRecFilled = countFilled(kodRec);
 
   const kodReservesFilled = countFilled(kodReserves);

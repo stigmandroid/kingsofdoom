@@ -121,6 +121,14 @@ export function KodaCompetitiveHome({
 
   const reserveOpen = reserves.length - reservesFilled;
 
+  const primaryRosterReady =
+    allocation.summary.kodFilled === 15 &&
+    allocation.summary.kodReservesFilled === 3;
+
+  const secondaryRosterReady =
+    allocation.summary.kodRecFilled === 15 &&
+    allocation.summary.kodRecReservesFilled === 3;
+
   const warClan = currentWar.available ? currentWar.war.clan : undefined;
   const warOpponent = currentWar.available
     ? currentWar.war.opponent
@@ -430,7 +438,11 @@ export function KodaCompetitiveHome({
             </div>
           </div>
 
-          <div className="mt-8 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 sm:p-7">
+          <div className="relative mt-8 overflow-hidden rounded-3xl border border-amber-400/25 bg-slate-900/60 p-5 shadow-[0_0_40px_rgba(251,191,36,0.06)] sm:p-7">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent"
+            />
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
@@ -602,10 +614,10 @@ function PlayerSlot({
   const player = slot.player;
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
+    <div className="relative overflow-hidden rounded-2xl border border-amber-400/25 bg-slate-950/80 p-4 shadow-[0_0_20px_rgba(251,191,36,0.035)]">
       <div className="flex items-start gap-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-sm font-black text-slate-400">
-          {reserve ? `R${slot.slot}` : String(slot.slot).padStart(2, "0")}
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/5 text-sm font-black text-amber-400">
+          #{String(slot.globalPosition).padStart(2, "0")}
         </div>
 
         {player ? (
@@ -614,20 +626,52 @@ function PlayerSlot({
               {player.playerName ?? player.playerTag}
             </p>
 
-            <p className="mt-1 truncate text-xs text-slate-500">
-              {player.playerTag}
-            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <p className="truncate text-xs text-slate-500">
+                {player.playerTag}
+              </p>
 
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
-              <span>{(player.metrics.tripleRate * 100).toFixed(1)}% PT</span>
-
-              <span>{player.metrics.averageStars.toFixed(2)} ★</span>
-
-              <span>{player.metrics.averageDestruction.toFixed(1)}%</span>
-
-              <span>
-                {player.metrics.attacksUsed}/{player.metrics.attacksAvailable}
+              <span className="rounded-md border border-amber-400/20 bg-amber-400/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-400">
+                {reserve ? "Reserva" : "Titular"}{" "}
+                {slot.clan === "kod" ? "K.O.D." : "K.O.D.rec"}
               </span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-3">
+              <div>
+                <span className="text-slate-600">PT </span>
+                <span className="font-black text-slate-300">
+                  {(player.metrics.tripleRate * 100).toFixed(1)}%
+                </span>
+              </div>
+
+              <div>
+                <span className="text-slate-600">Estrelas </span>
+                <span className="font-black text-slate-300">
+                  {player.metrics.averageStars.toFixed(2)} ★
+                </span>
+              </div>
+
+              <div>
+                <span className="text-slate-600">Destruição </span>
+                <span className="font-black text-slate-300">
+                  {player.metrics.averageDestruction.toFixed(1)}%
+                </span>
+              </div>
+
+              <div>
+                <span className="text-slate-600">Confiabilidade </span>
+                <span className="font-black text-slate-300">
+                  {(player.metrics.reliabilityRate * 100).toFixed(1)}%
+                </span>
+              </div>
+
+              <div>
+                <span className="text-slate-600">Ataques </span>
+                <span className="font-black text-slate-300">
+                  {player.metrics.attacksUsed}/{player.metrics.attacksAvailable}
+                </span>
+              </div>
             </div>
           </div>
         ) : (

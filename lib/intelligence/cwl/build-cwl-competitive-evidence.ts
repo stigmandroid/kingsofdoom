@@ -20,6 +20,9 @@
  * - permitir avaliação de jogadores mesmo sem participação
  *   na CWL anterior;
  * - preparar os dados para a camada de elegibilidade.
+ * - processar CWL e guerras normais pelo mesmo pipeline contextual;
+ * - reconstruir o contexto competitivo de cada ataque;
+ * - incorporar avaliação contextual individual por ataque;
  *
  * Regras:
  *
@@ -50,10 +53,10 @@
  * stigmandroid
  *
  * Última atualização:
- * 19/09/2026
+ * 21/09/2026
  *
  * Versão:
- * 0.1.0
+ * 0.2.0
  *
  * Status:
  * 🚧 Base de evidência competitiva da CWL Intelligence
@@ -65,14 +68,19 @@ import {
   getCwlPostSeasonSummary,
 } from "../../../services/cwl-archive.service";
 
-import {
-  getPlayerWarHistory,
-  type PlayerWarHistoryEntry,
-} from "../../../services/player-war-history.service";
-
 import { findRecentWarHistory } from "../../../repositories/war-history.repository";
 
 import type { CurrentWar } from "../../../types/war";
+
+import {
+  buildCwlAttackContext,
+  type CwlAttackContext,
+} from "./build-cwl-attack-context";
+
+import {
+  evaluateCwlAttack,
+  type CwlAttackEvaluation,
+} from "./evaluate-cwl-attack";
 
 const COMPETITIVE_WINDOW_DAYS = 30;
 
@@ -96,13 +104,23 @@ export type CompetitiveAttackEvidence = {
 
   trackedClanTag: string;
 
+  attackOrder: number;
+
   stars: number;
   destruction: number;
 
   attackerTownHall: number | null;
+  attackerMapPosition: number | null;
+
   defenderTownHall: number | null;
+  defenderMapPosition: number | null;
 
   townHallDifference: number | null;
+  mapPositionDifference: number | null;
+
+  context: CwlAttackContext;
+
+  evaluation: CwlAttackEvaluation;
 };
 
 export type CompetitiveEvidenceSourceSummary = {
@@ -272,6 +290,104 @@ function getOrCreatePlayer(
   return created;
 }
 
+type ProcessCompetitiveWarInput = {
+  players: Map<string, MutableCompetitiveEvidence>;
+
+  source: CompetitiveEvidenceSource;
+
+  trackedClanTag: string;
+
+  war: CurrentWar;
+
+  occurredAt: string;
+
+  attacksAvailablePerPlayer: number;
+};
+
+function processCompetitiveWar({
+  players,
+  source,
+  trackedClanTag,
+  war,
+  occurredAt,
+  attacksAvailablePerPlayer,
+}: ProcessCompetitiveWarInput): void {
+  const { trackedSide } = getTrackedSide(war, trackedClanTag);
+
+  if (!trackedSide) {
+    return;
+  }
+
+  const contexts = buildCwlAttackContext({
+    source,
+    trackedClanTag,
+    war,
+  });
+
+  const contextsByAttack = new Map(
+    contexts.map((context) => [
+      `${context.attacker.tag}:${context.attackOrder}`,
+      context,
+    ]),
+  );
+
+  for (const member of trackedSide.members ?? []) {
+    const player = getOrCreatePlayer(players, member.tag, member.name ?? null);
+
+    const attacks = member.attacks ?? [];
+
+    const summary = source === "cwl" ? player.cwl : player.regularWar;
+
+    summary.attacksUsed += attacks.length;
+
+    summary.attacksAvailable += attacksAvailablePerPlayer;
+
+    summary.attacksMissed += Math.max(
+      0,
+      attacksAvailablePerPlayer - attacks.length,
+    );
+
+    for (const attack of attacks) {
+      const context = contextsByAttack.get(`${member.tag}:${attack.order}`);
+
+      if (!context) {
+        continue;
+      }
+
+      const evaluation = evaluateCwlAttack(context);
+
+      player.attacks.push({
+        source,
+
+        occurredAt,
+
+        trackedClanTag,
+
+        attackOrder: attack.order,
+
+        stars: context.result.stars,
+        destruction: context.result.destruction,
+
+        attackerTownHall: context.attacker.townHallLevel,
+
+        attackerMapPosition: context.attacker.mapPosition,
+
+        defenderTownHall: context.defender.townHallLevel,
+
+        defenderMapPosition: context.defender.mapPosition,
+
+        townHallDifference: context.matchup.townHallDifference,
+
+        mapPositionDifference: context.matchup.mapPositionDifference,
+
+        context,
+
+        evaluation,
+      });
+    }
+  }
+}
+
 function addCwlEvidence({
   players,
   evaluationDate,
@@ -309,118 +425,25 @@ function addCwlEvidence({
           continue;
         }
 
-        const { trackedSide, opposingSide } = getTrackedSide(war, clan.tag);
+        processCompetitiveWar({
+          players,
 
-        if (!trackedSide) {
-          continue;
-        }
+          source: "cwl",
 
-        for (const member of trackedSide.members ?? []) {
-          const player = getOrCreatePlayer(
-            players,
-            member.tag,
-            member.name ?? null,
-          );
+          trackedClanTag: clan.tag,
 
-          const attacks = member.attacks ?? [];
+          war,
 
-          const attacksAvailable = 1;
+          occurredAt: occurredAt as string,
 
-          player.cwl.attacksUsed += attacks.length;
-
-          player.cwl.attacksAvailable += attacksAvailable;
-
-          player.cwl.attacksMissed += Math.max(
-            0,
-            attacksAvailable - attacks.length,
-          );
-
-          for (const attack of attacks) {
-            const defender = opposingSide?.members?.find(
-              (candidate) => candidate.tag === attack.defenderTag,
-            );
-
-            const attackerTownHall = member.townhallLevel ?? null;
-
-            const defenderTownHall = defender?.townhallLevel ?? null;
-
-            player.attacks.push({
-              source: "cwl",
-
-              occurredAt: occurredAt as string,
-
-              trackedClanTag: clan.tag,
-
-              stars: attack.stars,
-
-              destruction: attack.destructionPercentage,
-
-              attackerTownHall,
-              defenderTownHall,
-
-              townHallDifference:
-                attackerTownHall != null && defenderTownHall != null
-                  ? attackerTownHall - defenderTownHall
-                  : null,
-            });
-          }
-        }
+          attacksAvailablePerPlayer: 1,
+        });
       }
     }
   }
 }
 
-function addRegularWarEntry({
-  player,
-  entry,
-  evaluationDate,
-  windowStart,
-}: {
-  player: MutableCompetitiveEvidence;
-  entry: PlayerWarHistoryEntry;
-  evaluationDate: Date;
-  windowStart: Date;
-}): void {
-  const occurredAt =
-    entry.endTime ?? entry.startTime ?? entry.preparationStartTime;
-
-  if (
-    !isInsideWindow({
-      occurredAt,
-      windowStart,
-      evaluationDate,
-    })
-  ) {
-    return;
-  }
-
-  player.regularWar.attacksUsed += entry.attacksUsed;
-
-  player.regularWar.attacksAvailable += entry.attacksAvailable;
-
-  player.regularWar.attacksMissed += entry.attacksMissed;
-
-  for (const attack of entry.attacks) {
-    player.attacks.push({
-      source: "regular_war",
-
-      occurredAt: occurredAt as string,
-
-      trackedClanTag: entry.trackedClanTag,
-
-      stars: attack.stars,
-      destruction: attack.destruction,
-
-      attackerTownHall: attack.attackerTownHall,
-
-      defenderTownHall: attack.defenderTownHall,
-
-      townHallDifference: attack.townHallDifference,
-    });
-  }
-}
-
-function addRegularWarPlayers({
+function addRegularWarEvidence({
   players,
   evaluationDate,
   windowStart,
@@ -459,41 +482,18 @@ function addRegularWarPlayers({
         continue;
       }
 
-      const { trackedSide } = getTrackedSide(war, clan.tag);
+      processCompetitiveWar({
+        players,
 
-      if (!trackedSide) {
-        continue;
-      }
+        source: "regular_war",
 
-      for (const member of trackedSide.members ?? []) {
-        getOrCreatePlayer(players, member.tag, member.name ?? null);
-      }
-    }
-  }
-}
+        trackedClanTag: clan.tag,
 
-function addRegularWarEvidence({
-  players,
-  evaluationDate,
-  windowStart,
-}: {
-  players: Map<string, MutableCompetitiveEvidence>;
-  evaluationDate: Date;
-  windowStart: Date;
-}): void {
-  for (const player of players.values()) {
-    const history = getPlayerWarHistory(player.playerTag);
+        war,
 
-    if (history.playerName) {
-      player.playerName = history.playerName;
-    }
+        occurredAt: occurredAt as string,
 
-    for (const entry of history.history) {
-      addRegularWarEntry({
-        player,
-        entry,
-        evaluationDate,
-        windowStart,
+        attacksAvailablePerPlayer: 2,
       });
     }
   }
@@ -527,12 +527,6 @@ export function buildCwlCompetitiveEvidence(
   const windowStart = getWindowStart(evaluationDate);
 
   addCwlEvidence({
-    players,
-    evaluationDate,
-    windowStart,
-  });
-
-  addRegularWarPlayers({
     players,
     evaluationDate,
     windowStart,

@@ -57,6 +57,17 @@ export type CwlAttackEvaluation = {
     isTriple: boolean;
   };
 
+  impact: {
+    previousStars: number;
+    previousDestruction: number;
+
+    starsAdded: number;
+    destructionImprovement: number;
+
+    closedByCurrentAttack: boolean;
+    attackedAlreadyClosedTarget: boolean;
+  };
+
   difficulty: {
     classification: CwlAttackDifficulty;
 
@@ -158,6 +169,19 @@ export function evaluateCwlAttack(
 
   const closureClassification = classifyClosure(context);
 
+  const previousStars =
+    context.targetBeforeAttack.bestPreviousResult?.stars ?? 0;
+
+  const previousDestruction =
+    context.targetBeforeAttack.bestPreviousResult?.destruction ?? 0;
+
+  const starsAdded = Math.max(0, context.result.stars - previousStars);
+
+  const destructionImprovement =
+    context.result.stars === previousStars
+      ? Math.max(0, context.result.destruction - previousDestruction)
+      : 0;
+
   return {
     attackerTag: context.attacker.tag,
 
@@ -169,6 +193,17 @@ export function evaluateCwlAttack(
       stars: context.result.stars,
       destruction: context.result.destruction,
       isTriple,
+    },
+
+    impact: {
+      previousStars,
+      previousDestruction,
+
+      starsAdded,
+      destructionImprovement,
+
+      closedByCurrentAttack: context.impact.closedByCurrentAttack,
+      attackedAlreadyClosedTarget: context.impact.attackedAlreadyClosedTarget,
     },
 
     difficulty: {

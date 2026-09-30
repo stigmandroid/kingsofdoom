@@ -35,6 +35,12 @@
  */
 
 import type { CwlCompetitiveEvidence } from "./build-cwl-competitive-evidence";
+
+import {
+  aggregateCwlPlayerPerformance,
+  type CwlPlayerPerformanceAggregate,
+} from "./aggregate-cwl-player-performance";
+
 import {
   evaluateCwlEligibility,
   type CwlEligibilityEvaluation,
@@ -47,6 +53,23 @@ export type CwlRankedPlayer = {
   playerName: string | null;
 
   eligibility: CwlEligibilityEvaluation;
+
+  performance: CwlPlayerPerformanceAggregate;
+
+  contextualMetrics: {
+    comparableAttacks: number;
+    comparableTriples: number;
+    comparableTripleRate: number;
+
+    optionalEasyAttacks: number;
+    optionalEasyTriples: number;
+
+    starsAdded: number;
+    starsAddedPerAttack: number;
+
+    basesClosed: number;
+    avoidableAlreadyClosedTargetAttacks: number;
+  };
 
   metrics: {
     attacksUsed: number;
@@ -106,24 +129,98 @@ function calculateMetrics(
   };
 }
 
-/**
- * Ordenação competitiva v0.1.
- *
- * Não produz score composto.
- *
- * Os jogadores são comparados sequencialmente por:
- *
- * 1. taxa de triple;
- * 2. média de estrelas;
- * 3. média de destruição;
- * 4. confiabilidade no uso dos ataques;
- * 5. quantidade de ataques válidos na janela;
- * 6. tag como desempate determinístico.
- *
- * Essa ordem é deliberadamente explícita para que a classificação
- * permaneça auditável enquanto o Attack Context Engine evolui.
- */
+function calculateContextualMetrics(
+  performance: CwlPlayerPerformanceAggregate,
+): CwlRankedPlayer["contextualMetrics"] {
+  const comparableAttacks =
+    performance.contextualExecution.harder.attacks +
+    performance.contextualExecution.equivalent.attacks +
+    performance.contextualExecution.easierConstrained.attacks;
+
+  const comparableTriples =
+    performance.contextualExecution.harder.triples +
+    performance.contextualExecution.equivalent.triples +
+    performance.contextualExecution.easierConstrained.triples;
+
+  return {
+    comparableAttacks,
+    comparableTriples,
+
+    comparableTripleRate: safeDivide(comparableTriples, comparableAttacks),
+
+    optionalEasyAttacks: performance.contextualExecution.easierOptional.attacks,
+
+    optionalEasyTriples: performance.contextualExecution.easierOptional.triples,
+
+    starsAdded: performance.contribution.starsAdded,
+
+    starsAddedPerAttack: safeDivide(
+      performance.contribution.starsAdded,
+      performance.activity.attacksUsed,
+    ),
+
+    basesClosed: performance.closure.basesClosed,
+
+    avoidableAlreadyClosedTargetAttacks:
+      performance.contribution.avoidableAlreadyClosedTargetAttacks,
+  };
+}
+
 function compareRankedPlayers(a: CwlRankedPlayer, b: CwlRankedPlayer): number {
+  /**
+   * Ranking competitivo contextual v0.2.
+   *
+   * Ordem:
+   *
+   * 1. taxa de PT em ataques competitivamente comparáveis;
+   * 2. contribuição média de estrelas por ataque;
+   * 3. quantidade de bases efetivamente fechadas;
+   * 4. menor quantidade de ataques evitáveis em alvos já fechados;
+   * 5. taxa bruta de PT;
+   * 6. média de estrelas;
+   * 7. média de destruição;
+   * 8. confiabilidade no uso dos ataques;
+   * 9. quantidade de ataques válidos;
+   * 10. tag como desempate determinístico.
+   *
+   * Ataques "easier_optional" permanecem registrados e visíveis,
+   * mas não aumentam a taxa de PT contextual comparável.
+   */
+
+  if (
+    a.contextualMetrics.comparableTripleRate !==
+    b.contextualMetrics.comparableTripleRate
+  ) {
+    return (
+      b.contextualMetrics.comparableTripleRate -
+      a.contextualMetrics.comparableTripleRate
+    );
+  }
+
+  if (
+    a.contextualMetrics.starsAddedPerAttack !==
+    b.contextualMetrics.starsAddedPerAttack
+  ) {
+    return (
+      b.contextualMetrics.starsAddedPerAttack -
+      a.contextualMetrics.starsAddedPerAttack
+    );
+  }
+
+  if (a.contextualMetrics.basesClosed !== b.contextualMetrics.basesClosed) {
+    return b.contextualMetrics.basesClosed - a.contextualMetrics.basesClosed;
+  }
+
+  if (
+    a.contextualMetrics.avoidableAlreadyClosedTargetAttacks !==
+    b.contextualMetrics.avoidableAlreadyClosedTargetAttacks
+  ) {
+    return (
+      a.contextualMetrics.avoidableAlreadyClosedTargetAttacks -
+      b.contextualMetrics.avoidableAlreadyClosedTargetAttacks
+    );
+  }
+
   if (a.metrics.tripleRate !== b.metrics.tripleRate) {
     return b.metrics.tripleRate - a.metrics.tripleRate;
   }
@@ -163,6 +260,10 @@ export function rankCwlPlayers(
       continue;
     }
 
+    const performance = aggregateCwlPlayerPerformance(evidence);
+
+    const contextualMetrics = calculateContextualMetrics(performance);
+
     eligiblePlayers.push({
       rank: 0,
 
@@ -170,6 +271,10 @@ export function rankCwlPlayers(
       playerName: evidence.playerName,
 
       eligibility,
+
+      performance,
+
+      contextualMetrics,
 
       metrics: calculateMetrics(evidence),
     });

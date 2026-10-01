@@ -37,8 +37,10 @@
  */
 
 import Image from "next/image";
+import Link from "next/link";
 
 import type { Clan } from "@/types/clan";
+
 import type { CurrentWarResult } from "@/types/war";
 
 import type {
@@ -82,11 +84,17 @@ type KodaCompetitiveHomeProps = {
 
 export function KodaCompetitiveHome({
   locale,
+
   clanSlug,
+
   clan,
+
   currentWar,
+
   allocation,
+
   evaluations,
+
   summary,
 }: KodaCompetitiveHomeProps) {
   const isKod = clanSlug === "kod";
@@ -96,16 +104,22 @@ export function KodaCompetitiveHome({
   const clanPresentation = isKod
     ? {
         title: "👑 Kings of Doom 👑",
+
         description:
           "Clã competitivo focado em guerras, CWL, push e evolução constante.",
+
         values: "★ Organização • Respeito • Compromisso ★",
+
         motto: "★ Veni • Vidi • Vici ★",
       }
     : {
         title: "👑 Kings of Doom Recruta 👑",
+
         description:
           "Clã competitivo focado em guerras, CWL, push e evolução constante.",
+
         values: "★ Organização • Respeito • Compromisso ★",
+
         motto: "★ Veni • Vidi • Vici ★",
       };
 
@@ -130,6 +144,7 @@ export function KodaCompetitiveHome({
     allocation.summary.kodRecReservesFilled === 3;
 
   const warClan = currentWar.available ? currentWar.war.clan : undefined;
+
   const warOpponent = currentWar.available
     ? currentWar.war.opponent
     : undefined;
@@ -140,7 +155,9 @@ export function KodaCompetitiveHome({
     <main className="min-h-screen bg-slate-950 text-white">
       <section className="relative isolate overflow-hidden border-b border-slate-800 bg-slate-950">
         {/* Atmosfera geral */}
+
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(245,158,11,0.12),transparent_28%),radial-gradient(circle_at_16%_45%,rgba(127,29,29,0.12),transparent_30%),radial-gradient(circle_at_84%_45%,rgba(30,41,59,0.55),transparent_32%)]" />
+
         <div className="pointer-events-none absolute inset-0 opacity-[0.035]">
           <div className="h-full w-full bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:64px_64px]" />
         </div>
@@ -178,9 +195,13 @@ export function KodaCompetitiveHome({
 
               <div className="relative mt-[-4px] flex h-[170px] w-[170px] -translate-y-8 items-center justify-center sm:mt-7 sm:h-[220px] sm:w-[220px] sm:translate-y-0 lg:h-[250px] lg:w-[250px]">
                 <div className="absolute inset-0 animate-pulse rounded-full bg-amber-400/20 blur-[70px]" />
+
                 <div className="absolute inset-2 rounded-full border border-amber-400/20 shadow-[0_0_70px_rgba(245,158,11,0.20)]" />
+
                 <div className="absolute inset-6 rounded-full border border-slate-700/50" />
+
                 <div className="absolute inset-10 rounded-full border border-slate-800/80" />
+
                 <Image
                   src="/kod-logo.png"
                   alt="Kings of Doom"
@@ -198,6 +219,7 @@ export function KodaCompetitiveHome({
                 className="mt-7 text-[10px] font-black uppercase tracking-[0.38em] text-white sm:text-xs"
                 style={{
                   WebkitTextStroke: "0.35px rgba(0,0,0,0.9)",
+
                   textShadow:
                     "0 1px 2px rgba(0,0,0,1), 0 2px 8px rgba(0,0,0,0.85)",
                 }}
@@ -209,6 +231,7 @@ export function KodaCompetitiveHome({
                 className="mt-4 max-w-3xl text-4xl font-black uppercase leading-[0.92] tracking-[-0.045em] text-white sm:text-6xl lg:text-7xl"
                 style={{
                   WebkitTextStroke: "0.5px rgba(0,0,0,0.9)",
+
                   textShadow:
                     "0 2px 3px rgba(0,0,0,0.95), 0 4px 14px rgba(0,0,0,0.65)",
                 }}
@@ -235,6 +258,7 @@ export function KodaCompetitiveHome({
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <div className="grid items-stretch gap-4 lg:grid-cols-2">
             {/* Guerra agora */}
+
             <div className="flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
               <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400">
                 Guerra agora
@@ -329,6 +353,7 @@ export function KodaCompetitiveHome({
             </div>
 
             {/* Informações do clã */}
+
             <div className="flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
               <div>
                 <div className="flex items-start justify-between gap-4">
@@ -343,6 +368,7 @@ export function KodaCompetitiveHome({
 
                 <div className="mt-2 grid flex-1 items-center gap-5 sm:grid-cols-[180px_minmax(0,1fr)]">
                   {/* Identidade do clã */}
+
                   <div className="flex min-w-0 flex-col items-center justify-center text-center sm:border-r sm:border-slate-800 sm:pr-5">
                     {clan.badgeUrls?.small && (
                       <img
@@ -362,6 +388,7 @@ export function KodaCompetitiveHome({
                   </div>
 
                   {/* Apresentação editorial */}
+
                   <div className="min-w-0">
                     <p className="text-xs font-black text-slate-100">
                       {clanPresentation.title}
@@ -443,6 +470,7 @@ export function KodaCompetitiveHome({
               aria-hidden="true"
               className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent"
             />
+
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
@@ -475,6 +503,8 @@ export function KodaCompetitiveHome({
                   <PlayerSlot
                     key={`${slot.clan}-starter-${slot.slot}`}
                     slot={slot}
+                    locale={locale}
+                    clanSlug={clanSlug}
                   />
                 ))}
               </div>
@@ -493,6 +523,8 @@ export function KodaCompetitiveHome({
                     key={`${slot.clan}-reserve-${slot.slot}`}
                     slot={slot}
                     reserve
+                    locale={locale}
+                    clanSlug={clanSlug}
                   />
                 ))}
               </div>
@@ -604,12 +636,14 @@ export function KodaCompetitiveHome({
 
 function PlayerSlot({
   slot,
-
   reserve = false,
+  locale,
+  clanSlug,
 }: {
   slot: CwlRosterSlot;
-
   reserve?: boolean;
+  locale: string;
+  clanSlug: "kod" | "kod-rec";
 }) {
   const player = slot.player;
 
@@ -621,7 +655,16 @@ function PlayerSlot({
         </div>
 
         {player ? (
-          <div className="min-w-0 flex-1">
+          <Link
+            href={
+              `/${locale}/cwl/${clanSlug}/jogadores/` +
+              encodeURIComponent(player.playerTag.replace("#", ""))
+            }
+            className="min-w-0 flex-1 rounded-xl outline-none transition focus-visible:ring-2 focus-visible:ring-amber-400"
+            aria-label={`Ver análise completa de ${
+              player.playerName ?? player.playerTag
+            }`}
+          >
             <p className="truncate font-black text-white">
               {player.playerName ?? player.playerTag}
             </p>
@@ -637,9 +680,16 @@ function PlayerSlot({
               </span>
             </div>
 
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400/80">
+                Ver análise completa →
+              </span>
+            </div>
+
             <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-3">
               <div>
                 <span className="text-slate-600">PT </span>
+
                 <span className="font-black text-slate-300">
                   {(player.metrics.tripleRate * 100).toFixed(1)}%
                 </span>
@@ -647,6 +697,7 @@ function PlayerSlot({
 
               <div>
                 <span className="text-slate-600">Estrelas </span>
+
                 <span className="font-black text-slate-300">
                   {player.metrics.averageStars.toFixed(2)} ★
                 </span>
@@ -654,6 +705,7 @@ function PlayerSlot({
 
               <div>
                 <span className="text-slate-600">Destruição </span>
+
                 <span className="font-black text-slate-300">
                   {player.metrics.averageDestruction.toFixed(1)}%
                 </span>
@@ -661,6 +713,7 @@ function PlayerSlot({
 
               <div>
                 <span className="text-slate-600">Confiabilidade </span>
+
                 <span className="font-black text-slate-300">
                   {(player.metrics.reliabilityRate * 100).toFixed(1)}%
                 </span>
@@ -668,12 +721,13 @@ function PlayerSlot({
 
               <div>
                 <span className="text-slate-600">Ataques </span>
+
                 <span className="font-black text-slate-300">
                   {player.metrics.attacksUsed}/{player.metrics.attacksAvailable}
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
         ) : (
           <div className="min-w-0 flex-1">
             <p className="font-black text-slate-500">

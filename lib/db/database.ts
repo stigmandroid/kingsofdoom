@@ -41,6 +41,10 @@ import { initializeTrophyLeagueSchema } from "./trophy-league-schema";
 import { initializeRaidArchiveSchema } from "./raid-archive-schema";
 import { initializeClanGamesSchema } from "./clan-games-schema";
 
+import { ensureTrackedClashAccountSchema } from "./tracked-clash-account-schema";
+import { ensureTrackedClashAccountReasonSchema } from "./tracked-clash-account-reason-schema";
+import { ensurePlayerCompetitiveSnapshotSchema } from "./player-competitive-snapshot-schema";
+
 /**
  * Diretório persistente utilizado pelo banco.
  */
@@ -127,6 +131,16 @@ initializeRaidArchiveSchema(database);
  * persistente dos Jogos do Clã.
  */
 initializeClanGamesSchema(database);
+
+/**
+ * Inicializa o rastreamento permanente das contas Clash.
+ *
+ * A TAG do jogador é a identidade estável da conta,
+ * independentemente do clã em que ela esteja.
+ */
+ensureTrackedClashAccountSchema(database);
+ensureTrackedClashAccountReasonSchema(database);
+ensurePlayerCompetitiveSnapshotSchema(database);
 
 /**
  * Exporta uma única instância para utilização

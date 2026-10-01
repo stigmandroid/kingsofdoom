@@ -27,7 +27,7 @@
  * 21/09/2026
  *
  * Versão:
- * 0.2.0
+ * 0.3.0
  *
  * Status:
  * Em desenvolvimento
@@ -88,6 +88,12 @@ export type CwlAttackEvaluation = {
     classification: CwlAttackClosure;
 
     previousAttempts: number;
+
+    previousFailedAttempts: number;
+
+    bestPreviousStars: number;
+
+    bestPreviousDestruction: number;
 
     closedByCurrentAttack: boolean;
 
@@ -162,6 +168,57 @@ function classifyClosure(context: CwlAttackContext): CwlAttackClosure {
   return "first_attempt";
 }
 
+/**
+ * Conta quantas tentativas ocorreram antes do primeiro triple
+ * registrado naquele alvo.
+ *
+ * Isso representa quantas tentativas anteriores falharam em
+ * produzir o primeiro fechamento da vila.
+ *
+ * Exemplo:
+ *
+ * 2⭐ → 2⭐ → 1⭐ → 3⭐
+ *
+ * previousAttempts = 3
+ * previousFailedAttempts = 3
+ *
+ * Para um ataque posterior a uma vila já fechada:
+ *
+ * 2⭐ → 3⭐ → 3⭐
+ *
+ * previousAttempts = 2
+ * previousFailedAttempts = 1
+ *
+ * O segundo ataque foi o primeiro fechamento; portanto,
+ * apenas uma tentativa anterior falhou em fechar a vila.
+ */
+function calculatePreviousFailedAttempts(context: CwlAttackContext): number {
+  const previousAttacks = context.targetBeforeAttack.previousAttacks;
+
+  if (previousAttacks.length === 0) {
+    return 0;
+  }
+
+  const firstTripleIndex = previousAttacks.findIndex(
+    (attack) => attack.stars === 3,
+  );
+
+  if (firstTripleIndex === -1) {
+    /**
+     * Nenhum triple ocorreu antes do ataque atual.
+     *
+     * Todas as tentativas anteriores falharam em fechar a vila.
+     */
+    return previousAttacks.length;
+  }
+
+  /**
+   * O índice do primeiro triple corresponde exatamente à
+   * quantidade de tentativas anteriores ao primeiro fechamento.
+   */
+  return firstTripleIndex;
+}
+
 export function evaluateCwlAttack(
   context: CwlAttackContext,
 ): CwlAttackEvaluation {
@@ -181,6 +238,14 @@ export function evaluateCwlAttack(
     context.result.stars === previousStars
       ? Math.max(0, context.result.destruction - previousDestruction)
       : 0;
+
+  const previousAttempts = context.targetBeforeAttack.previousAttempts;
+
+  const previousFailedAttempts = calculatePreviousFailedAttempts(context);
+
+  const bestPreviousStars = previousStars;
+
+  const bestPreviousDestruction = previousDestruction;
 
   return {
     attackerTag: context.attacker.tag,
@@ -203,6 +268,7 @@ export function evaluateCwlAttack(
       destructionImprovement,
 
       closedByCurrentAttack: context.impact.closedByCurrentAttack,
+
       attackedAlreadyClosedTarget: context.impact.attackedAlreadyClosedTarget,
     },
 
@@ -229,13 +295,18 @@ export function evaluateCwlAttack(
     closure: {
       classification: closureClassification,
 
-      previousAttempts: context.targetBeforeAttack.previousAttempts,
+      previousAttempts,
+
+      previousFailedAttempts,
+
+      bestPreviousStars,
+
+      bestPreviousDestruction,
 
       closedByCurrentAttack: context.impact.closedByCurrentAttack,
 
       recoveredPreviousFailure:
-        context.impact.closedByCurrentAttack &&
-        context.targetBeforeAttack.previousAttempts > 0,
+        context.impact.closedByCurrentAttack && previousAttempts > 0,
     },
 
     battlefield: {

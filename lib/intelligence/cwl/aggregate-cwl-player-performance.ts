@@ -21,10 +21,10 @@
  * stigmandroid
  *
  * Última atualização:
- * 21/09/2026
+ * 30/09/2026
  *
  * Versão:
- * 0.1.0
+ * 0.2.0
  *
  * Status:
  * Em desenvolvimento
@@ -114,6 +114,24 @@ export type CwlPlayerPerformanceAggregate = {
 
     basesClosed: number;
     recoveredPreviousFailures: number;
+
+    totalPreviousAttempts: number;
+    totalPreviousFailedAttempts: number;
+
+    cleanupAttacks: number;
+
+    cleanupBasesClosed: number;
+
+    cleanupStarsAdded: number;
+
+    cleanupDestructionImprovement: number;
+
+    hardestRecovery: {
+      previousFailedAttempts: number;
+      previousAttempts: number;
+      bestPreviousStars: number;
+      bestPreviousDestruction: number;
+    } | null;
   };
 
   contribution: {
@@ -181,6 +199,53 @@ function aggregateContextualExecution(
   };
 }
 
+function getHardestRecovery(
+  attacks: CompetitiveAttackEvidence[],
+): CwlPlayerPerformanceAggregate["closure"]["hardestRecovery"] {
+  const recoveryAttacks = attacks.filter(
+    (attack) =>
+      attack.evaluation.closure.classification === "cleanup" &&
+      attack.evaluation.closure.previousFailedAttempts > 0,
+  );
+
+  if (recoveryAttacks.length === 0) {
+    return null;
+  }
+
+  const hardest = [...recoveryAttacks].sort((a, b) => {
+    const failedAttemptsDifference =
+      b.evaluation.closure.previousFailedAttempts -
+      a.evaluation.closure.previousFailedAttempts;
+
+    if (failedAttemptsDifference !== 0) {
+      return failedAttemptsDifference;
+    }
+
+    const previousStarsDifference =
+      a.evaluation.closure.bestPreviousStars -
+      b.evaluation.closure.bestPreviousStars;
+
+    if (previousStarsDifference !== 0) {
+      return previousStarsDifference;
+    }
+
+    return (
+      a.evaluation.closure.bestPreviousDestruction -
+      b.evaluation.closure.bestPreviousDestruction
+    );
+  })[0];
+
+  return {
+    previousFailedAttempts: hardest.evaluation.closure.previousFailedAttempts,
+
+    previousAttempts: hardest.evaluation.closure.previousAttempts,
+
+    bestPreviousStars: hardest.evaluation.closure.bestPreviousStars,
+
+    bestPreviousDestruction: hardest.evaluation.closure.bestPreviousDestruction,
+  };
+}
+
 export function aggregateCwlPlayerPerformance(
   evidence: CwlCompetitiveEvidence,
 ): CwlPlayerPerformanceAggregate {
@@ -196,13 +261,44 @@ export function aggregateCwlPlayerPerformance(
     0,
   );
 
+  const cleanupAttacks = attacks.filter(
+    (attack) => attack.evaluation.closure.classification === "cleanup",
+  );
+
+  const cleanupBasesClosed = countAttacks(
+    cleanupAttacks,
+    (attack) => attack.evaluation.closure.closedByCurrentAttack,
+  );
+
+  const totalPreviousAttempts = attacks.reduce(
+    (total, attack) => total + attack.evaluation.closure.previousAttempts,
+    0,
+  );
+
+  const totalPreviousFailedAttempts = attacks.reduce(
+    (total, attack) => total + attack.evaluation.closure.previousFailedAttempts,
+    0,
+  );
+
+  const cleanupStarsAdded = cleanupAttacks.reduce(
+    (total, attack) => total + attack.evaluation.impact.starsAdded,
+    0,
+  );
+
+  const cleanupDestructionImprovement = cleanupAttacks.reduce(
+    (total, attack) => total + attack.evaluation.impact.destructionImprovement,
+    0,
+  );
+
   return {
     playerTag: evidence.playerTag,
     playerName: evidence.playerName,
 
     activity: {
       attacksUsed: evidence.total.attacksUsed,
+
       attacksAvailable: evidence.total.attacksAvailable,
+
       attacksMissed: evidence.total.attacksMissed,
 
       reliabilityRate: percentage(
@@ -308,10 +404,7 @@ export function aggregateCwlPlayerPerformance(
           attack.evaluation.closure.classification === "first_attempt",
       ),
 
-      cleanup: countAttacks(
-        attacks,
-        (attack) => attack.evaluation.closure.classification === "cleanup",
-      ),
+      cleanup: cleanupAttacks.length,
 
       alreadyClosed: countAttacks(
         attacks,
@@ -328,6 +421,20 @@ export function aggregateCwlPlayerPerformance(
         attacks,
         (attack) => attack.evaluation.closure.recoveredPreviousFailure,
       ),
+
+      totalPreviousAttempts,
+
+      totalPreviousFailedAttempts,
+
+      cleanupAttacks: cleanupAttacks.length,
+
+      cleanupBasesClosed,
+
+      cleanupStarsAdded,
+
+      cleanupDestructionImprovement,
+
+      hardestRecovery: getHardestRecovery(attacks),
     },
 
     contribution: {

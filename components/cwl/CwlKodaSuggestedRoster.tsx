@@ -50,6 +50,7 @@ export function CwlKodaSuggestedRoster({
   const reserves = isKod ? allocation.kodReserves : allocation.kodRecReserves;
 
   const startersFilled = countFilled(starters);
+
   const reservesFilled = countFilled(reserves);
 
   return (
@@ -230,7 +231,7 @@ function PlayerSlot({
       <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-sm font-black text-slate-500">
-            #{String(slot.slot).padStart(2, "0")}
+            #{String(slot.globalPosition ?? slot.slot).padStart(2, "0")}
           </div>
 
           <div>
@@ -263,7 +264,7 @@ function PlayerSlot({
         ================================================== */}
 
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-sm font-black text-slate-400">
-          #{String(slot.slot).padStart(2, "0")}
+          #{String(slot.globalPosition ?? slot.slot).padStart(2, "0")}
         </div>
 
         {/* ==================================================

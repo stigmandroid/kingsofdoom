@@ -113,6 +113,7 @@ type CwlSeasonPassEventProps = {
    * kod-rec
    */
   clanSlug: string;
+  season?: string;
 };
 
 /**
@@ -136,7 +137,10 @@ const API_REFRESH_INTERVAL_MS = 5_000;
 /**
  * Exibe o evento do Passe de Temporada.
  */
-export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
+export function CwlSeasonPassEvent({
+  clanSlug,
+  season,
+}: CwlSeasonPassEventProps) {
   const [event, setEvent] = useState<SeasonPassEventState | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -168,8 +172,16 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
    */
   async function loadEvent(): Promise<void> {
     try {
+      const searchParams = new URLSearchParams({
+        clan: clanSlug,
+      });
+
+      if (season) {
+        searchParams.set("season", season);
+      }
+
       const response = await fetch(
-        `/api/season-pass?clan=${encodeURIComponent(clanSlug)}`,
+        `/api/season-pass?${searchParams.toString()}`,
         {
           cache: "no-store",
         },
@@ -240,10 +252,14 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
 
   /**
    * Carrega o evento inicialmente.
+   *
+   * A temporada faz parte da dependência para que, ao navegar
+   * entre CWLs históricas, o Passe correspondente seja
+   * consultado novamente.
    */
   useEffect(() => {
     void loadEvent();
-  }, [clanSlug]);
+  }, [clanSlug, season]);
 
   /**
    * A cerimônia é exibida automaticamente uma única vez
@@ -308,7 +324,6 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
      *
      * Registramos a visualização e iniciamos a experiência.
      */
-
     setPlayOfficialCeremony(true);
   }, [event, ceremonyInView]);
 
@@ -321,6 +336,10 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
    * scheduled -> revealing -> revealed
    *
    * sem exigir atualização manual.
+   *
+   * A temporada também faz parte da dependência para impedir
+   * que o polling continue consultando uma CWL anteriormente
+   * selecionada após a navegação entre temporadas.
    */
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -330,7 +349,7 @@ export function CwlSeasonPassEvent({ clanSlug }: CwlSeasonPassEventProps) {
     return () => {
       window.clearInterval(interval);
     };
-  }, [clanSlug]);
+  }, [clanSlug, season]);
 
   /**
    * Estado inicial de carregamento.

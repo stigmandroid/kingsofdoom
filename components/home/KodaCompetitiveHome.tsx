@@ -135,14 +135,6 @@ export function KodaCompetitiveHome({
 
   const reserveOpen = reserves.length - reservesFilled;
 
-  const primaryRosterReady =
-    allocation.summary.kodFilled === 15 &&
-    allocation.summary.kodReservesFilled === 3;
-
-  const secondaryRosterReady =
-    allocation.summary.kodRecFilled === 15 &&
-    allocation.summary.kodRecReservesFilled === 3;
-
   const warClan = currentWar.available ? currentWar.war.clan : undefined;
 
   const warOpponent = currentWar.available
@@ -647,126 +639,74 @@ function PlayerSlot({
 }) {
   const player = slot.player;
 
+  if (!player) {
+    return (
+      <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
+        <div className="flex items-start gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/5 text-sm font-black text-amber-400">
+            #{String(slot.globalPosition).padStart(2, "0")}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="font-black text-slate-500">
+              {reserve ? "Reserva em aberto" : "Vaga competitiva aberta"}
+            </p>
+            <p className="mt-2 text-xs leading-5 text-slate-600">
+              Nenhum jogador elegível disponível para esta posição.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const playerHref = `/${locale}/cwl/${clanSlug}/jogadores/${encodeURIComponent(
+    player.playerTag.replace("#", ""),
+  )}`;
+
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-amber-400/25 bg-slate-950/80 p-4 shadow-[0_0_20px_rgba(251,191,36,0.035)]">
+    <Link
+      href={playerHref}
+      className="block rounded-2xl border border-amber-400/25 bg-slate-950/80 p-4 transition hover:border-amber-400/50 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+      aria-label={`Ver análise completa de ${player.playerName ?? player.playerTag}`}
+    >
       <div className="flex items-start gap-4">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/5 text-sm font-black text-amber-400">
           #{String(slot.globalPosition).padStart(2, "0")}
         </div>
 
-        {player ? (
-          <Link
-            href={
-              `/${locale}/cwl/${clanSlug}/jogadores/` +
-              encodeURIComponent(player.playerTag.replace("#", ""))
-            }
-            className="min-w-0 flex-1 rounded-xl outline-none transition focus-visible:ring-2 focus-visible:ring-amber-400"
-            aria-label={`Ver análise completa de ${
-              player.playerName ?? player.playerTag
-            }`}
-          >
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-3">
             <p className="truncate font-black text-white">
               {player.playerName ?? player.playerTag}
             </p>
 
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <p className="truncate text-xs text-slate-500">
-                {player.playerTag}
-              </p>
-
-              <span className="rounded-md border border-amber-400/20 bg-amber-400/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-400">
-                {reserve ? "Reserva" : "Titular"}{" "}
-                {slot.clan === "kod" ? "K.O.D." : "K.O.D.rec"}
-              </span>
-            </div>
-
-            <div className="mt-3 flex items-center justify-between gap-3">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-400/80">
-                Ver análise completa →
-              </span>
-            </div>
-
-            <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-3">
-              <div>
-                <span className="text-slate-600">PT </span>
-
-                <span className="font-black text-slate-300">
-                  {(player.metrics.tripleRate * 100).toFixed(1)}%
-                </span>
-              </div>
-
-              <div>
-                <span className="text-slate-600">Estrelas </span>
-
-                <span className="font-black text-slate-300">
-                  {player.metrics.averageStars.toFixed(2)} ★
-                </span>
-              </div>
-
-              <div>
-                <span className="text-slate-600">Destruição </span>
-
-                <span className="font-black text-slate-300">
-                  {player.metrics.averageDestruction.toFixed(1)}%
-                </span>
-              </div>
-
-              <div>
-                <span className="text-slate-600">Confiabilidade </span>
-
-                <span className="font-black text-slate-300">
-                  {(player.metrics.reliabilityRate * 100).toFixed(1)}%
-                </span>
-              </div>
-
-              <div>
-                <span className="text-slate-600">Ataques </span>
-
-                <span className="font-black text-slate-300">
-                  {player.metrics.attacksUsed}/{player.metrics.attacksAvailable}
-                </span>
-              </div>
-            </div>
-          </Link>
-        ) : (
-          <div className="min-w-0 flex-1">
-            <p className="font-black text-slate-500">
-              {reserve ? "Reserva em aberto" : "Vaga competitiva aberta"}
-            </p>
-
-            <p className="mt-2 text-xs leading-5 text-slate-600">
-              Nenhum jogador elegível disponível para esta posição.
-            </p>
+            <span className="shrink-0 text-xs font-black text-amber-400">
+              Análise completa →
+            </span>
           </div>
-        )}
+
+          <p className="mt-1 truncate text-xs text-slate-500">
+            {player.playerTag}
+          </p>
+
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+            <span className="font-black text-slate-300">
+              🎯 {(player.metrics.tripleRate * 100).toFixed(1)}%
+            </span>
+            <span className="font-black text-slate-300">
+              ★ {player.metrics.averageStars.toFixed(2)}
+            </span>
+            <span className="font-black text-slate-300">
+              💥 {player.metrics.averageDestruction.toFixed(1)}%
+            </span>
+            <span className="font-black text-slate-300">
+              ⚔ {player.metrics.attacksUsed}/{player.metrics.attacksAvailable}
+            </span>
+          </div>
+        </div>
       </div>
-    </div>
-  );
-}
-
-function MetricCard({
-  label,
-
-  value,
-
-  description,
-}: {
-  label: string;
-
-  value: number;
-
-  description: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-        {label}
-      </p>
-
-      <p className="mt-3 text-3xl font-black text-white">{value}</p>
-
-      <p className="mt-2 text-xs text-slate-500">{description}</p>
-    </div>
+    </Link>
   );
 }
 
@@ -826,18 +766,6 @@ function Criterion({ title, value }: { title: string; value: string }) {
       <span className="text-sm font-black text-white">{value}</span>
     </div>
   );
-}
-
-function FlowStep({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-slate-300">
-      {children}
-    </span>
-  );
-}
-
-function FlowArrow() {
-  return <span className="text-amber-400">→</span>;
 }
 
 function countFilled(slots: CwlRosterSlot[]): number {

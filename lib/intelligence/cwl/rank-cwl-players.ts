@@ -677,3 +677,33 @@ export function rankCwlPlayers(
     }),
   );
 }
+
+export type CwlPlayerFullEvaluation = {
+  playerTag: string;
+  playerName: string | null;
+
+  eligibility: CwlEligibilityEvaluation;
+
+  ranking: CwlRankedPlayer | null;
+};
+
+export function evaluateAllCwlPlayers(
+  evidences: CwlCompetitiveEvidence[],
+): CwlPlayerFullEvaluation[] {
+  const rankedPlayers = rankCwlPlayers(evidences);
+
+  const rankedByTag = new Map(
+    rankedPlayers.map((player) => [player.playerTag, player]),
+  );
+
+  return evidences.map((evidence) => {
+    const eligibility = evaluateCwlEligibility(evidence);
+
+    return {
+      playerTag: evidence.playerTag,
+      playerName: evidence.playerName,
+      eligibility,
+      ranking: rankedByTag.get(evidence.playerTag) ?? null,
+    };
+  });
+}

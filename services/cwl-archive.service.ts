@@ -39,16 +39,11 @@
  * 🚧 Em desenvolvimento
  * ==========================================================
  */
-
 import type { CwlRoundWar } from "@/components/cwl/CwlRounds";
-
 import {
   findCwlArchivePlayerPerformance,
-
   findCwlArchiveSeason,
-
   findCwlArchiveSeasons,
-
   findCwlArchiveWarSnapshots,
   findLatestCwlArchiveSeason,
   getCwlArchiveSummary,
@@ -60,25 +55,21 @@ import {
   upsertCwlWar,
   upsertCwlWarMember,
 } from "@/repositories/cwl-archive.repository";
-
 import type { CwlGroup } from "@/types/cwl";
-
+import { trackClashAccount } from "@/services/tracked-clash-account.service";
 /**
  * Resultado retornado após o arquivamento.
  */
 export type CwlArchiveResult = {
   season: string;
   trackedClanTag: string;
-
   seasonId: number;
-
   clans: number;
   rounds: number;
   wars: number;
   members: number;
   attacks: number;
 };
-
 /**
  * Entrada principal do arquivador.
  */
@@ -87,21 +78,18 @@ type ArchiveCurrentCwlInput = {
    * Grupo completo retornado pelo endpoint da CWL.
    */
   group: CwlGroup;
-
   /**
    * Todas as guerras já consultadas da temporada.
    *
    * Cada guerra preserva também seu roundIndex.
    */
   wars: CwlRoundWar[];
-
   /**
    * Clã utilizado como referência para consultar
    * esta temporada.
    */
   trackedClanTag: string;
 };
-
 /**
  * Arquiva uma fotografia completa do estado atual
  * da temporada da CWL.
@@ -131,7 +119,6 @@ export function archiveCurrentCwl({
     totalRounds: group.rounds.length,
     rawJson: serializeJson(group),
   });
-
   /**
    * ========================================================
    * 2. CLÃS PARTICIPANTES
@@ -143,20 +130,14 @@ export function archiveCurrentCwl({
   group.clans.forEach((clan) => {
     upsertCwlSeasonClan({
       seasonId,
-
       clanTag: clan.tag,
       clanName: clan.name,
-
       clanLevel: clan.clanLevel,
-
       badgeUrlsJson: serializeJson(clan.badgeUrls),
-
       rosterSize: clan.members?.length ?? 0,
-
       rawJson: serializeJson(clan),
     });
   });
-
   /**
    * ========================================================
    * 3. RODADAS
@@ -166,24 +147,18 @@ export function archiveCurrentCwl({
    * tenham sido disponibilizadas.
    */
   const roundIdByIndex = new Map<number, number>();
-
   group.rounds.forEach((round, roundIndex) => {
     const availableWarCount = round.warTags.filter(
       (warTag) => Boolean(warTag) && warTag !== "#0",
     ).length;
-
     const roundId = upsertCwlRound({
       seasonId,
       roundIndex,
-
       warCount: availableWarCount,
-
       rawJson: serializeJson(round),
     });
-
     roundIdByIndex.set(roundIndex, roundId);
   });
-
   /**
    * ========================================================
    * 4. GUERRAS
@@ -192,7 +167,6 @@ export function archiveCurrentCwl({
   wars.forEach(({ warTag, roundIndex, war }) => {
     const clan = war.clan;
     const opponent = war.opponent;
-
     /**
      * Uma guerra incompleta não deve gerar
      * um snapshot parcial inválido.
@@ -200,84 +174,54 @@ export function archiveCurrentCwl({
     if (!clan || !opponent) {
       return;
     }
-
     const teamSize = war.teamSize;
-
     const clanMembers = clan.members ?? [];
     const opponentMembers = opponent.members ?? [];
-
     const hasCompleteLineups =
       typeof teamSize === "number" &&
       teamSize > 0 &&
       clanMembers.length === teamSize &&
       opponentMembers.length === teamSize;
-
     if (!hasCompleteLineups) {
       console.warn(
         `[Kings of Doom] Snapshot CWL ignorado para sincronização de escalação porque está incompleto. Guerra=${warTag}, teamSize=${teamSize ?? "indefinido"}, clanMembers=${clanMembers.length}, opponentMembers=${opponentMembers.length}.`,
       );
     }
-
     const roundId = roundIdByIndex.get(roundIndex);
-
     if (!roundId) {
       throw new Error(
         `[Kings of Doom] Rodada ${roundIndex + 1} não encontrada durante o arquivamento da guerra ${warTag}.`,
       );
     }
-
     /**
      * Persiste a guerra e recupera seu ID interno.
      */
     const warId = upsertCwlWar({
       seasonId,
       roundId,
-
       warTag,
-
       state: war.state,
-
       teamSize: war.teamSize,
-
       attacksPerMember: war.attacksPerMember,
-
       preparationStartTime: war.preparationStartTime,
-
       startTime: war.startTime,
-
       endTime: war.endTime,
-
       clanTag: clan.tag,
-
       clanName: clan.name,
-
       clanLevel: clan.clanLevel,
-
       clanStars: clan.stars,
-
       clanDestruction: clan.destructionPercentage,
-
       clanAttacks: clan.attacks,
-
       clanBadgeUrlsJson: serializeJson(clan.badgeUrls),
-
       opponentTag: opponent.tag,
-
       opponentName: opponent.name,
-
       opponentLevel: opponent.clanLevel,
-
       opponentStars: opponent.stars,
-
       opponentDestruction: opponent.destructionPercentage,
-
       opponentAttacks: opponent.attacks,
-
       opponentBadgeUrlsJson: serializeJson(opponent.badgeUrls),
-
       rawJson: serializeJson(war),
     });
-
     /**
      * ====================================================
      * 5. MEMBROS DO PRIMEIRO CLÃ
@@ -285,16 +229,26 @@ export function archiveCurrentCwl({
      */
     archiveWarMembers({
       warId,
-
       side: "clan",
-
       clanTag: clan.tag,
-
       members: clanMembers,
-
       allMembers: [...clanMembers, ...opponentMembers],
     });
-
+    for (const member of clanMembers) {
+      trackClashAccount({
+        playerTag: member.tag,
+        playerName: member.name,
+        reasonType: "competitive_event",
+        reasonKey: `cwl:${group.season}:${trackedClanTag}`,
+        metadataJson: serializeJson({
+          eventType: "cwl",
+          season: group.season,
+          trackedClanTag,
+          warTag,
+          roundIndex,
+        }),
+      });
+    }
     if (hasCompleteLineups) {
       reconcileCwlWarMembers({
         warId,
@@ -303,7 +257,6 @@ export function archiveCurrentCwl({
         currentPlayerTags: clanMembers.map((member) => member.tag),
       });
     }
-
     /**
      * ====================================================
      * 6. MEMBROS DO ADVERSÁRIO
@@ -311,16 +264,11 @@ export function archiveCurrentCwl({
      */
     archiveWarMembers({
       warId,
-
       side: "opponent",
-
       clanTag: opponent.tag,
-
       members: opponentMembers,
-
       allMembers: [...clanMembers, ...opponentMembers],
     });
-
     if (hasCompleteLineups) {
       reconcileCwlWarMembers({
         warId,
@@ -330,7 +278,6 @@ export function archiveCurrentCwl({
       });
     }
   });
-
   /**
    * ========================================================
    * 7. AUDITORIA
@@ -340,37 +287,27 @@ export function archiveCurrentCwl({
     season: group.season,
     trackedClanTag,
   });
-
   if (!summary) {
     throw new Error(
       `[Kings of Doom] Não foi possível gerar o resumo da temporada ${group.season} após o arquivamento.`,
     );
   }
-
   return {
     season: group.season,
     trackedClanTag,
-
     seasonId: summary.seasonId,
-
     clans: summary.clans,
-
     rounds: summary.rounds,
-
     wars: summary.wars,
-
     members: summary.members,
-
     attacks: summary.attacks,
   };
 }
-
 /**
  * ==========================================================
  * ARQUIVAMENTO DOS MEMBROS
  * ==========================================================
  */
-
 /**
  * Estrutura mínima necessária de um membro de guerra.
  *
@@ -381,19 +318,13 @@ export function archiveCurrentCwl({
 type ArchiveWarMember = {
   tag: string;
   name: string;
-
   townhallLevel?: number;
   townHallLevel?: number;
-
   mapPosition?: number;
-
   opponentAttacks?: number;
-
   bestOpponentAttack?: unknown;
-
   attacks?: ArchiveWarAttack[];
 };
-
 /**
  * Estrutura mínima de um ataque retornado
  * dentro do membro da guerra.
@@ -401,16 +332,11 @@ type ArchiveWarMember = {
 type ArchiveWarAttack = {
   attackerTag: string;
   defenderTag: string;
-
   stars: number;
-
   destructionPercentage: number;
-
   order?: number;
-
   duration?: number;
 };
-
 /**
  * Arquiva todos os membros de um dos lados da guerra
  * e seus respectivos ataques.
@@ -423,13 +349,9 @@ function archiveWarMembers({
   allMembers,
 }: {
   warId: number;
-
   side: "clan" | "opponent";
-
   clanTag: string;
-
   members: ArchiveWarMember[];
-
   /**
    * Jogadores dos dois lados da guerra.
    *
@@ -446,58 +368,43 @@ function archiveWarMembers({
      * Aceitamos ambos de maneira defensiva.
      */
     const townHallLevel = getMemberTownHallLevel(member);
-
     /**
      * Persiste o jogador dentro daquela guerra.
      */
     upsertCwlWarMember({
       warId,
-
       side,
       clanTag,
-
       playerTag: member.tag,
-
       playerName: member.name,
-
       townHallLevel,
-
       mapPosition: member.mapPosition,
-
       opponentAttacks: member.opponentAttacks,
-
       bestOpponentAttackJson: member.bestOpponentAttack
         ? serializeJson(member.bestOpponentAttack)
         : undefined,
-
       rawJson: serializeJson(member),
     });
-
     /**
      * ======================================================
      * ATAQUES DO JOGADOR
      * ======================================================
      */
     const attacks = member.attacks ?? [];
-
     attacks.forEach((attack) => {
       archiveAttack({
         warId,
-
         attack,
-
         allMembers,
       });
     });
   });
 }
-
 /**
  * ==========================================================
  * ARQUIVAMENTO DE ATAQUES
  * ==========================================================
  */
-
 /**
  * Persiste um ataque individual.
  */
@@ -507,9 +414,7 @@ function archiveAttack({
   allMembers,
 }: {
   warId: number;
-
   attack: ArchiveWarAttack;
-
   allMembers: ArchiveWarMember[];
 }): void {
   /**
@@ -519,19 +424,15 @@ function archiveAttack({
   const attacker = allMembers.find(
     (member) => member.tag === attack.attackerTag,
   );
-
   const defender = allMembers.find(
     (member) => member.tag === attack.defenderTag,
   );
-
   const attackerTownHall = attacker
     ? getMemberTownHallLevel(attacker)
     : undefined;
-
   const defenderTownHall = defender
     ? getMemberTownHallLevel(defender)
     : undefined;
-
   /**
    * Calcula a diferença de CV somente quando
    * os dois níveis estão disponíveis.
@@ -540,7 +441,6 @@ function archiveAttack({
     attackerTownHall !== undefined && defenderTownHall !== undefined
       ? attackerTownHall - defenderTownHall
       : undefined;
-
   /**
    * A ordem é essencial para identificar de maneira
    * estável o ataque dentro da guerra.
@@ -549,43 +449,28 @@ function archiveAttack({
     console.warn(
       `[Kings of Doom] Ataque ignorado no arquivo histórico porque não possui order. Guerra=${warId}, atacante=${attack.attackerTag}, defensor=${attack.defenderTag}.`,
     );
-
     return;
   }
-
   upsertCwlAttack({
     warId,
-
     attackerTag: attack.attackerTag,
-
     defenderTag: attack.defenderTag,
-
     attackerTownHall,
-
     defenderTownHall,
-
     stars: attack.stars,
-
     destruction: attack.destructionPercentage,
-
     attackOrder: attack.order,
-
     duration: attack.duration,
-
     townHallDifference,
-
     resultType: getAttackResultType(attack.stars),
-
     rawJson: serializeJson(attack),
   });
 }
-
 /**
  * ==========================================================
  * CLASSIFICAÇÃO DOS ATAQUES
  * ==========================================================
  */
-
 /**
  * Converte o número de estrelas em uma classificação
  * textual estável para consultas futuras.
@@ -596,24 +481,19 @@ function getAttackResultType(
   switch (stars) {
     case 3:
       return "triple";
-
     case 2:
       return "two_star";
-
     case 1:
       return "one_star";
-
     default:
       return "zero_star";
   }
 }
-
 /**
  * ==========================================================
  * CENTRO DE VILA
  * ==========================================================
  */
-
 /**
  * Recupera o Centro de Vila de maneira defensiva.
  */
@@ -621,20 +501,16 @@ function getMemberTownHallLevel(member: ArchiveWarMember): number | undefined {
   if (typeof member.townhallLevel === "number") {
     return member.townhallLevel;
   }
-
   if (typeof member.townHallLevel === "number") {
     return member.townHallLevel;
   }
-
   return undefined;
 }
-
 /**
  * ==========================================================
  * SERIALIZAÇÃO
  * ==========================================================
  */
-
 /**
  * Serializa payloads da Clash API para armazenamento.
  *
@@ -645,35 +521,28 @@ function getMemberTownHallLevel(member: ArchiveWarMember): number | undefined {
 function serializeJson(value: unknown): string {
   return JSON.stringify(value);
 }
-
 /**
  * ==========================================================
  * RESUMO PÓS-CWL
  * ==========================================================
  */
-
 /**
  * Linha pública do desempenho de um participante.
  */
 export type CwlPostSeasonPlayer = {
   tag: string;
   name: string;
-
   warsPlayed: number;
-
   triples: number;
   twoStars: number;
   oneStar: number;
   zeroStars: number;
-
   attacksUsed: number;
   attacksAvailable: number;
   unusedAttacks: number;
-
   stars: number;
   destruction: number;
 };
-
 /**
  * Temporada disponível no histórico da CWL.
  *
@@ -687,7 +556,6 @@ export type CwlArchiveSeasonListItem = {
   state: string;
   totalRounds: number;
 };
-
 /**
  * Contrato pronto para a interface pós-CWL.
  *
@@ -700,11 +568,9 @@ export type CwlArchiveSeasonListItem = {
 export type CwlPostSeasonSummary = {
   season: string;
   trackedClanTag: string;
-
   wars: CwlRoundWar[];
   players: CwlPostSeasonPlayer[];
 };
-
 /**
  * Lista todas as temporadas históricas disponíveis
  * para determinado clã.
@@ -722,7 +588,6 @@ export function getCwlArchiveSeasons(
     totalRounds: season.totalRounds,
   }));
 }
-
 /**
  * Transforma uma temporada arquivada em um modelo
  * completo pronto para os componentes da interface.
@@ -750,46 +615,33 @@ function buildCwlPostSeasonSummary({
         `[Kings of Doom] Falha ao reconstruir guerra arquivada ${snapshot.warTag}.`,
         error,
       );
-
       return [];
     }
   });
-
   const players = findCwlArchivePlayerPerformance({
     seasonId,
     clanTag: trackedClanTag,
   });
-
   return {
     season,
     trackedClanTag,
-
     wars,
-
     players: players.map((player) => ({
       tag: player.playerTag,
       name: player.playerName,
-
       warsPlayed: player.warsPlayed,
-
       triples: player.triples,
       twoStars: player.twoStars,
       oneStar: player.oneStar,
       zeroStars: player.zeroStars,
-
       attacksUsed: player.attacksUsed,
       attacksAvailable: player.attacksAvailable,
-      unusedAttacks: Math.max(
-        0,
-        player.attacksAvailable - player.attacksUsed,
-      ),
-
+      unusedAttacks: Math.max(0, player.attacksAvailable - player.attacksUsed),
       stars: player.stars,
       destruction: player.destruction,
     })),
   };
 }
-
 /**
  * Recupera a última temporada arquivada e transforma
  * o histórico em um modelo pronto para a interface.
@@ -800,18 +652,15 @@ export function getLatestCwlPostSeasonSummary(
   trackedClanTag: string,
 ): CwlPostSeasonSummary | null {
   const season = findLatestCwlArchiveSeason(trackedClanTag);
-
   if (!season) {
     return null;
   }
-
   return buildCwlPostSeasonSummary({
     seasonId: season.id,
     season: season.season,
     trackedClanTag,
   });
 }
-
 /**
  * Recupera uma temporada histórica específica.
  *
@@ -829,11 +678,9 @@ export function getCwlPostSeasonSummary({
     trackedClanTag,
     season,
   });
-
   if (!archivedSeason) {
     return null;
   }
-
   return buildCwlPostSeasonSummary({
     seasonId: archivedSeason.id,
     season: archivedSeason.season,

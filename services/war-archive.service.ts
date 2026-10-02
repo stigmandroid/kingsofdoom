@@ -45,7 +45,7 @@
  * Em produção
  * ==========================================================
  */
-
+import { trackClashAccount } from "@/services/tracked-clash-account.service";
 import { createHash } from "node:crypto";
 
 import {
@@ -195,6 +195,15 @@ export function archiveCurrentWar({
   const allMembers = [...(clan.members ?? []), ...(opponent.members ?? [])];
 
   archiveMembers(warId, "clan", clan.tag, clan.members ?? [], allMembers);
+
+  for (const member of clan.members ?? []) {
+    trackClashAccount({
+      playerTag: member.tag,
+      playerName: member.name,
+      reasonType: "competitive_event",
+      reasonKey: warKey,
+    });
+  }
 
   archiveMembers(
     warId,

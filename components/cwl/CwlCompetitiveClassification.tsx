@@ -23,13 +23,16 @@
  * Em desenvolvimento
  * ==========================================================
  */
-
-import type { CwlPlayerFullEvaluation } from "@/lib/intelligence/cwl/rank-cwl-players";
+import type {
+  CwlPlayerFullEvaluation,
+  CwlRankedPlayer,
+} from "@/lib/intelligence/cwl/rank-cwl-players";
+import { getRankingNeighbors } from "@/lib/intelligence/cwl/explain-cwl-ranking";
+import { buildCwlRankingExplanation } from "@/lib/intelligence/cwl/build-cwl-ranking-explanation";
 
 type CwlCompetitiveClassificationProps = {
   players: CwlPlayerFullEvaluation[];
 };
-
 export function CwlCompetitiveClassification({
   players,
 }: CwlCompetitiveClassificationProps) {
@@ -40,19 +43,17 @@ export function CwlCompetitiveClassification({
         (a.ranking?.rank ?? Number.MAX_SAFE_INTEGER) -
         (b.ranking?.rank ?? Number.MAX_SAFE_INTEGER),
     );
-
   const nonRankedPlayers = players.filter((player) => player.ranking === null);
-
   const eligibleCount = rankedPlayers.length;
-
+  const rankedPlayersForComparison = rankedPlayers
+    .map((player) => player.ranking)
+    .filter((ranking): ranking is CwlRankedPlayer => ranking !== null);
   const provisionalCount = players.filter(
     (player) => player.eligibility.status === "provisional",
   ).length;
-
   const ineligibleCount = players.filter(
     (player) => player.eligibility.status === "ineligible",
   ).length;
-
   return (
     <section className="border-b border-slate-800 bg-slate-950">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -62,11 +63,9 @@ export function CwlCompetitiveClassification({
               <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-400">
                 KODA Competitive Intelligence
               </p>
-
               <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
                 Classificação competitiva
               </h2>
-
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
                 Classificação dos jogadores elegíveis para a CWL, acompanhada
                 dos critérios utilizados para determinar a posição de cada
@@ -74,30 +73,28 @@ export function CwlCompetitiveClassification({
                 ranking.
               </p>
             </div>
-
             <div className="flex flex-wrap gap-3">
               <Summary label="Elegíveis" value={eligibleCount} highlight />
-
               <Summary label="Provisórios" value={provisionalCount} />
-
               <Summary label="Inelegíveis" value={ineligibleCount} />
             </div>
           </div>
-
           <div className="mt-8">
             <SectionHeading
               eyebrow="Ranking competitivo"
               title="Jogadores elegíveis"
               description="A posição é definida pela comparação entre os jogadores que atenderam aos critérios mínimos de elegibilidade."
             />
-
             <div className="mt-4 space-y-2">
               {rankedPlayers.map((player) => (
-                <RankedPlayer key={player.playerTag} player={player} />
+                <RankedPlayer
+                  key={player.playerTag}
+                  player={player}
+                  rankedPlayers={rankedPlayersForComparison}
+                />
               ))}
             </div>
           </div>
-
           {nonRankedPlayers.length > 0 ? (
             <div className="mt-10 border-t border-slate-800 pt-8">
               <SectionHeading
@@ -105,7 +102,6 @@ export function CwlCompetitiveClassification({
                 title="Jogadores fora da classificação"
                 description="Jogadores que não aparecem no ranking continuam visíveis para que a liderança possa consultar exatamente quais critérios foram ou não atingidos."
               />
-
               <div className="mt-4 space-y-2">
                 {nonRankedPlayers.map((player) => (
                   <NonRankedPlayer key={player.playerTag} player={player} />
@@ -113,7 +109,6 @@ export function CwlCompetitiveClassification({
               </div>
             </div>
           ) : null}
-
           <div className="mt-8 border-t border-slate-800 pt-5">
             <p className="text-xs leading-5 text-slate-500">
               A classificação apresenta a análise competitiva produzida pela
@@ -126,7 +121,6 @@ export function CwlCompetitiveClassification({
     </section>
   );
 }
-
 function SectionHeading({
   eyebrow,
   title,
@@ -141,19 +135,22 @@ function SectionHeading({
       <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
         {eyebrow}
       </p>
-
       <h3 className="mt-1 text-xl font-black text-white">{title}</h3>
-
       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
         {description}
       </p>
     </div>
   );
 }
-
-function RankedPlayer({ player }: { player: CwlPlayerFullEvaluation }) {
+function RankedPlayer({
+  player,
+  rankedPlayers,
+}: {
+  player: CwlPlayerFullEvaluation;
+  rankedPlayers: CwlRankedPlayer[];
+}) {
   const ranking = player.ranking!;
-
+  const explanation = buildCwlRankingExplanation(rankedPlayers, ranking);
   return (
     <details className="group rounded-2xl border border-slate-800 bg-slate-950/80">
       <summary className="cursor-pointer list-none p-4">
@@ -161,43 +158,169 @@ function RankedPlayer({ player }: { player: CwlPlayerFullEvaluation }) {
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-400/10 text-sm font-black text-amber-300">
             #{ranking.rank}
           </div>
-
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <p className="truncate font-black text-white">
                 {player.playerName ?? player.playerTag}
               </p>
-
               <span className="rounded-md border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
                 Elegível
               </span>
             </div>
-
             <p className="mt-1 truncate text-xs text-slate-500">
               {player.playerTag}
             </p>
-
             <PlayerMetrics player={player} />
           </div>
-
           <span className="hidden text-xs font-bold text-slate-600 transition group-open:rotate-180 sm:block">
             ▼
           </span>
         </div>
       </summary>
-
       <div className="border-t border-slate-800 px-4 pb-5 pt-4">
         <RankingReason player={player} />
+        <RankingComparison rankedPlayers={rankedPlayers} target={ranking} />
       </div>
     </details>
   );
 }
+/**
+ * ==========================================================
+ * COMPARAÇÃO DE POSIÇÃO
+ * ==========================================================
+ *
+ * Exibe os jogadores imediatamente acima e abaixo do jogador
+ * analisado, permitindo verificar objetivamente os fatores
+ * que diferenciam suas posições no ranking.
+ */
+function RankingComparison({
+  rankedPlayers,
+  target,
+}: {
+  rankedPlayers: CwlRankedPlayer[];
+  target: CwlRankedPlayer;
+}) {
+  const comparisons = getRankingNeighbors(rankedPlayers, target.rank);
 
+  if (!comparisons.length) {
+    return null;
+  }
+
+  return (
+    <section className="mt-5 rounded-2xl border border-amber-400/20 bg-amber-400/[0.03] p-4">
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">
+          Evidência da posição
+        </p>
+
+        <h4 className="mt-1 text-sm font-black text-white">
+          Comparação com jogadores próximos
+        </h4>
+
+        <p className="mt-1 text-xs leading-5 text-slate-500">
+          Comparação objetiva com até dois jogadores acima e dois abaixo da
+          posição analisada.
+        </p>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {comparisons.map((comparison) => {
+          const comparedPlayer = comparison.player;
+          const metrics = comparison.metrics;
+
+          return (
+            <div
+              key={comparedPlayer.playerTag}
+              className="rounded-xl border border-slate-800 bg-slate-950/80 p-4"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-xs font-black text-amber-300">
+                      #{comparison.position}
+                    </span>
+
+                    <p className="font-black text-white">
+                      {comparedPlayer.playerName ?? comparedPlayer.playerTag}
+                    </p>
+                  </div>
+
+                  <p className="mt-1 font-mono text-[10px] text-slate-600">
+                    {comparedPlayer.playerTag}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
+                  <ComparisonMetric
+                    label="PT comparável"
+                    value={`${(metrics.comparableTripleRate * 100).toFixed(1)}%`}
+                  />
+
+                  <ComparisonMetric
+                    label="Estrelas"
+                    value={metrics.averageStars.toFixed(2)}
+                  />
+
+                  <ComparisonMetric
+                    label="Destruição"
+                    value={`${metrics.averageDestruction.toFixed(1)}%`}
+                  />
+
+                  <ComparisonMetric
+                    label="Confiabilidade"
+                    value={`${(metrics.reliabilityRate * 100).toFixed(1)}%`}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-800 pt-3 sm:grid-cols-4">
+                <ComparisonMetric
+                  label="Alvos acima"
+                  value={`${(metrics.higherTargetTripleRate * 100).toFixed(1)}%`}
+                />
+
+                <ComparisonMetric
+                  label="Posição similar"
+                  value={`${(metrics.similarPositionTripleRate * 100).toFixed(1)}%`}
+                />
+
+                <ComparisonMetric
+                  label="Alvos abaixo"
+                  value={`${(metrics.lowerTargetTripleRate * 100).toFixed(1)}%`}
+                />
+
+                <ComparisonMetric
+                  label="Recuperação"
+                  value={`${(metrics.recoveryTripleRate * 100).toFixed(1)}%`}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function ComparisonMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-800 bg-slate-900/80 px-3 py-2">
+      <p className="text-[9px] font-black uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
+      <p className="mt-1 text-xs font-black text-white">{value}</p>
+    </div>
+  );
+}
 function NonRankedPlayer({ player }: { player: CwlPlayerFullEvaluation }) {
   const { eligibility } = player;
-
   const isProvisional = eligibility.status === "provisional";
-
   return (
     <details className="group rounded-2xl border border-slate-800 bg-slate-950/80">
       <summary className="cursor-pointer list-none p-4">
@@ -212,13 +335,11 @@ function NonRankedPlayer({ player }: { player: CwlPlayerFullEvaluation }) {
           >
             {isProvisional ? "◐" : "✕"}
           </div>
-
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <p className="truncate font-black text-white">
                 {player.playerName ?? player.playerTag}
               </p>
-
               <span
                 className={[
                   "rounded-md border px-2 py-0.5 text-[10px] font-black uppercase tracking-wider",
@@ -230,27 +351,22 @@ function NonRankedPlayer({ player }: { player: CwlPlayerFullEvaluation }) {
                 {isProvisional ? "Provisório" : "Inelegível"}
               </span>
             </div>
-
             <p className="mt-1 truncate text-xs text-slate-500">
               {player.playerTag}
             </p>
-
             <PlayerMetrics player={player} />
           </div>
-
           <span className="hidden text-xs font-bold text-slate-600 transition group-open:rotate-180 sm:block">
             ▼
           </span>
         </div>
       </summary>
-
       <div className="border-t border-slate-800 px-4 pb-5 pt-4">
         <EligibilityReason player={player} />
       </div>
     </details>
   );
 }
-
 function PlayerMetrics({ player }: { player: CwlPlayerFullEvaluation }) {
   const metrics = player.ranking?.metrics ?? {
     attacksUsed: player.eligibility.summary.attacksUsed,
@@ -260,69 +376,54 @@ function PlayerMetrics({ player }: { player: CwlPlayerFullEvaluation }) {
     averageDestruction: player.eligibility.summary.averageDestruction,
     tripleRate: player.eligibility.summary.tripleRate,
   };
-
   return (
     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
       <span>{(metrics.tripleRate * 100).toFixed(1)}% PT</span>
-
       <span>{metrics.averageStars.toFixed(2)} ★</span>
-
       <span>{metrics.averageDestruction.toFixed(1)}%</span>
-
       <span>
         {metrics.attacksUsed}/{metrics.attacksAvailable}
       </span>
     </div>
   );
 }
-
 function RankingReason({ player }: { player: CwlPlayerFullEvaluation }) {
   const ranking = player.ranking!;
-
   const context = ranking.contextualMetrics;
-
   return (
     <div className="space-y-6">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-400">
           Justificativa da classificação
         </p>
-
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
           A posição é determinada pela comparação hierárquica dos critérios
           competitivos. Os critérios seguintes são utilizados quando os
           anteriores não são suficientes para separar os jogadores.
         </p>
       </div>
-
       <div>
         <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-slate-500">
           Evidências competitivas
         </p>
-
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <Evidence
             label="Ataques comparáveis"
             value={`${context.comparableAttacks}`}
           />
-
           <Evidence
             label="PT comparável"
             value={`${(context.comparableTripleRate * 100).toFixed(1)}%`}
           />
-
           <Evidence label="Recuperações" value={`${context.recoveryAttacks}`} />
-
           <Evidence
             label="PT em recuperações"
             value={rate(context.recoveryTriples, context.recoveryAttacks)}
           />
-
           <Evidence
             label="Alvos superiores"
             value={`${context.mapPosition.higherTargetAttacks}`}
           />
-
           <Evidence
             label="PT contra alvos superiores"
             value={rate(
@@ -330,42 +431,34 @@ function RankingReason({ player }: { player: CwlPlayerFullEvaluation }) {
               context.mapPosition.higherTargetAttacks,
             )}
           />
-
           <Evidence label="Bases fechadas" value={`${context.basesClosed}`} />
-
           <Evidence
             label="Estrelas adicionadas"
             value={`${context.starsAdded}`}
           />
-
           <Evidence
             label="Ataques evitáveis"
             value={`${context.avoidableAlreadyClosedTargetAttacks}`}
           />
         </div>
       </div>
-
       <div>
         <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-slate-500">
           Indicadores gerais
         </p>
-
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <Evidence
             label="PT geral"
             value={`${(ranking.metrics.tripleRate * 100).toFixed(1)}%`}
           />
-
           <Evidence
             label="Média de estrelas"
             value={ranking.metrics.averageStars.toFixed(2)}
           />
-
           <Evidence
             label="Destruição"
             value={`${ranking.metrics.averageDestruction.toFixed(1)}%`}
           />
-
           <Evidence
             label="Confiabilidade"
             value={`${(ranking.metrics.reliabilityRate * 100).toFixed(1)}%`}
@@ -375,10 +468,8 @@ function RankingReason({ player }: { player: CwlPlayerFullEvaluation }) {
     </div>
   );
 }
-
 function EligibilityReason({ player }: { player: CwlPlayerFullEvaluation }) {
   const { eligibility } = player;
-
   const labels: Record<keyof typeof eligibility.criteria, string> = {
     activity: "Atividade mínima",
     reliability: "Confiabilidade",
@@ -386,13 +477,11 @@ function EligibilityReason({ player }: { player: CwlPlayerFullEvaluation }) {
     averageDestruction: "Média de destruição",
     tripleRate: "Taxa de PT",
   };
-
   return (
     <div>
       <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
         Critérios de elegibilidade
       </p>
-
       <div className="mt-4 space-y-2">
         {(
           Object.entries(eligibility.criteria) as Array<
@@ -409,7 +498,6 @@ function EligibilityReason({ player }: { player: CwlPlayerFullEvaluation }) {
             <span className="text-sm font-bold text-slate-300">
               {labels[key]}
             </span>
-
             <span
               className={
                 criterion.passed
@@ -426,13 +514,11 @@ function EligibilityReason({ player }: { player: CwlPlayerFullEvaluation }) {
           </div>
         ))}
       </div>
-
       {eligibility.failedCriteria.length > 0 ? (
         <div className="mt-4 rounded-xl border border-red-400/10 bg-red-400/5 px-4 py-3">
           <p className="text-xs font-black uppercase tracking-wider text-red-300">
             Critérios não atingidos
           </p>
-
           <p className="mt-2 text-sm leading-6 text-slate-400">
             {eligibility.failedCriteria
               .map((criterion) => labels[criterion])
@@ -440,13 +526,11 @@ function EligibilityReason({ player }: { player: CwlPlayerFullEvaluation }) {
           </p>
         </div>
       ) : null}
-
       {eligibility.status === "provisional" ? (
         <div className="mt-4 rounded-xl border border-sky-400/10 bg-sky-400/5 px-4 py-3">
           <p className="text-xs font-black uppercase tracking-wider text-sky-300">
             Amostra insuficiente
           </p>
-
           <p className="mt-2 text-sm leading-6 text-slate-400">
             O jogador ainda não atingiu a quantidade mínima de ataques
             necessária para entrar na classificação competitiva.
@@ -456,19 +540,16 @@ function EligibilityReason({ player }: { player: CwlPlayerFullEvaluation }) {
     </div>
   );
 }
-
 function Evidence({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3">
       <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
         {label}
       </p>
-
       <p className="mt-1 text-lg font-black text-white">{value}</p>
     </div>
   );
 }
-
 function Summary({
   label,
   value,
@@ -483,7 +564,6 @@ function Summary({
       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
         {label}
       </p>
-
       <p
         className={
           highlight
@@ -496,15 +576,12 @@ function Summary({
     </div>
   );
 }
-
 function rate(triples: number, attacks: number): string {
   if (attacks <= 0) {
     return "—";
   }
-
   return `${((triples / attacks) * 100).toFixed(1)}%`;
 }
-
 function formatCriterionValue(
   key: keyof CwlPlayerFullEvaluation["eligibility"]["criteria"],
   value: number,
@@ -512,14 +589,11 @@ function formatCriterionValue(
   if (key === "reliability" || key === "tripleRate") {
     return `${(value * 100).toFixed(1)}%`;
   }
-
   if (key === "averageDestruction") {
     return `${value.toFixed(1)}%`;
   }
-
   if (key === "averageStars") {
     return value.toFixed(2);
   }
-
   return value.toString();
 }

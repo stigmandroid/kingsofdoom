@@ -38,6 +38,7 @@ import {
   findTrackedClashAccountByTag,
   listTrackedClashAccounts,
   syncTrackedClashAccountStatusFromReasons,
+  updateTrackedClashAccountAfterCheck,
   type TrackedClashAccount,
 } from "@/repositories/tracked-clash-account.repository";
 
@@ -148,6 +149,14 @@ export function trackClashAccount(
     });
 
     created = true;
+  }
+
+  if (input.playerName && input.playerName.trim()) {
+    updateTrackedClashAccountAfterCheck(
+      playerTag,
+      input.playerName.trim(),
+      input.confirmedAt ?? new Date().toISOString(),
+    );
   }
 
   ensureTrackedClashAccountReason({

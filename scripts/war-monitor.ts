@@ -32,6 +32,7 @@
 
 import { collectCurrentWars } from "../services/war-collector.service";
 import { reconcileWarHistory } from "../services/war-reconciliation.service";
+import { collectTrackedAccountCompetitiveEvents } from "../services/tracked-account-competitive-event-collector.service";
 
 /**
  * ==========================================================
@@ -58,6 +59,31 @@ async function main() {
     warsArchived: collector.warsArchived,
 
     errors: collector.errors,
+  });
+
+  /**
+   * ========================================================
+   * COLETA COMPETITIVA POR TAG
+   * ========================================================
+   *
+   * Descobre o clã atual de cada conta rastreada e coleta
+   * guerra normal + CWL independentemente do clã.
+   */
+  const trackedAccountCollector =
+    await collectTrackedAccountCompetitiveEvents();
+
+  console.log("[WAR MONITOR] Tracked Account Collector:", {
+    accountsProcessed: trackedAccountCollector.accountsProcessed,
+
+    accountsWithClan: trackedAccountCollector.accountsWithClan,
+
+    regularWarsArchived: trackedAccountCollector.regularWarsArchived,
+
+    cwlSeasonsArchived: trackedAccountCollector.cwlSeasonsArchived,
+
+    cwlWarsArchived: trackedAccountCollector.cwlWarsArchived,
+
+    errors: trackedAccountCollector.errors,
   });
 
   /**
